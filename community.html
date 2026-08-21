@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baby Go - ชุมชนคุณแม่</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
+        body { background-color: #ffffff; color: #333333; font-size: 15px; }
+        
+        /* Navbar มาตรฐาน */
+        .navbar {
+            padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #f0f9ff;
+        }
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .menu-btn { font-size: 28px; cursor: pointer; color: #0ea5e9; background: none; border: none; }
+        
+        .logo-container { display: flex; align-items: center; gap: 15px; text-decoration: none; }
+        
+        /* ล็อกขนาดรูปให้เท่ากับหน้าอื่นเป๊ะๆ ตรงนี้เลย */
+        .logo-img { 
+            width: 45px !important; 
+            height: 45px !important; 
+            border-radius: 50% !important; 
+            object-fit: cover !important; 
+        }
+        .logo-text { font-size: 20px; font-weight: 500; color: #0284c7; letter-spacing: 0.5px; }
+
+        /* ไอคอนกระดิ่งและโปรไฟล์มุมขวาบน */
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .icon-btn { font-size: 30px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; }
+
+        /* Sidebar (ซ่อนไว้ก่อน รอคลิกค่อยโผล่) */
+        .sidebar {
+            position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
+            background-color: #f0f9ff; 
+            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+            transition: 0.3s; z-index: 200; padding: 30px;
+            overflow-y: auto;
+        }
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .sidebar-header h3 { color: #0284c7; }
+        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0ea5e9; }
+        
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li a { display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; border-bottom: 1px solid rgba(14, 165, 233, 0.1); }
+        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); display: none; z-index: 150; }
+        .overlay.active { display: block; }
+
+        /* Container เนื้อหาหน้าชุมชน */
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        
+        .header-section { margin: 20px 0; text-align: center; }
+        .header-section h2 { 
+            font-size: 24px; 
+            font-weight: 600; 
+            color: #0284c7; 
+        }
+        .header-section p {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .post-btn {
+            display: block; width: 100%; padding: 12px;
+            background-color: #0284c7; color: white; border: none;
+            border-radius: 10px; font-size: 15px; font-weight: 500;
+            cursor: pointer; text-align: center; margin-bottom: 20px;
+            font-family: 'Prompt', sans-serif;
+        }
+        .post-btn:hover { background-color: #0369a1; }
+
+        .post-list { display: flex; flex-direction: column; gap: 15px; }
+        .post-card { 
+            background-color: #f0f9ff; 
+            padding: 20px; 
+            border-radius: 12px; 
+            border: 1px solid #e0f2fe;
+        }
+        .post-author { font-size: 13px; font-weight: 600; color: #0284c7; margin-bottom: 6px; }
+        .post-title { font-weight: 600; color: #334155; font-size: 16px; margin-bottom: 8px; }
+        .post-desc { font-size: 14px; color: #475569; margin-bottom: 12px; line-height: 1.5; }
+        .post-footer { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; border-top: 1px solid #e0f2fe; padding-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-left">
+            <button class="menu-btn" id="menuToggle">☰</button>
+            <div class="logo-container">
+                <img id="navProfileImg" src="logo.jpg.jpg" alt="Logo" class="logo-img">
+                <span class="logo-text">Baby Go</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="notifications.html" class="icon-btn">🔔</a>
+            <a href="profile.html" class="icon-btn">👤</a>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>เมนู</h3>
+            <button class="close-btn" id="closeMenu">✕</button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="content.html">หน้าแรก</a></li>
+            <li><a href="development.html">พัฒนาการเด็ก</a></li>
+            <li><a href="vaccine.html">วัคซีน</a></li>
+            <li><a href="nutrition.html">โภชนาการ</a></li>
+            <li><a href="knowledge.html">ความรู้</a></li>
+            <li><a href="ai_assistant.html">AI วิเคราะห์</a></li>
+            <li><a href="community.html">ชุมชน</a></li>
+            <li><a href="contact.html">ติดต่อเรา</a></li>
+            <li><a href="login.html" style="color: #ef4444; font-weight: 600; border-bottom: none;">ออกจากระบบ</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <div class="header-section">
+            <h2>ชุมชนคุณแม่ Baby Go</h2>
+            <p>พื้นที่แลกเปลี่ยนประสบการณ์ แชร์เรื่องราว และปรึกษาพี่เลี้ยงแม่ๆ</p>
+        </div>
+
+        <button class="post-btn" onclick="alert('ฟีเจอร์สร้างโพสต์จะเปิดให้ใช้งานเร็วๆ นี้ค่ะ!')">+ ตั้งกระทู้ / แชร์เรื่องราวของคุณแม่</button>
+
+        <div class="post-list">
+            <div class="post-card">
+                <div class="post-author">คุณแม่น้องไทเกอร์ • 3 ชั่วโมงที่แล้ว</div>
+                <div class="post-title">แชร์ไอเดียเมนูลับทำให้น้องยอมกินผักค่ะ!</div>
+                <div class="post-desc">พอลองเอาแครอทไปต้มแล้วปั่นผสมกับข้าวตุ๋น ปั้นเป็นก้อนเล็กๆ น้องหยิบกินเองสนุกมาก แม่ๆ บ้านไหนลองทำดูนะคะ ได้ผลดีมากเลยค่ะ</div>
+                <div class="post-footer">
+                    <span>💬 12 ความคิดเห็น</span>
+                    <span>❤️ 34 ถูกใจ</span>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-author">คุณแม่น้องอิงฟ้า • เมื่อวานนี้</div>
+                <div class="post-title">สอบถามเรื่องรองเท้าคู่แรกของน้องค่ะ ซื้อทรงไหนดี?</div>
+                <div class="post-desc">น้องกำลังจะเริ่มหัดเดินเต็มตัวแล้วค่ะ ควรเลือกซื้อรองเท้าแบบไหน ยี่ห้อไหนดีที่จะซัพพอร์ตข้อเท้าและนุ่มสบายเท้าที่สุดคะ รบกวนแม่ๆ แนะนำทีค่ะ</div>
+                <div class="post-footer">
+                    <span>💬 25 ความคิดเห็น</span>
+                    <span>❤️ 48 ถูกใจ</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const closeMenu = document.getElementById('closeMenu');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        function toggleMenu() { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); }
+        menuToggle.addEventListener('click', toggleMenu);
+        closeMenu.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // ซิงก์รูปโปรไฟล์อัตโนมัติ
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedImg = localStorage.getItem('userProfileImg');
+            if (savedImg) {
+                document.getElementById('navProfileImg').src = savedImg;
+            }
+        });
+    </script>
+</body>
+</html>

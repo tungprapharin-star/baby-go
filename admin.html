@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baby Go - ระบบหลังบ้าน (Admin)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f8fafc; color: #333333; }
+        
+        /* Navbar แอดมิน */
+        .navbar {
+            padding: 15px 20px; background-color: #ffffff;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid #fee2e2;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .menu-btn { font-size: 28px; cursor: pointer; color: #dc2626; background: none; border: none; }
+        .nav-title { font-size: 18px; font-weight: 600; color: #dc2626; }
+        .logout-btn { background: #ef4444; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        .logout-btn:hover { background: #dc2626; }
+
+        /* Sidebar แอดมิน */
+        .sidebar {
+            position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
+            background-color: #fef2f2; box-shadow: 4px 0 15px rgba(239, 68, 68, 0.1);
+            transition: 0.3s; z-index: 200; padding: 30px;
+        }
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .close-sidebar { background: none; border: none; font-size: 24px; color: #dc2626; cursor: pointer; }
+        
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li { margin-bottom: 10px; }
+        .sidebar-menu li a { 
+            display: block; padding: 12px 15px; color: #991b1b; text-decoration: none; 
+            border-radius: 8px; font-weight: 500; transition: background 0.2s; 
+        }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active { background-color: #fee2e2; color: #dc2626; }
+
+        /* Overlay พื้นหลังเวลาเปิดเมนู */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); display: none; z-index: 150; }
+        .overlay.active { display: block; }
+
+        /* Container เนื้อหาหลัก */
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .admin-section { display: none; }
+        .admin-section.active { display: block; }
+
+        h2 { color: #991b1b; margin-bottom: 20px; font-size: 22px; }
+
+        /* ตารางและกล่อง */
+        .table-container { background: #ffffff; border-radius: 12px; border: 1px solid #fecaca; overflow: hidden; box-shadow: 0 2px 4px rgba(239,68,68,0.02); }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+        th, td { padding: 15px; border-bottom: 1px solid #fee2e2; }
+        th { background-color: #fff5f5; color: #991b1b; }
+        
+        .btn-edit { background: #dbeafe; color: #1e40af; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+        .btn-delete { background: #fee2e2; color: #991b1b; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+
+        .card-box { background: #ffffff; padding: 25px; border-radius: 12px; border: 1px solid #fecaca; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-left">
+            <button class="menu-btn" id="menuToggle">☰</button>
+            <div class="nav-title">🛡️ ADMIN PANEL (จัดการระบบ)</div>
+        </div>
+        <button class="logout-btn" onclick="localStorage.clear(); window.location.href='login.html';">ออกจากระบบ</button>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Sidebar เมนูในหน้าเดียว -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3 style="color: #991b1b;">เมนูผู้ดูแลระบบ</h3>
+            <button class="close-sidebar" id="closeSidebar">✕</button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#" onclick="switchTab('home')" class="active" id="menu-home">🏠 หน้าแรกแอดมิน</a></li>
+            <li><a href="#" onclick="switchTab('users')" id="menu-users">👥 จัดการสมาชิก</a></li>
+            <li><a href="#" onclick="switchTab('posts')" id="menu-posts">💬 จัดการโพสต์ชุมชน</a></li>
+            <li><a href="#" onclick="switchTab('settings')" id="menu-settings">⚙️ ตั้งค่าระบบ</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        
+        <!-- ส่วนที่ 1: หน้าแรกแอดมิน -->
+        <div id="section-home" class="admin-section active">
+            <h2>ภาพรวมระบบ Baby Go</h2>
+            <div class="card-box">
+                <p style="color: #64748b; font-size: 15px;">ยินดีต้อนรับเข้าสู่ระบบหลังบ้านสูงสุด คุณสามารถเลือกเมนูจากแถบด้านซ้ายเพื่อจัดการข้อมูลสมาชิก ตรวจสอบโพสต์ชุมชน หรือตั้งค่าระบบได้ทันทีครับ</p>
+            </div>
+        </div>
+
+        <!-- ส่วนที่ 2: จัดการสมาชิก -->
+        <div id="section-users" class="admin-section">
+            <h2>จัดการสมาชิกในระบบ</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>อีเมลสมาชิก</th>
+                            <th>สถานะ</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>babygo.admin@gmail.com</td>
+                            <td><span style="color: #16a34a; font-weight: 500;">ผู้ดูแลระบบสูงสุด</span></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>user.sample@babygo.com</td>
+                            <td>สมาชิกทั่วไป</td>
+                            <td>
+                                <button class="btn-edit" onclick="alert('แก้ไขข้อมูลสมาชิก')">แก้ไข</button>
+                                <button class="btn-delete" onclick="alert('ลบสมาชิกเรียบร้อย')">ลบ</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ส่วนที่ 3: จัดการโพสต์ชุมชน -->
+        <div id="section-posts" class="admin-section">
+            <h2>จัดการโพสต์ในชุมชน</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>หัวข้อโพสต์</th>
+                            <th>ผู้โพสต์</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>น้องทานยากทำยังไงดีคะคุณแม่?</td>
+                            <td>คุณแม่พิมพิใจ</td>
+                            <td><button class="btn-delete" onclick="alert('ลบโพสต์นี้แล้ว')">ลบโพสต์</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ส่วนที่ 4: ตั้งค่าระบบ -->
+        <div id="section-settings" class="admin-section">
+            <h2>ตั้งค่าระบบเว็บไซต์</h2>
+            <div class="card-box">
+                <p style="margin-bottom: 10px; font-weight: 500; color: #991b1b;">สถานะระบบฐานข้อมูล:</p>
+                <p style="color: #16a34a; margin-bottom: 20px;">🟢 เชื่อมต่อ Firebase สำเร็จ (Active)</p>
+                <button class="btn-edit" onclick="alert('บันทึกการตั้งค่าเรียบร้อย')">บันทึกการตั้งค่า</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const closeSidebar = document.getElementById('closeSidebar');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        function toggleMenu() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        closeSidebar.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // ฟังก์ชันสลับหน้าเนื้อหาในไฟล์เดียว
+        function switchTab(tabName) {
+            // ซ่อนทุกหน้า
+            document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
+            // เอา Active ออกจากเมนูทั้งหมด
+            document.querySelectorAll('.sidebar-menu a').forEach(menu => menu.classList.remove('active'));
+
+            // แสดงหน้าเป้าหมาย
+            document.getElementById('section-' + tabName).classList.add('active');
+            // ใส่ Active ให้เมนูปัจจุบัน
+            document.getElementById('menu-' + tabName).classList.add('active');
+
+            // ปิด Sidebar อัตโนมัติหลังกดเลือก
+            toggleMenu();
+        }
+    </script>
+</body>
+</html>

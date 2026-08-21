@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baby Go - หน้าแรก</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
+        body { background-color: #ffffff; color: #333333; font-size: 15px; }
+        
+        /* Navbar มาตรฐาน */
+        .navbar {
+            padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #f0f9ff;
+        }
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .menu-btn { font-size: 28px; cursor: pointer; color: #0ea5e9; background: none; border: none; }
+        
+        .logo-container { display: flex; align-items: center; gap: 15px; text-decoration: none; }
+        .logo-img { width: 40px !important; height: 40px !important; border-radius: 50% !important; object-fit: cover !important; }
+        .logo-text { font-size: 20px; font-weight: 500; color: #0284c7; letter-spacing: 0.5px; }
+
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .icon-btn { font-size: 30px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; }
+
+        /* Sidebar (ซ่อนไว้ก่อน รอคลิกค่อยโผล่) */
+        .sidebar {
+            position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
+            background-color: #f0f9ff; 
+            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+            transition: 0.3s; z-index: 200; padding: 30px;
+            overflow-y: auto;
+        }
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .sidebar-header h3 { color: #0284c7; }
+        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0ea5e9; }
+        
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li a { display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; border-bottom: 1px solid rgba(14, 165, 233, 0.1); }
+        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); display: none; z-index: 150; }
+        .overlay.active { display: block; }
+
+        /* Container เนื้อหาหน้าแรก */
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        
+        .welcome-section { margin: 25px 0; text-align: center; }
+        .welcome-section h2 { font-size: 24px; font-weight: 600; color: #0284c7; }
+        
+        .hero-placeholder {
+            width: 100%; height: 250px; background-color: #f0f9ff; 
+            border-radius: 20px; margin: 20px 0;
+            display: flex; align-items: center; justify-content: center;
+            color: #38bdf8; font-weight: 400; border: 1px solid #e0f2fe;
+        }
+
+        .grid-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .card { 
+            padding: 20px; border: 1px solid #e0f2fe; border-radius: 12px; 
+            text-align: center; color: #4b5563; font-weight: 400;
+            box-shadow: 0 2px 10px rgba(14, 165, 233, 0.03); 
+            text-decoration: none; display: block; background-color: #f0f9ff;
+        }
+        .card:hover { background-color: #e0f2fe; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-left">
+            <button class="menu-btn" id="menuToggle">☰</button>
+            <div class="logo-container">
+                <img id="navProfileImg" src="logo.jpg.jpg" alt="Logo" class="logo-img">
+                <span class="logo-text">Baby Go</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="notifications.html" class="icon-btn">🔔</a>
+            <a href="profile.html" class="icon-btn">👤</a>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>เมนู</h3>
+            <button class="close-btn" id="closeMenu">✕</button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="content.html">หน้าแรก</a></li>
+            <li><a href="development.html">พัฒนาการเด็ก</a></li>
+            <li><a href="vaccine.html">วัคซีน</a></li>
+            <li><a href="nutrition.html">โภชนาการ</a></li>
+            <li><a href="knowledge.html">ความรู้</a></li>
+            <li><a href="ai_assistant.html">AI วิเคราะห์</a></li>
+            <li><a href="community.html">ชุมชน</a></li>
+            <li><a href="contact.html">ติดต่อเรา</a></li>
+            <!-- ปุ่มออกจากระบบ พร้อมเคลียร์ข้อมูล localStorage -->
+            <li><a href="login.html" onclick="localStorage.clear();" style="color: #ef4444; font-weight: 600; border-bottom: none;">ออกจากระบบ</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <div class="welcome-section">
+            <h2 id="welcomeText">ยินดีต้อนรับเข้าสู่ Baby Go</h2>
+        </div>
+        
+        <div class="hero-placeholder">
+            พื้นที่สำหรับใส่รูปภาพ
+        </div>
+
+        <div class="grid-cards">
+            <a href="development.html" class="card">พัฒนาการ</a>
+            <a href="vaccine.html" class="card">วัคซีน</a>
+        </div>
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const closeMenu = document.getElementById('closeMenu');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        function toggleMenu() { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); }
+        menuToggle.addEventListener('click', toggleMenu);
+        closeMenu.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedName = localStorage.getItem('userName');
+            const savedImg = localStorage.getItem('userProfileImg');
+
+            if (savedName) {
+                document.getElementById('welcomeText').innerText = `ยินดีต้อนรับ คุณ${savedName}`;
+            }
+            if (savedImg) {
+                document.getElementById('navProfileImg').src = savedImg;
+            }
+        });
+    </script>
+</body>
+</html>

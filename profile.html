@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baby Go - โปรไฟล์ของฉัน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
+        body { background-color: #ffffff; color: #333333; font-size: 15px; }
+        
+        /* Navbar มาตรฐาน */
+        .navbar {
+            padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #f0f9ff;
+        }
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .menu-btn { font-size: 28px; cursor: pointer; color: #0ea5e9; background: none; border: none; }
+        
+        .logo-container { display: flex; align-items: center; gap: 15px; text-decoration: none; }
+        .logo-img { width: 40px !important; height: 40px !important; border-radius: 50% !important; object-fit: cover !important; }
+        .logo-text { font-size: 20px; font-weight: 500; color: #0284c7; letter-spacing: 0.5px; }
+
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .icon-btn { font-size: 30px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; }
+
+        /* Sidebar (ซ่อนไว้ก่อน) */
+        .sidebar {
+            position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
+            background-color: #f0f9ff; 
+            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+            transition: 0.3s; z-index: 200; padding: 30px;
+            overflow-y: auto;
+        }
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .sidebar-header h3 { color: #0284c7; }
+        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0ea5e9; }
+        
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li a { display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; border-bottom: 1px solid rgba(14, 165, 233, 0.1); }
+        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); display: none; z-index: 150; }
+        .overlay.active { display: block; }
+
+        /* Container เนื้อหาหน้าโปรไฟล์ */
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; text-align: center; }
+        
+        .profile-container { position: relative; width: 110px; height: 110px; margin: 20px auto 10px; }
+        .profile-img {
+            width: 110px; height: 110px; border-radius: 50%; object-fit: cover;
+            border: 3px solid #0284c7;
+        }
+        .upload-label {
+            position: absolute; bottom: 0; right: 0;
+            background-color: #0284c7; color: white;
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        #fileInput { display: none; }
+        
+        h2 { font-size: 22px; font-weight: 600; color: #0284c7; margin-bottom: 5px; }
+        .profile-email { color: #64748b; font-size: 14px; margin-bottom: 25px; }
+
+        .info-box {
+            background-color: #f0f9ff;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: left;
+            border: 1px solid #e0f2fe;
+            margin-bottom: 20px;
+        }
+        .form-group { margin-bottom: 12px; }
+        .form-label { font-size: 13px; font-weight: 600; color: #0284c7; display: block; margin-bottom: 4px; }
+        .form-input {
+            width: 100%; padding: 10px 12px;
+            border: 1px solid #cbd5e1; border-radius: 8px;
+            font-size: 14px; font-family: 'Prompt', sans-serif; outline: none;
+            background-color: #ffffff;
+        }
+        .form-input:focus { border-color: #0284c7; }
+
+        .save-btn {
+            display: block; width: 100%; padding: 12px;
+            background-color: #0284c7; color: white; border: none;
+            border-radius: 10px; font-size: 15px; font-weight: 500;
+            cursor: pointer; font-family: 'Prompt', sans-serif; margin-bottom: 10px;
+        }
+        .save-btn:hover { background-color: #0369a1; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-left">
+            <button class="menu-btn" id="menuToggle">☰</button>
+            <div class="logo-container">
+                <img id="navProfileImg" src="logo.jpg.jpg" alt="Logo" class="logo-img">
+                <span class="logo-text">Baby Go</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="notifications.html" class="icon-btn">🔔</a>
+            <a href="profile.html" class="icon-btn">👤</a>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>เมนู</h3>
+            <button class="close-btn" id="closeMenu">✕</button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="content.html">หน้าแรก</a></li>
+            <li><a href="development.html">พัฒนาการเด็ก</a></li>
+            <li><a href="vaccine.html">วัคซีน</a></li>
+            <li><a href="nutrition.html">โภชนาการ</a></li>
+            <li><a href="knowledge.html">ความรู้</a></li>
+            <li><a href="ai_assistant.html">AI วิเคราะห์</a></li>
+            <li><a href="community.html">ชุมชน</a></li>
+            <li><a href="contact.html">ติดต่อเรา</a></li>
+            <li><a href="login.html" style="color: #ef4444; font-weight: 600; border-bottom: none;">ออกจากระบบ</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <div class="profile-container">
+            <img id="profileImage" src="logo.jpg.jpg" alt="Profile" class="profile-img">
+            <label for="fileInput" class="upload-label" title="เปลี่ยนรูปโปรไฟล์">📷</label>
+            <input type="file" id="fileInput" accept="image/*" onchange="previewImage(event)">
+        </div>
+        
+        <h2 id="displayName">คุณแม่คนสวย</h2>
+        <div class="profile-email">mother.babygo@email.com</div>
+
+        <div class="info-box">
+            <div class="form-group">
+                <label class="form-label">ชื่อ-นามสกุล</label>
+                <input type="text" id="nameInput" class="form-input" value="พิมพิใจ ใจดี">
+            </div>
+            <div class="form-group">
+                <label class="form-label">ชื่อเล่นน้อง</label>
+                <input type="text" id="babyInput" class="form-input" value="น้องปาล์ม & น้องไปร์ท">
+            </div>
+            <div class="form-group">
+                <label class="form-label">อายุครรภ์ / น้อง</label>
+                <input type="text" id="ageInput" class="form-input" value="1 ขวบ 2 เดือน">
+            </div>
+        </div>
+
+        <button type="button" class="save-btn" onclick="saveProfile()">บันทึกข้อมูล</button>
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const closeMenu = document.getElementById('closeMenu');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        function toggleMenu() { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); }
+        menuToggle.addEventListener('click', toggleMenu);
+        closeMenu.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        let tempImgUrl = "";
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedName = localStorage.getItem('userName');
+            const savedImg = localStorage.getItem('userProfileImg');
+
+            if (savedName) {
+                document.getElementById('nameInput').value = savedName;
+                document.getElementById('displayName').innerText = savedName;
+            }
+            if (savedImg) {
+                document.getElementById('profileImage').src = savedImg;
+                document.getElementById('navProfileImg').src = savedImg;
+                tempImgUrl = savedImg;
+            }
+        });
+
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                tempImgUrl = reader.result;
+                document.getElementById('profileImage').src = tempImgUrl;
+                document.getElementById('navProfileImg').src = tempImgUrl;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function saveProfile() {
+            const name = document.getElementById('nameInput').value;
+            document.getElementById('displayName').innerText = name;
+            
+            localStorage.setItem('userName', name);
+            if (tempImgUrl) {
+                localStorage.setItem('userProfileImg', tempImgUrl);
+            }
+
+            alert('บันทึกข้อมูลและซิงก์เรียบร้อยแล้วค่ะ!');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baby Go - AI วิเคราะห์พัฒนาการ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
+        body { background-color: #ffffff; color: #333333; font-size: 15px; }
+        
+        /* Navbar มาตรฐาน */
+        .navbar {
+            padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #f0f9ff;
+        }
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .menu-btn { font-size: 28px; cursor: pointer; color: #0ea5e9; background: none; border: none; }
+        
+        .logo-container { display: flex; align-items: center; gap: 15px; text-decoration: none; }
+        .logo-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
+        .logo-text { font-size: 20px; font-weight: 500; color: #0284c7; letter-spacing: 0.5px; }
+
+        /* ไอคอนกระดิ่งและโปรไฟล์มุมขวาบน */
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .icon-btn { font-size: 30px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; }
+
+        /* Sidebar (ซ่อนไว้ก่อน รอคลิกค่อยโผล่) */
+        .sidebar {
+            position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
+            background-color: #f0f9ff; 
+            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+            transition: 0.3s; z-index: 200; padding: 30px;
+            overflow-y: auto;
+        }
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .sidebar-header h3 { color: #0284c7; }
+        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0ea5e9; }
+        
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li a { display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; border-bottom: 1px solid rgba(14, 165, 233, 0.1); }
+        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); display: none; z-index: 150; }
+        .overlay.active { display: block; }
+
+        /* Container เนื้อหาหน้า AI วิเคราะห์ */
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        
+        .header-section { margin: 20px 0; text-align: center; }
+        .header-section h2 { 
+            font-size: 24px; 
+            font-weight: 600; 
+            color: #0284c7; 
+        }
+        .header-section p {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .ai-card {
+            background-color: #f0f9ff;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e0f2fe;
+            margin-bottom: 20px;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; font-size: 14px; color: #334155; margin-bottom: 5px; font-weight: 500; }
+        .form-input {
+            width: 100%; padding: 12px 15px;
+            border: 1px solid #cbd5e1; border-radius: 10px;
+            font-size: 14px; outline: none; font-family: 'Prompt', sans-serif;
+            background-color: #ffffff;
+        }
+        .form-input:focus { border-color: #0284c7; }
+
+        .ai-btn {
+            display: block; width: 100%; padding: 12px;
+            background-color: #0284c7; color: white; border: none;
+            border-radius: 10px; font-size: 15px; font-weight: 500;
+            cursor: pointer; font-family: 'Prompt', sans-serif;
+        }
+        .ai-btn:hover { background-color: #0369a1; }
+
+        .result-box {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #475569;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-left">
+            <button class="menu-btn" id="menuToggle">☰</button>
+            <div class="logo-container">
+                <img id="navProfileImg" src="logo.jpg.jpg" alt="Logo" class="logo-img">
+                <span class="logo-text">Baby Go</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="notifications.html" class="icon-btn">🔔</a>
+            <a href="profile.html" class="icon-btn">👤</a>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>เมนู</h3>
+            <button class="close-btn" id="closeMenu">✕</button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="content.html">หน้าแรก</a></li>
+            <li><a href="development.html">พัฒนาการเด็ก</a></li>
+            <li><a href="vaccine.html">วัคซีน</a></li>
+            <li><a href="nutrition.html">โภชนาการ</a></li>
+            <li><a href="knowledge.html">ความรู้</a></li>
+            <li><a href="ai_assistant.html">AI วิเคราะห์</a></li>
+            <li><a href="community.html">ชุมชน</a></li>
+            <li><a href="contact.html">ติดต่อเรา</a></li>
+            <li><a href="login.html" style="color: #ef4444; font-weight: 600; border-bottom: none;">ออกจากระบบ</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <div class="header-section">
+            <h2>AI ผู้ช่วยวิเคราะห์พัฒนาการ</h2>
+            <p>กรอกข้อมูลเบื้องต้นเพื่อให้ AI ช่วยประเมินพัฒนาการของลูกน้อย</p>
+        </div>
+
+        <div class="ai-card">
+            <div class="form-group">
+                <label class="form-label">อายุน้อง (เช่น 1 ปี 2 เดือน)</label>
+                <input type="text" class="form-input" placeholder="ระบุอายุน้อง">
+            </div>
+            <div class="form-group">
+                <label class="form-label">พฤติกรรมหรือทักษะที่ทำได้ตอนนี้</label>
+                <input type="text" class="form-input" placeholder="เช่น เริ่มตั้งไข่, พูดได้ 2-3 คำ">
+            </div>
+            <button type="button" class="ai-btn" onclick="analyzeAI()">ให้ AI วิเคราะห์ผล</button>
+            
+            <div class="result-box" id="resultBox">
+                <strong>🤖 ผลการวิเคราะห์จาก AI:</strong><br>
+                พัฒนาการของน้องอยู่ในเกณฑ์ปกติเหมาะสมตามช่วงวัย คุณแม่สามารถส่งเสริมเพิ่มเติมได้ด้วยการชวนน้องพูดคุยและทำกิจกรรมร่วมกันบ่อยๆ ค่ะ
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const closeMenu = document.getElementById('closeMenu');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        function toggleMenu() { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); }
+        menuToggle.addEventListener('click', toggleMenu);
+        closeMenu.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // จำลองการกดวิเคราะห์ AI
+        function analyzeAI() {
+            const resultBox = document.getElementById('resultBox');
+            resultBox.style.display = 'block';
+        }
+
+        // ซิงก์รูปโปรไฟล์อัตโนมัติ
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedImg = localStorage.getItem('userProfileImg');
+            if (savedImg) {
+                document.getElementById('navProfileImg').src = savedImg;
+            }
+        });
+    </script>
+</body>
+</html>
