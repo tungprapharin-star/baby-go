@@ -7,16 +7,17 @@
 
 body, html {
     width: 100%;
-    height: 100%;
-    overflow: hidden;
+    min-height: 100vh; /* เปลี่ยนจาก height 100% */
     font-family: 'Prompt', sans-serif;
+    /* เอา overflow: hidden; ออกแล้ว เพื่อไม่ให้มีปัญหาจอล้นหรือตัดขอบ */
 }
 
 /* --- หน้าแรก (index) --- */
 .hero-container {
     position: relative;
-    width: 100vw;
-    height: 100vh;
+    width: 100%; /* เปลี่ยนจาก 100vw เพื่อป้องกันสโครลบาร์แนวนอน */
+    height: 100vh; /* เผื่อไว้สำหรับเบราว์เซอร์เก่าๆ */
+    height: 100dvh; /* อาวุธลับแก้ปัญหาจอล้นบน iPhone */
     display: flex;
     justify-content: flex-end;
     align-items: flex-start;
@@ -53,8 +54,9 @@ body, html {
 
 .btn-login {
     display: inline-block;
-    background-color: #2c5282;
-    color: #fff;
+    background-color: transparent; /* เปลี่ยนพื้นหลังเป็นแบบใส */
+    color: #2c5282; /* เปลี่ยนสีตัวอักษรเป็นสีน้ำเงินเข้มให้มองเห็นชัด */
+    border: 2px solid #2c5282; /* เพิ่มเส้นขอบสีน้ำเงินเข้ม */
     padding: 10px 20px;
     border-radius: 30px;
     text-decoration: none;
@@ -64,7 +66,8 @@ body, html {
 }
 
 .btn-login:hover {
-    background-color: #1a365d;
+    background-color: #2c5282; /* เวลาเอาเมาส์ชี้ให้พื้นหลังกลับมาทึบ */
+    color: #fff; /* เวลาเอาเมาส์ชี้ให้ตัวอักษรเป็นสีขาว */
 }
 
 /* --- Responsive มือถือสำหรับหน้าแรก --- */
@@ -92,12 +95,13 @@ body.login-page {
     padding: 0;
     width: 100%;
     min-height: 100vh;
+    min-height: 100dvh; /* เพิ่ม dvh ตรงนี้ด้วยให้หน้าล็อกอินพอดีจอ iPhone */
     background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
     font-family: 'Prompt', sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: auto; /* เพิ่มบรรทัดนี้ เพื่อให้หน้า Login เลื่อนได้ถ้าจอเล็ก */
+    overflow: auto;
 }
 
 .login-container {
