@@ -3,96 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baby Go - พัฒนาการเด็ก</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>Baby Go - คู่มือพัฒนาการเด็กเชิงลึกตามช่วงวัย</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
-        body { background-color: #ffffff; color: #333333; font-size: 15px; }
+        body { background-color: #f0f9ff; color: #333333; font-size: 15px; overflow-x: hidden; }
         
-        /* Navbar มาตรฐาน */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animated-fade { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* Navbar โทนฟ้าสะอาดตา */
         .navbar {
-            padding: 15px 20px;
+            background-color: #ffffff;
+            padding: 15px 25px;
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #f0f9ff;
+            border-bottom: 2px solid #bae6fd;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.08);
         }
         .nav-left { display: flex; align-items: center; gap: 20px; }
-        .menu-btn { font-size: 28px; cursor: pointer; color: #0ea5e9; background: none; border: none; }
+        .menu-btn { font-size: 28px; cursor: pointer; color: #0284c7; background: none; border: none; transition: transform 0.2s; }
+        .menu-btn:hover { transform: scale(1.1); }
         
-        .logo-container { display: flex; align-items: center; gap: 15px; text-decoration: none; }
-        .logo-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
-        .logo-text { font-size: 20px; font-weight: 500; color: #0284c7; letter-spacing: 0.5px; }
+        .logo-container { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #0ea5e9; }
+        .logo-text { font-size: 20px; font-weight: 600; color: #0284c7; }
 
-        /* ไอคอนกระดิ่งและโปรไฟล์มุมขวาบน */
-        .nav-right { display: flex; align-items: center; gap: 20px; }
-        .icon-btn { font-size: 30px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .icon-btn { font-size: 26px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; transition: transform 0.2s; }
 
-        /* Sidebar (ซ่อนไว้ก่อน รอคลิกค่อยโผล่) */
+        /* Sidebar โทนฟ้าพาสเทล */
         .sidebar {
             position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
             background-color: #f0f9ff; 
-            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
-            transition: 0.3s; z-index: 200; padding: 30px;
+            box-shadow: 4px 0 25px rgba(0,0,0,0.1);
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 30px;
             overflow-y: auto;
         }
         .sidebar.active { left: 0; }
         .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .sidebar-header h3 { color: #0284c7; }
-        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0ea5e9; }
+        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0284c7; }
         
         .sidebar-menu { list-style: none; }
-        .sidebar-menu li a { display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; border-bottom: 1px solid rgba(14, 165, 233, 0.1); }
-        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; }
+        .sidebar-menu li a { 
+            display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; 
+            border-bottom: 1px solid #bae6fd; transition: all 0.2s; 
+        }
+        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; padding-left: 5px; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); display: none; z-index: 150; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: none; z-index: 150; backdrop-filter: blur(2px); }
         .overlay.active { display: block; }
 
-        /* Container เนื้อหาหน้าพัฒนาการเด็ก */
-        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        /* Container เนื้อหาหลัก */
+        .container { max-width: 900px; margin: 30px auto 60px auto; padding: 0 20px; }
         
-        .header-section { margin: 20px 0; text-align: center; }
-        .header-section h2 { 
-            font-size: 24px; 
-            font-weight: 600; 
-            color: #0284c7; 
-        }
-        .header-section p {
-            font-size: 14px;
-            color: #64748b;
-            margin-top: 5px;
-        }
+        .header-section { margin-bottom: 30px; text-align: center; }
+        .header-section h2 { font-size: 28px; font-weight: 700; color: #0369a1; }
+        .header-section p { font-size: 15px; color: #475569; margin-top: 8px; }
 
-        .age-group-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+        /* หน้าหลัก: เรียง 4 ข้อแนวตั้ง 1 คอลัมน์ */
+        #mainCategoryView { display: block; }
+        .age-group-list { display: flex; flex-direction: column; gap: 16px; }
+        
         .age-card { 
-            background-color: #f0f9ff; 
-            padding: 20px; 
-            border-radius: 12px; 
-            border: 1px solid #e0f2fe;
-            text-decoration: none;
-            color: #334155;
+            background: linear-gradient(135deg, #ffffff, #f0f9ff); 
+            border-radius: 18px; 
+            border: 2px solid #bae6fd;
+            padding: 22px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: 0.2s;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.06);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .age-card:hover { background-color: #e0f2fe; }
-        .age-title { font-weight: 500; color: #0284c7; font-size: 16px; }
-        .age-desc { font-size: 13px; color: #64748b; margin-top: 3px; }
-        .arrow { color: #0284c7; font-size: 18px; }
+        .age-card:hover { 
+            border-color: #0284c7; 
+            transform: translateX(6px);
+            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.15);
+            background: linear-gradient(135deg, #ffffff, #e0f2fe);
+        }
+        
+        .age-card-left { display: flex; align-items: center; gap: 18px; }
+        .age-icon-box {
+            width: 55px; height: 55px; background: #e0f2fe; border: 2px solid #7dd3fc; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.1);
+        }
+        .age-title-box { display: flex; flex-direction: column; gap: 4px; }
+        .age-title { font-weight: 700; color: #0369a1; font-size: 18px; }
+        .age-desc { font-size: 13px; color: #64748b; font-weight: 400; line-height: 1.4; }
+        .arrow-badge { 
+            width: 36px; height: 36px; background: #0ea5e9; color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.25); transition: transform 0.2s;
+        }
+        .age-card:hover .arrow-badge { transform: scale(1.1); background: #0284c7; }
+
+        /* หน้าเนื้อหาเจาะลึก */
+        #detailView { display: none; }
+        
+        .top-action-bar {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
+        }
+        .btn-back {
+            background-color: #ffffff; color: #0284c7; border: 2px solid #bae6fd;
+            padding: 10px 20px; border-radius: 12px; font-size: 15px; font-weight: 600;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+            transition: 0.2s; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+        }
+        .btn-back:hover { background-color: #f0f9ff; border-color: #0284c7; transform: translateX(-3px); }
+
+        /* ปุ่มแท็บหมวดหมู่ด้านใน */
+        .filter-btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 25px; }
+        .filter-tab {
+            background: #ffffff; border: 2px solid #bae6fd; padding: 10px 16px; border-radius: 12px;
+            font-size: 13px; font-weight: 600; color: #0369a1; cursor: pointer; transition: 0.2s;
+        }
+        .filter-tab:hover { background: #e0f2fe; }
+        .filter-tab.active { background: #0ea5e9; color: #ffffff; border-color: #0284c7; }
+
+        .detail-card {
+            background: #ffffff; border-radius: 24px; border: 2px solid #bae6fd;
+            padding: 35px; margin-bottom: 30px; box-shadow: 0 10px 35px rgba(14, 165, 233, 0.08);
+        }
+        .detail-title-header {
+            border-bottom: 3px solid #f0f9ff; padding-bottom: 20px; margin-bottom: 30px;
+            display: flex; align-items: center; gap: 15px;
+        }
+        .detail-header-icon { font-size: 38px; }
+        .detail-title-header h3 { font-size: 24px; color: #0369a1; font-weight: 700; }
+        
+        .dev-section-box { margin-bottom: 35px; }
+        .dev-section-box:last-child { margin-bottom: 0; }
+        
+        .dev-box-title {
+            font-size: 16px; font-weight: 700; color: #0369a1; margin-bottom: 15px;
+            border-left: 5px solid #0ea5e9; padding-left: 14px; background-color: #f0f9ff; 
+            padding-top: 10px; padding-bottom: 10px; border-radius: 0 10px 10px 0;
+            display: flex; align-items: center; gap: 10px;
+        }
+        
+        .dev-grid-list { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .dev-item-card {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 18px;
+            font-size: 14px; color: #334155; line-height: 1.6; display: flex; align-items: flex-start; gap: 12px;
+            transition: all 0.2s;
+        }
+        .dev-item-card:hover { border-color: #7dd3fc; background: #f0f9ff; transform: translateX(4px); }
+        .dev-dot { color: #0ea5e9; font-size: 18px; line-height: 1; margin-top: 2px; }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 15px; }
+            .detail-card { padding: 20px; }
+        }
     </style>
 </head>
 <body>
 
     <div class="navbar">
         <div class="nav-left">
-            <button class="menu-btn" id="menuToggle">☰</button>
+            <button class="menu-btn" id="menuToggle">&#9776;</button>
             <div class="logo-container">
                 <img id="navProfileImg" src="logo.jpg.jpg" alt="Logo" class="logo-img">
                 <span class="logo-text">Baby Go</span>
             </div>
         </div>
         <div class="nav-right">
-            <a href="notifications.html" class="icon-btn">🔔</a>
-            <a href="profile.html" class="icon-btn">👤</a>
+            <a href="notifications.html" class="icon-btn" title="ศูนย์แจ้งเตือน">&#128276;</a>
+            <a href="profile.html" class="icon-btn" title="โปรไฟล์">&#128100;</a>
         </div>
     </div>
 
@@ -101,11 +185,11 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h3>เมนู</h3>
-            <button class="close-btn" id="closeMenu">✕</button>
+            <button class="close-btn" id="closeMenu">&#10005;</button>
         </div>
         <ul class="sidebar-menu">
             <li><a href="content.html">หน้าแรก</a></li>
-            <li><a href="development.html">พัฒนาการเด็ก</a></li>
+            <li><a href="development.html" style="color: #0284c7; font-weight: 600;">พัฒนาการเด็ก</a></li>
             <li><a href="vaccine.html">วัคซีน</a></li>
             <li><a href="nutrition.html">โภชนาการ</a></li>
             <li><a href="knowledge.html">ความรู้</a></li>
@@ -116,48 +200,331 @@
         </ul>
     </div>
 
-    <div class="container">
-        <div class="header-section">
-            <h2>พัฒนาการเด็กตามช่วงวัย</h2>
-            <p>เลือกช่วงอายุของน้องเพื่อดูข้อมูลพัฒนาการที่เหมาะสม</p>
+    <div class="container animated-fade">
+        
+        <!-- หน้าหลัก: เรียง 4 ข้อแนวตั้ง 1 คอลัมน์ -->
+        <div id="mainCategoryView">
+            <div class="header-section">
+                <h2>คู่มือพัฒนาการเด็กเชิงลึกตามช่วงวัย</h2>
+                <p>เลือกช่วงอายุของบุตรหลานเพื่อศึกษาข้อมูลพัฒนาการรอบด้านอ้างอิงตามหลักการแพทย์และกุมารเวชศาสตร์สากล</p>
+            </div>
+
+            <div class="age-group-list">
+                <div class="age-card" onclick="openAgeDetail('0-1')">
+                    <div class="age-card-left">
+                        <div class="age-icon-box">&#128118;</div>
+                        <div class="age-title-box">
+                            <div class="age-title">ช่วงวัยเด็กทารก (แรกเกิด - 1 ปี / Infancy)</div>
+                            <div class="age-desc">การเคลื่อนไหว การตอบสนองต่อสิ่งรอบข้าง และการสื่อสารพื้นฐาน</div>
+                        </div>
+                    </div>
+                    <div class="arrow-badge">&rsaquo;</div>
+                </div>
+
+                <div class="age-card" onclick="openAgeDetail('1-3')">
+                    <div class="age-card-left">
+                        <div class="age-icon-box">&#128102;</div>
+                        <div class="age-title-box">
+                            <div class="age-title">ช่วงวัยเด็กเล็ก / วัยเตาะแตะ (1 - 3 ปี / Toddler)</div>
+                            <div class="age-desc">การเดิน การทรงตัว ทักษะทางภาษา และพฤติกรรมการแสดงออก</div>
+                        </div>
+                    </div>
+                    <div class="arrow-badge">&rsaquo;</div>
+                </div>
+
+                <div class="age-card" onclick="openAgeDetail('3-6')">
+                    <div class="age-card-left">
+                        <div class="age-icon-box">&#127891;</div>
+                        <div class="age-title-box">
+                            <div class="age-title">ช่วงวัยเด็กก่อนเรียน (3 - 6 ปี / Preschool)</div>
+                            <div class="age-desc">ทักษะการเข้าสังคม การใช้กล้ามเนื้อมัดเล็ก และกระบวนการคิด</div>
+                        </div>
+                    </div>
+                    <div class="arrow-badge">&rsaquo;</div>
+                </div>
+
+                <div class="age-card" onclick="openAgeDetail('6-up')">
+                    <div class="age-card-left">
+                        <div class="age-icon-box">&#128218;</div>
+                        <div class="age-title-box">
+                            <div class="age-title">ช่วงวัยเด็กวัยเรียน (6 ปีขึ้นไป / School Age)</div>
+                            <div class="age-desc">ความสามารถเชิงวิชาการ เหตุผล ความรับผิดชอบ และการสร้างตัวตน</div>
+                        </div>
+                    </div>
+                    <div class="arrow-badge">&rsaquo;</div>
+                </div>
+            </div>
         </div>
 
-        <div class="age-group-list">
-            <a href="#" class="age-card">
-                <div>
-                    <div class="age-title">วัยแรกเกิด - 1 ปี</div>
-                    <div class="age-desc">การพลิกคว่ำ คลาน เริ่มหัดตั้งไข่</div>
-                </div>
-                <div class="arrow">›</div>
-            </a>
+        <!-- หน้าเนื้อหาเจาะลึกพร้อมปุ่มเลือกหมวดหมู่ -->
+        <div id="detailView">
+            <div class="top-action-bar">
+                <button class="btn-back" onclick="goBackToMain()">&#8249; ย้อนกลับหน้าหลัก</button>
+            </div>
+            
+            <div class="filter-btn-group">
+                <button class="filter-tab active" onclick="setCategoryFilter('all', this)">ข้อมูลทั้งหมด</button>
+                <button class="filter-tab" onclick="setCategoryFilter('gross', this)">ด้านร่างกาย</button>
+                <button class="filter-tab" onclick="setCategoryFilter('lang', this)">ด้านภาษา</button>
+                <button class="filter-tab" onclick="setCategoryFilter('social', this)">ด้านอารมณ์/สังคม</button>
+                <button class="filter-tab" onclick="setCategoryFilter('act', this)">กิจกรรมส่งเสริม</button>
+            </div>
 
-            <a href="#" class="age-card">
-                <div>
-                    <div class="age-title">วัยเตาะแตะ (1 - 3 ปี)</div>
-                    <div class="age-desc">การหัดเดิน การพูดคำแรก และการทรงตัว</div>
-                </div>
-                <div class="arrow">›</div>
-            </a>
-
-            <a href="#" class="age-card">
-                <div>
-                    <div class="age-title">วัยอนุบาล (3 - 6 ปี)</div>
-                    <div class="age-desc">ทักษะทางสังคม การใช้กล้ามเนื้อมัดเล็ก</div>
-                </div>
-                <div class="arrow">›</div>
-            </a>
-
-            <a href="#" class="age-card">
-                <div>
-                    <div class="age-title">วัยประถม (6 - 12 ปี)</div>
-                    <div class="age-desc">การเรียนรู้ เหตุผล และการเข้าสังคม</div>
-                </div>
-                <div class="arrow">›</div>
-            </a>
+            <div id="detailContentContainer"></div>
         </div>
+
     </div>
 
     <script>
+        const developmentData = {
+            "0-1": {
+                title: "ช่วงวัยเด็กทารก (แรกเกิด - 1 ปี / Infancy)",
+                icon: "👶",
+                sections: [
+                    {
+                        type: "gross",
+                        title: "1. ด้านร่างกายและการเคลื่อนไหว (Gross & Fine Motor)",
+                        items: [
+                            "สัปดาห์ที่ 0-4 (แรกเกิด): มีปฏิกิริยาตอบสนองอัตโนมัติ (Primitive Reflexes) เช่น การคว้าจับ (Grasp Reflex) และการสะดุ้ง (Moro Reflex) กล้ามเนื้อคอยังไม่แข็งแรง ต้องคอยประคองศีรษะเสมอเวลอุ้ม",
+                            "เดือนที่ 1-2: เริ่มหัดยกศีรษะขึ้นได้เล็กน้อยขณะนอนคว่ำ มือมักจะกำแน่นตลอดเวลา และเริ่มขยับแขนขาแบบสุ่มเพื่อตอบสนองต่อสิ่งกระตุ้นรอบตัว",
+                            "เดือนที่ 3-4: สามารถชันคอตั้งตรงได้ 90 องศาเมื่อนอนคว่ำ เริ่มใช้อยู่ในท่าศอกค้ำยันได้ดีขึ้น มือเริ่มคลายออกและพยายามคว้าจับโมบายหรือของเล่นแขวน",
+                            "เดือนที่ 5-6: พลิกคว่ำและพลิกหงายได้เองอย่างสมบูรณ์ กล้ามเนื้อหลังและลำตัวแข็งแรงขึ้น สามารถนั่งทรงตัวได้ระยะเวลาสั้นๆ โดยใช้มือยันพื้นด้านหน้า (Tripod Sit)",
+                            "เดือนที่ 7-8: นั่งทรงตัวได้มั่นคงโดยไม่ต้องใช้มือพยุง เริ่มหัดคืบและคลานสี่ขา (Creeping/Crawling) และเริ่มใช้มือหยิบจับสิ่งของโดยใช้นิ้วโป้งร่วมกับนิ้วอื่นๆ (Pincer Grasp ขั้นต้น)",
+                            "เดือนที่ 9-10: เกาะเฟอร์นิเจอร์เพื่อเหนี่ยวตัวขึ้นยืนได้ สามารถเปลี่ยนท่าจากท่านั่งเป็นท่านอนหรือคลานได้อย่างคล่องแคล่ว",
+                            "เดือนที่ 11-12: เริ่มหัดเกาะเดินตามขอบเตียงหรือกำแพง (Cruising) บางคนอาจเริ่มยืนปล่อยมือได้เองชั่วขณะ หรือก้าวเดินได้ 1-2 ก้าวโดยมีผู้ใหญ่จับมือ"
+                        ]
+                    },
+                    {
+                        type: "lang",
+                        title: "2. ด้านภาษาและการสื่อสาร (Language & Communication)",
+                        items: [
+                            "เดือนที่ 1-2: ส่งเสียงอ้อแอ้ในลำคอ (Cooing) เพื่อตอบสนองต่อเสียงพูดคุยหรือรอยยิ้มของผู้เลี้ยงดู เริ่มแยกแยะโทนเสียงสูงต่ำได้",
+                            "เดือนที่ 3-4: ส่งเสียงหัวเราะเอิ๊กอ้าดเมื่อถูกใจ เปล่งเสียงสระผสมพยางค์ง่ายๆ (เช่น อู-อา) และหันตามเสียงเรียกหรือเสียงกุ๊งกิ๊ง",
+                            "เดือนที่ 5-6: เปล่งเสียงพยางค์ซ้ำๆ เช่น 'บา-บา', 'มา-มา', 'ดา-ดา' โดยที่ยังไม่ทราบความหมายที่แท้จริง เริ่มหันหาต้นกำเนิดเสียงได้แม่นยำขึ้น",
+                            "เดือนที่ 7-9: เข้าใจคำสั่งง่ายๆ ประกอบท่าทาง เช่น คำว่า 'บ๊ายบาย' แล้วโบกมือตาม หรือเข้าใจคำว่า 'ไม่' ชัดเจนขึ้น",
+                            "เดือนที่ 10-12: เริ่มออกเสียงคำที่มีความหมายเฉพาะเจาะจงได้ 1-2 คำ (เช่น แม่, หม่ำ, ไป) สามารถทำตามคำสั่งปากเปล่าอย่างง่ายได้ และใช้นิ้วชี้เพื่อบอกความต้องการ"
+                        ]
+                    },
+                    {
+                        type: "social",
+                        title: "3. ด้านอารมณ์และสังคม (Social & Emotional)",
+                        items: [
+                            "เดือนที่ 1-2: แสดงรอยยิ้มตอบสนองทางสังคม (Social Smile) เป็นครั้งแรกเมื่อสบตาและได้ยินเสียงพูดคุยจากพ่อแม่",
+                            "เดือนที่ 3-4: เริ่มจดจำใบหน้าผู้เลี้ยงดูหลักได้ แสดงอาการดีใจ ส่งเสียงร้อง หรือดีดดิ้นเมื่อเห็นหน้าพ่อแม่",
+                            "เดือนที่ 5-7: สนใจมองภาพเงาของตัวเองในกระจก หัวเราะชอบใจ และเริ่มแสดงอารมณ์ความรู้สึกชัดเจน เช่น โกรธ ดีใจ หรือกลัว",
+                            "เดือนที่ 8-12: เกิดภาวะกลัวคนแปลกหน้า (Stranger Anxiety) และภาวะวิตกกังวลเมื่อต้องแยกจากพ่อแม่ (Separation Anxiety) ซึ่งเป็นพัฒนาการทางจิตวิทยาที่ปกติ แสดงความติดแม่หรือผู้เลี้ยงดูหลักอย่างเหนียวแน่น"
+                        ]
+                    },
+                    {
+                        type: "act",
+                        title: "4. กิจกรรมและแนวทางส่งเสริมพัฒนาการที่เหมาะสม",
+                        items: [
+                            "จัดกิจกรรม Tummy Time อย่างสม่ำเสมอวันละหลายๆ ครั้ง เพื่อป้องกันภาวะศีรษะแบนและเสริมสร้างความแข็งแรงของกล้ามเนื้อส่วนบน",
+                            "พูดคุย อ่านหนังสือภาพบอร์ดบุ๊ค (Board Book) สีสันสดใส และร้องเพลงให้ลูกฟัง เพื่อกระตุ้นการสร้างเส้นใยประสาทการได้ยินและภาษา",
+                            "จัดเตรียมของเล่นปลายเปิดที่มีพื้นผิวแตกต่างกัน (นิ่ม แข็ง เรียบ ขรุขระ) เพื่อกระตุ้นระบบประสาทสัมผัสทางกาย (Tactile System)",
+                            "ตอบสนองต่อเสียงร้องไห้ของทารกอย่างรวดเร็วและอ่อนโยน เพื่อสร้างความผูกพันมั่นคงปลอดภัยทางจิตใจ (Secure Attachment)"
+                        ]
+                    }
+                ]
+            },
+            "1-3": {
+                title: "ช่วงวัยเด็กเล็ก / วัยเตาะแตะ (1 - 3 ปี / Toddler)",
+                icon: "🧒",
+                sections: [
+                    {
+                        type: "gross",
+                        title: "1. ด้านร่างกายและการเคลื่อนไหว",
+                        items: [
+                            "อายุ 12 - 18 เดือน: เดินได้คล่องแคล่วขึ้นด้วยลักษณะการกางขาเล็กน้อยเพื่อทรงตัว เริ่มหัดวิ่งแต่ยังมีสะดุดล้มบ่อย สามารถปีนป่ายขึ้นเก้าอี้เตี้ยๆ ได้เอง และเริ่มขีดเขียนเส้นตรงบนกระดาษ",
+                            "อายุ 18 - 24 เดือน: วิ่งได้อย่างมั่นคง เดินขึ้นลงบันไดทีละขั้นโดยเกาะราวบันได เตะลูกบอลไปข้างหน้าโดยไม่เสียการทรงตัว ต่อบล็อกไม้สูงได้ 4-6 ชั้น และเริ่มใช้ช้อนตักอาหารเข้าปากได้",
+                            "อายุ 2 - 3 ปี: กระโดดอยู่กับที่ด้วยเท้าสองข้างพร้อมกัน ปั่นจักรยานสามล้อระยะสั้นได้ วาดวงกลมเลียนแบบได้ และมีความสามารถในการใช้มือข้างถนัดชัดเจนยิ่งขึ้น",
+                            "ทักษะกล้ามเนื้อมัดเล็กเชิงลึก: สามารถเปิดหน้าหนังสือทีละหน้า ถอดเสื้อผ้าหรือรองเท้าแบบง่ายๆ ได้ด้วยตนเอง และควบคุมการใช้ดินสอสีขีดเขียนได้ดีขึ้น"
+                        ]
+                    },
+                    {
+                        type: "lang",
+                        title: "2. ด้านภาษาและการสื่อสาร",
+                        items: [
+                            "อายุ 12 - 18 เดือน: มีคลังคำศัพท์ประมาณ 10-20 คำ สามารถชี้อวัยวะตามคำบอกได้ และเข้าใจคำสั่งง่ายๆ 1 ขั้นตอน",
+                            "อายุ 18 - 24 เดือน: คลังคำศัพท์เพิ่มขึ้นอย่างรวดเร็ว (อาจมากถึง 50-100 คำ) เริ่มประสมคำ 2 คำเข้าด้วยกันเป็นประโยคสั้นๆ (เช่น 'ไปเที่ยว', 'กินน้ำ', 'แมวมา')",
+                            "อายุ 2 - 3 ปี: สามารถสื่อสารเป็นประโยคยาว 3-4 คำ พูดคุยโต้ตอบเรื่องราวในชีวิตประจำวันได้ ใช้สรรพนามแทนตัวเอง (เช่น ฉัน, ชื่อเล่น, หนู) และเข้าใจคำถามปลายเปิดง่ายๆ"
+                        ]
+                    },
+                    {
+                        type: "social",
+                        title: "3. ด้านอารมณ์และสังคม",
+                        items: [
+                            "ช่วงวัยต่อต้าน (Terrible Twos): มีความเป็นตัวของตัวเองสูงมาก ต้องการอิสระแต่ยังขาดทักษะการจัดการอารมณ์ มักแสดงพฤติกรรมดื้อ ปฏิเสธ และร้องอาละวาด (Tantrums) เมื่อไม่ได้ดั่งใจ",
+                            "พฤติกรรมการเล่น: อยู่ในระยะการเล่นคนเดียวข้างๆ เพื่อน (Onlooker/Parallel Play) คือนั่งเล่นใกล้กันแต่ต่างคนต่างเล่น ยังไม่รู้จักการแบ่งปัน",
+                            "การเลียนแบบบทบาท: ชอบเลียนแบบกิจวัตรของผู้ใหญ่ เช่น การถือโทรศัพท์คุย การกวาดบ้าน ทำอาหาร หรือแต่งตัวเลียนแบบพ่อแม่"
+                        ]
+                    },
+                    {
+                        type: "act",
+                        title: "4. กิจกรรมและแนวทางส่งเสริมพัฒนาการที่เหมาะสม",
+                        items: [
+                            "จัดเตรียมพื้นที่ภายในบ้านให้ปลอดภัย ปราศจากมุมแหลมคม เพื่อเปิดโอกาสให้เด็กได้เดิน วิ่ง และสำรวจสิ่งแวดล้อมอย่างอิสระ",
+                            "ฝึกวินัยเชิงบวก (Positive Discipline) ตั้งกติกาที่ชัดเจนและสม่ำเสมอ พร้อมรับมือกับภาวะอารมณ์รุนแรงด้วยความนิ่งและเข้าใจ",
+                            "ส่งเสริมทักษะกล้ามเนื้อมัดเล็กผ่านการเล่นต่อเลโก้ขนาดใหญ่ การเล่นแป้งโดว์ ปั้นดินน้ำมัน และการขีดเขียนอิสระ"
+                        ]
+                    }
+                ]
+            },
+            "3-6": {
+                title: "ช่วงวัยเด็กก่อนเรียน (3 - 6 ปี / Preschool)",
+                icon: "🎒",
+                sections: [
+                    {
+                        type: "gross",
+                        title: "1. ด้านร่างกายและการเคลื่อนไหว",
+                        items: [
+                            "อายุ 3 - 4 ปี: ยืนทรงตัวบนขาข้างเดียวได้นาน 3-5 วินาที กระโดดลงมาจากขั้นบันไดสูงได้ เดินต่อเท้าเป็นเส้นตรงได้ วาดรูปคนมีส่วนหัว ลำตัว และแขนขาครบถ้วน",
+                            "อายุ 4 - 5 ปี: กระโดดขาเดียวสลับข้างได้ วิ่งด้วยความเร็วสูงโดยไม่ล้ม ใช้กรรไกรปลายมนตัดกระดาษตามแนวเส้นโค้งได้ และแต่งตัวติดกระดุมเสื้อผ้าได้ด้วยตนเอง",
+                            "อายุ 5 - 6 ปี: ทรงตัวและประสานงานของร่างกายสมบูรณ์แบบ สามารถจับดินสอเขียนหนังสือได้ถูกต้องตามหลักกายศาสตร์ (Dynamic Tripod Grasp) และมีความคล่องตัวสูงในการเล่นกีฬา"
+                        ]
+                    },
+                    {
+                        type: "lang",
+                        title: "2. ด้านการเรียนรู้และภาษา",
+                        items: [
+                            "ทักษะทางภาษาขั้นสูง: สามารถพูดอธิบายเรื่องราวเหตุการณ์ยาวๆ เล่านิทานที่ฟังซ้ำได้ถูกต้อง ใช้คำเชื่อมประโยคซับซ้อนได้ดี",
+                            "ความอยากรู้อยากเห็น: เข้าสู่ยุคตั้งคำถามเชิงสำรวจ ('ทำไม?', 'อย่างไร?', 'เพราะอะไร?') เพื่อทำความเข้าใจกฎเกณฑ์ของธรรมชาติและสังคมรอบตัว",
+                            "ทักษะทางปัญญาเบื้องต้น: สามารถจดจำและแยกแยะสีหลัก รูปทรงเรขาคณิต ตัวเลข นับจำนวนสิ่งของ และรู้ชื่อ นามสกุล อายุ ของตนเองได้อย่างแม่นยำ"
+                        ]
+                    },
+                    {
+                        type: "social",
+                        title: "3. ด้านอารมณ์และสังคม",
+                        items: [
+                            "ทักษะการเข้าสังคม: เริ่มเข้าใจการเล่นร่วมกับผู้อื่น (Associative/Cooperative Play) รู้จักกฎกติกาการผลัดกันเล่น การเข้าแถว และการประนีประนอม",
+                            "จินตนาการและบทบาทสมมติ: ชื่นชอบการเล่นสมมติเป็นอาชีพหรือตัวละครต่างๆ เพื่อฝึกกระบวนการคิดเชิงนามธรรมและการแก้ปัญหาเฉพาะหน้า",
+                            "การควบคุมตนเอง: เริ่มเรียนรู้การจัดการความโกรธ การแสดงความเห็นอกเห็นใจผู้อื่น (Empathy) เมื่อเพื่อนเจ็บปวดหรือเสียใจ"
+                        ]
+                    },
+                    {
+                        type: "act",
+                        title: "4. กิจกรรมและแนวทางส่งเสริมพัฒนาการที่เหมาะสม",
+                        items: [
+                            "สนับสนุนการเล่นกลางแจ้งและการทำกิจกรรมกลุ่มร่วมกับเพื่อนวัยเดียวกัน เพื่อฝึกทักษะการทำงานเป็นทีมและการปรับตัวทางสังคม",
+                            "อ่านหนังสือนิทานภาพเชิงจริยธรรม พร้อมตั้งคำถามปลายเปิด (Open-ended Questions) เพื่อกระตุ้นให้เด็กคิดวิเคราะห์หาเหตุผล",
+                            "มอบหมายความรับผิดชอบงานบ้านง่ายๆ เช่น การเก็บที่นอน รดน้ำต้นไม้ หรือจัดโต๊ะอาหาร เพื่อสร้างความภูมิใจในตนเอง"
+                        ]
+                    }
+                ]
+            },
+            "6-up": {
+                title: "ช่วงวัยเด็กวัยเรียน (6 ปีขึ้นไป / School Age)",
+                icon: "📚",
+                sections: [
+                    {
+                        type: "gross",
+                        title: "1. ด้านร่างกายและการเติบโต",
+                        items: [
+                            "พัฒนาการทางกายภาพ: อัตราการเติบโตเริ่มคงที่แต่มีความแข็งแรงของกล้ามเนื้อและกระดูกเพิ่มขึ้นอย่างต่อเนื่อง พละกำลังและความอึดพัฒนาเต็มที่",
+                            "ทักษะกีฬาขั้นสูง: สามารถเล่นกีฬาที่ต้องอาศัยกฎ กติกา และทีมเวิร์คซับซ้อนได้ดี (เช่น ฟุตบอล บาสเกตบอล ว่ายน้ำ ยิมนาสติก)",
+                            "ทักษะกล้ามเนื้อมัดเล็กประณีต: การประสานงานระหว่างสายตากับมือแม่นยำสูง เหมาะกับงานเขียนตัวบรรจง งานฝีมือ เล่นดนตรีสากล หรือประกอบโมเดล"
+                        ]
+                    },
+                    {
+                        type: "lang",
+                        title: "2. ด้านการเรียนรู้และเหตุผล",
+                        items: [
+                            "กระบวนการคิดเชิงนามธรรม (Concrete Operational Stage): สามารถคิดวิเคราะห์ แก้ไขปัญหาซับซ้อน เข้าใจเรื่องเวลา พื้นที่ และเหตุผลเชิงตรรกะได้ดี",
+                            "ทักษะวิชาการ: อ่านออกเขียนได้คล่องแคล่ว มีทักษะการคำนวณขั้นสูง และมีความสามารถในการค้นคว้าหาความรู้รอบตัวผ่านสื่อต่างๆ",
+                            "ความรับผิดชอบเชิงหน้าที่: สามารถบริหารจัดการตารางเวลา การบ้าน งานส่วนตัว และรับผิดชอบหน้าที่ที่ได้รับมอบหมายได้ด้วยตนเอง"
+                        ]
+                    },
+                    {
+                        type: "social",
+                        title: "3. ด้านอารมณ์และสังคม",
+                        items: [
+                            "อิทธิพลของกลุ่มเพื่อน (Peer Group): ให้ความสำคัญสูงสุดกับการยอมรับจากเพื่อนฝูงและสังคมภายนอกครอบครัว",
+                            "การสร้างอัตลักษณ์และคุณค่าในตนเอง (Self-Esteem): เริ่มค้นพบความชอบ ความถนัดเฉพาะตัว และความภูมิใจในความสำเร็จของตนเอง",
+                            "การควบคุมอารมณ์ขั้นสูง: สามารถควบคุมการแสดงออกทางอารมณ์ในสถานการณ์ความกดดันทางสังคมได้ดีขึ้น และเข้าใจมุมมองของผู้อื่นรอบด้าน"
+                        ]
+                    },
+                    {
+                        type: "act",
+                        title: "4. กิจกรรมและแนวทางส่งเสริมพัฒนาการที่เหมาะสม",
+                        items: [
+                            "สนับสนุนการทำกิจกรรมเสริมทักษะเฉพาะด้านตามความสนใจและความถนัดของเด็ก เช่น ศิลปะ ดนตรี วิทยาศาสตร์ หรือกีฬาแข่งขัน",
+                            "สร้างบรรยากาศการพูดคุยรับฟังปัญหาด้วยเหตุผลในครอบครัว เพื่อเป็นที่ปรึกษาที่น่าไว้วางใจเมื่อเด็กต้องเผชิญความท้าทายใหม่ๆ",
+                            "ส่งเสริมการวางเป้าหมายระยะยาว การฝึกวินัยในการเรียน และการรู้จักแบ่งเวลาพักผ่อนอย่างสมดุล"
+                        ]
+                    }
+                ]
+            }
+        };
+
+        let currentActiveAgeKey = "";
+        let currentFilterType = "all";
+
+        function openAgeDetail(ageKey) {
+            currentActiveAgeKey = ageKey;
+            currentFilterType = "all";
+            
+            const tabs = document.querySelectorAll('.filter-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            if(tabs.length > 0) tabs[0].classList.add('active');
+
+            renderDetailContent();
+
+            document.getElementById('mainCategoryView').style.display = 'none';
+            document.getElementById('detailView').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderDetailContent() {
+            const data = developmentData[currentActiveAgeKey];
+            if (!data) return;
+
+            let sectionsHtml = '';
+            data.sections.forEach((sec) => {
+                if (currentFilterType !== 'all' && sec.type !== currentFilterType) return;
+
+                let itemsHtml = '';
+                sec.items.forEach((item) => {
+                    itemsHtml += `
+                        <div class="dev-item-card">
+                            <div class="dev-dot">&#8226;</div>
+                            <div>${item}</div>
+                        </div>
+                    `;
+                });
+
+                sectionsHtml += `
+                    <div class="dev-section-box">
+                        <div class="dev-box-title">${sec.title}</div>
+                        <div class="dev-grid-list">${itemsHtml}</div>
+                    </div>
+                `;
+            });
+
+            const container = document.getElementById('detailContentContainer');
+            container.innerHTML = `
+                <div class="detail-card">
+                    <div class="detail-title-header">
+                        <div class="detail-header-icon">${data.icon}</div>
+                        <h3>${data.title}</h3>
+                    </div>
+                    ${sectionsHtml}
+                </div>
+            `;
+        }
+
+        function setCategoryFilter(type, btnElem) {
+            currentFilterType = type;
+            document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+            btnElem.classList.add('active');
+            renderDetailContent();
+        }
+
+        function goBackToMain() {
+            document.getElementById('detailView').style.display = 'none';
+            document.getElementById('mainCategoryView').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         const menuToggle = document.getElementById('menuToggle');
         const closeMenu = document.getElementById('closeMenu');
         const sidebar = document.getElementById('sidebar');
@@ -167,7 +534,6 @@
         closeMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        // ซิงก์รูปโปรไฟล์อัตโนมัติ
         window.addEventListener('DOMContentLoaded', () => {
             const savedImg = localStorage.getItem('userProfileImg');
             if (savedImg) {

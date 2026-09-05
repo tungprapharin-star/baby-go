@@ -4,105 +4,159 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Baby Go - ชุมชนคุณแม่</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
-        body { background-color: #ffffff; color: #333333; font-size: 15px; }
+        body { background-color: #f0f9ff; color: #333333; font-size: 15px; overflow-x: hidden; }
         
-        /* Navbar มาตรฐาน */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animated-fade { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
         .navbar {
-            padding: 15px 20px;
+            background-color: #ffffff;
+            padding: 15px 25px;
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #f0f9ff;
+            border-bottom: 2px solid #bae6fd;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.08);
         }
         .nav-left { display: flex; align-items: center; gap: 20px; }
-        .menu-btn { font-size: 28px; cursor: pointer; color: #0ea5e9; background: none; border: none; }
+        .menu-btn { font-size: 28px; cursor: pointer; color: #0284c7; background: none; border: none; transition: transform 0.2s; }
+        .menu-btn:hover { transform: scale(1.1); }
         
-        .logo-container { display: flex; align-items: center; gap: 15px; text-decoration: none; }
-        
-        /* ล็อกขนาดรูปให้เท่ากับหน้าอื่นเป๊ะๆ ตรงนี้เลย */
-        .logo-img { 
-            width: 45px !important; 
-            height: 45px !important; 
-            border-radius: 50% !important; 
-            object-fit: cover !important; 
-        }
-        .logo-text { font-size: 20px; font-weight: 500; color: #0284c7; letter-spacing: 0.5px; }
+        .logo-container { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #0ea5e9; }
+        .logo-text { font-size: 20px; font-weight: 600; color: #0284c7; }
 
-        /* ไอคอนกระดิ่งและโปรไฟล์มุมขวาบน */
-        .nav-right { display: flex; align-items: center; gap: 20px; }
-        .icon-btn { font-size: 30px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .icon-btn { font-size: 26px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; transition: transform 0.2s; }
 
-        /* Sidebar (ซ่อนไว้ก่อน รอคลิกค่อยโผล่) */
         .sidebar {
             position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
             background-color: #f0f9ff; 
-            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
-            transition: 0.3s; z-index: 200; padding: 30px;
+            box-shadow: 4px 0 25px rgba(0,0,0,0.1);
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 30px;
             overflow-y: auto;
         }
         .sidebar.active { left: 0; }
         .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .sidebar-header h3 { color: #0284c7; }
-        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0ea5e9; }
+        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0284c7; }
         
         .sidebar-menu { list-style: none; }
-        .sidebar-menu li a { display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; border-bottom: 1px solid rgba(14, 165, 233, 0.1); }
-        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; }
+        .sidebar-menu li a { 
+            display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; 
+            border-bottom: 1px solid #bae6fd; transition: all 0.2s; 
+        }
+        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; padding-left: 5px; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); display: none; z-index: 150; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: none; z-index: 150; backdrop-filter: blur(2px); }
         .overlay.active { display: block; }
 
-        /* Container เนื้อหาหน้าชุมชน */
-        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 650px; margin: 30px auto 60px auto; padding: 0 20px; }
         
-        .header-section { margin: 20px 0; text-align: center; }
-        .header-section h2 { 
-            font-size: 24px; 
-            font-weight: 600; 
-            color: #0284c7; 
-        }
-        .header-section p {
-            font-size: 14px;
-            color: #64748b;
-            margin-top: 5px;
-        }
+        .header-section { margin-bottom: 25px; text-align: center; }
+        .header-section h2 { font-size: 28px; font-weight: 700; color: #0369a1; }
+        .header-section p { font-size: 15px; color: #475569; margin-top: 8px; }
 
-        .post-btn {
-            display: block; width: 100%; padding: 12px;
-            background-color: #0284c7; color: white; border: none;
-            border-radius: 10px; font-size: 15px; font-weight: 500;
-            cursor: pointer; text-align: center; margin-bottom: 20px;
-            font-family: 'Prompt', sans-serif;
+        .top-action-bar { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+        .action-btn {
+            background-color: #0ea5e9; color: white; border: none; padding: 12px 20px;
+            border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: 0.2s; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2); flex: 1; min-width: 150px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .post-btn:hover { background-color: #0369a1; }
+        .action-btn:hover { background-color: #0284c7; transform: translateY(-2px); }
+        .btn-my-posts { background-color: #8b5cf6; }
+        .btn-my-posts:hover { background-color: #7c3aed; }
+        .btn-back-all { background-color: #64748b; display: none; }
+        .btn-back-all:hover { background-color: #475569; }
 
-        .post-list { display: flex; flex-direction: column; gap: 15px; }
+        #postModal {
+            background: #ffffff; border: 2px solid #bae6fd; border-radius: 20px;
+            padding: 30px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(14, 165, 233, 0.08);
+            display: none;
+        }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-weight: 600; color: #0369a1; margin-bottom: 6px; font-size: 14px; }
+        .form-control {
+            width: 100%; padding: 12px 16px; border: 2px solid #bae6fd; border-radius: 12px;
+            font-size: 14px; outline: none; font-family: 'Prompt', sans-serif; color: #334155; background: #f8fafc;
+        }
+        .form-control:focus { border-color: #0284c7; background: #ffffff; }
+        textarea.form-control { resize: vertical; min-height: 120px; }
+
+        .checkbox-container {
+            display: flex; align-items: center; gap: 10px; cursor: pointer;
+            font-size: 14px; color: #0369a1; font-weight: 600; margin-bottom: 20px; user-select: none;
+        }
+        .checkbox-container input { width: 18px; height: 18px; cursor: pointer; accent-color: #0ea5e9; }
+
+        .post-list { display: flex; flex-direction: column; gap: 16px; }
         .post-card { 
-            background-color: #f0f9ff; 
-            padding: 20px; 
-            border-radius: 12px; 
-            border: 1px solid #e0f2fe;
+            background-color: #ffffff; padding: 22px 25px; border-radius: 18px; border: 2px solid #bae6fd;
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.05); transition: all 0.3s; position: relative;
         }
-        .post-author { font-size: 13px; font-weight: 600; color: #0284c7; margin-bottom: 6px; }
-        .post-title { font-weight: 600; color: #334155; font-size: 16px; margin-bottom: 8px; }
-        .post-desc { font-size: 14px; color: #475569; margin-bottom: 12px; line-height: 1.5; }
-        .post-footer { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; border-top: 1px solid #e0f2fe; padding-top: 10px; }
+        .post-card:hover { border-color: #0284c7; box-shadow: 0 10px 25px rgba(14, 165, 233, 0.12); }
+        
+        .post-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .post-author { font-size: 13px; font-weight: 600; color: #0284c7; display: flex; align-items: center; gap: 6px; }
+        .anonymous-badge { background: #e2e8f0; color: #475569; font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 500; }
+        .post-time { font-size: 12px; color: #94a3b8; }
+
+        .post-title { font-weight: 700; color: #0369a1; font-size: 18px; margin-bottom: 8px; cursor: pointer; }
+        .post-title:hover { color: #0284c7; text-decoration: underline; }
+        .post-desc { font-size: 14px; color: #475569; margin-bottom: 15px; line-height: 1.6; }
+        
+        .post-footer { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #64748b; border-top: 2px solid #f0f9ff; padding-top: 12px; }
+        
+        .interaction-group { display: flex; gap: 15px; align-items: center; }
+        .interaction-btn { background: none; border: none; cursor: pointer; font-size: 13px; color: #64748b; display: inline-flex; align-items: center; gap: 5px; font-weight: 500; transition: 0.2s; }
+        .interaction-btn:hover { color: #0ea5e9; }
+        .interaction-btn.liked { color: #ef4444; font-weight: 600; }
+
+        .owner-actions { display: flex; gap: 8px; }
+        .btn-edit-sm { background-color: #e0f2fe; color: #0284c7; border: none; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .btn-edit-sm:hover { background-color: #0ea5e9; color: #fff; }
+        .btn-delete-sm { background-color: #fee2e2; color: #ef4444; border: none; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .btn-delete-sm:hover { background-color: #ef4444; color: #fff; }
+
+        #postDetailView { display: none; }
+        .btn-back {
+            background-color: #ffffff; color: #0284c7; border: 2px solid #bae6fd;
+            padding: 10px 20px; border-radius: 12px; font-size: 15px; font-weight: 600;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 25px;
+            transition: 0.2s; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+        }
+        .btn-back:hover { background-color: #f0f9ff; border-color: #0284c7; transform: translateX(-3px); }
+
+        .detail-card {
+            background: #ffffff; border-radius: 20px; border: 2px solid #bae6fd;
+            padding: 30px; box-shadow: 0 10px 30px rgba(14, 165, 233, 0.08); margin-bottom: 25px;
+        }
+        .comment-section { margin-top: 25px; }
+        .comment-section h4 { color: #0369a1; font-size: 16px; margin-bottom: 15px; }
+        .comment-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .comment-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 12px; font-size: 14px; color: #334155; }
+        .comment-author { font-weight: 600; color: #0284c7; font-size: 12px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
     <div class="navbar">
         <div class="nav-left">
-            <button class="menu-btn" id="menuToggle">☰</button>
+            <button class="menu-btn" id="menuToggle">&#9776;</button>
             <div class="logo-container">
                 <img id="navProfileImg" src="logo.jpg.jpg" alt="Logo" class="logo-img">
                 <span class="logo-text">Baby Go</span>
             </div>
         </div>
         <div class="nav-right">
-            <a href="notifications.html" class="icon-btn">🔔</a>
-            <a href="profile.html" class="icon-btn">👤</a>
+            <a href="notifications.html" class="icon-btn" title="แจ้งเตือน">&#128276;</a>
+            <a href="profile.html" class="icon-btn" title="โปรไฟล์">&#128100;</a>
         </div>
     </div>
 
@@ -111,7 +165,7 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h3>เมนู</h3>
-            <button class="close-btn" id="closeMenu">✕</button>
+            <button class="close-btn" id="closeMenu">&#10005;</button>
         </div>
         <ul class="sidebar-menu">
             <li><a href="content.html">หน้าแรก</a></li>
@@ -120,41 +174,57 @@
             <li><a href="nutrition.html">โภชนาการ</a></li>
             <li><a href="knowledge.html">ความรู้</a></li>
             <li><a href="ai_assistant.html">AI วิเคราะห์</a></li>
-            <li><a href="community.html">ชุมชน</a></li>
+            <li><a href="community.html" style="color: #0284c7; font-weight: 600;">ชุมชน</a></li>
             <li><a href="contact.html">ติดต่อเรา</a></li>
             <li><a href="login.html" style="color: #ef4444; font-weight: 600; border-bottom: none;">ออกจากระบบ</a></li>
         </ul>
     </div>
 
-    <div class="container">
-        <div class="header-section">
-            <h2>ชุมชนคุณแม่ Baby Go</h2>
-            <p>พื้นที่แลกเปลี่ยนประสบการณ์ แชร์เรื่องราว และปรึกษาพี่เลี้ยงแม่ๆ</p>
-        </div>
+    <div class="container animated-fade">
+        
+        <div id="mainCommunityView">
+            <div class="header-section">
+                <h2>ชุมชนคุณแม่ Baby Go</h2>
+                <p>พื้นที่แลกเปลี่ยนประสบการณ์ แชร์เรื่องราว และปรึกษาพี่เลี้ยงแม่ๆ ได้อย่างอิสระ</p>
+            </div>
 
-        <button class="post-btn" onclick="alert('ฟีเจอร์สร้างโพสต์จะเปิดให้ใช้งานเร็วๆ นี้ค่ะ!')">+ ตั้งกระทู้ / แชร์เรื่องราวของคุณแม่</button>
+            <div class="top-action-bar">
+                <button class="action-btn" onclick="togglePostModal()">ตั้งกระทู้</button>
+                <button class="action-btn btn-my-posts" id="myPostsBtn" onclick="filterMyPosts()">📄 กระทู้ของฉัน (<span id="myPostsCountBadge">0</span>)</button>
+                <button class="action-btn btn-back-all" id="backAllBtn" onclick="showAllPosts()">← กลับไปกระทู้รวมทั้งหมด</button>
+            </div>
 
-        <div class="post-list">
-            <div class="post-card">
-                <div class="post-author">คุณแม่น้องไทเกอร์ • 3 ชั่วโมงที่แล้ว</div>
-                <div class="post-title">แชร์ไอเดียเมนูลับทำให้น้องยอมกินผักค่ะ!</div>
-                <div class="post-desc">พอลองเอาแครอทไปต้มแล้วปั่นผสมกับข้าวตุ๋น ปั้นเป็นก้อนเล็กๆ น้องหยิบกินเองสนุกมาก แม่ๆ บ้านไหนลองทำดูนะคะ ได้ผลดีมากเลยค่ะ</div>
-                <div class="post-footer">
-                    <span>💬 12 ความคิดเห็น</span>
-                    <span>❤️ 34 ถูกใจ</span>
+            <div id="postModal">
+                <h3 id="modalTitleText" style="color: #0369a1; margin-bottom: 15px;">✍️ ตั้งกระทู้ใหม่ในชุมชน</h3>
+                <input type="hidden" id="editPostId" value="">
+                <div class="form-group">
+                    <label>หัวข้อกระทู้ / คำถาม:</label>
+                    <input type="text" id="postTitleInput" class="form-control" placeholder="เช่น ขอคำแนะนำวิธีรับมือลูกงอแงตอนดึกค่ะ">
+                </div>
+                <div class="form-group">
+                    <label>เนื้อหาโดยละเอียด:</label>
+                    <textarea id="postDescInput" class="form-control" placeholder="พิมพ์เล่าเรื่องราว ปัญหา หรือประสบการณ์ของคุณแม่ตรงนี้..."></textarea>
+                </div>
+                
+                <label class="checkbox-container">
+                    <input type="checkbox" id="anonymousCheckbox"> 
+                    🔒 โพสต์แบบไม่เปิดเผยตัวตน (แสดงเป็น "คุณแม่นิรนาม")
+                </label>
+
+                <div style="display: flex; gap: 10px;">
+                    <button class="action-btn" style="background-color: #10b981; margin:0;" onclick="savePostData()">ยืนยันการโพสต์</button>
+                    <button class="action-btn" style="background-color: #94a3b8; margin:0;" onclick="togglePostModal()">ยกเลิก</button>
                 </div>
             </div>
 
-            <div class="post-card">
-                <div class="post-author">คุณแม่น้องอิงฟ้า • เมื่อวานนี้</div>
-                <div class="post-title">สอบถามเรื่องรองเท้าคู่แรกของน้องค่ะ ซื้อทรงไหนดี?</div>
-                <div class="post-desc">น้องกำลังจะเริ่มหัดเดินเต็มตัวแล้วค่ะ ควรเลือกซื้อรองเท้าแบบไหน ยี่ห้อไหนดีที่จะซัพพอร์ตข้อเท้าและนุ่มสบายเท้าที่สุดคะ รบกวนแม่ๆ แนะนำทีค่ะ</div>
-                <div class="post-footer">
-                    <span>💬 25 ความคิดเห็น</span>
-                    <span>❤️ 48 ถูกใจ</span>
-                </div>
-            </div>
+            <div class="post-list" id="postListContainer"></div>
         </div>
+
+        <div id="postDetailView">
+            <button class="btn-back" onclick="goBackToFeed()">&#8249; ย้อนกลับหน้าชุมชน</button>
+            <div id="postDetailContainer"></div>
+        </div>
+
     </div>
 
     <script>
@@ -167,8 +237,300 @@
         closeMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        // ซิงก์รูปโปรไฟล์อัตโนมัติ
+        const currentUsername = localStorage.getItem('userName') || localStorage.getItem('userAccountName') || 'คุณแม่มือใหม่';
+
+        const singleDefaultPost = {
+            id: "post_1",
+            author: "คุณแม่น้องไทเกอร์",
+            isAnonymous: false,
+            title: "แชร์ไอเดียเมนูลับทำให้น้องยอมกินผักค่ะ!",
+            desc: "พอลองเอาแครอทไปต้มแล้วปั่นผสมกับข้าวตุ๋น ปั้นเป็นก้อนเล็กๆ น้องหยิบกินเองสนุกมาก แม่ๆ บ้านไหนลองทำดูนะคะ ได้ผลดีมากเลยค่ะ",
+            time: "3 ชั่วโมงที่แล้ว",
+            likes: 0,
+            isLiked: false,
+            comments: []
+        };
+
+        let savedPosts = JSON.parse(localStorage.getItem('babyGoCommunityPosts'));
+        if (!savedPosts || !Array.isArray(savedPosts) || savedPosts.length === 0 || savedPosts.length > 50) {
+            savedPosts = [singleDefaultPost];
+            localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
+        }
+
+        let showingMyPostsOnly = false;
+
+        function updateMyPostsBadge() {
+            const myCount = savedPosts.filter(p => p.author === currentUsername && !p.isAnonymous).length;
+            document.getElementById('myPostsCountBadge').innerText = myCount;
+        }
+
+        function renderPosts(isMyList = false) {
+            showingMyPostsOnly = isMyList;
+            let html = '';
+            
+            const myPostsBtn = document.getElementById('myPostsBtn');
+            const backAllBtn = document.getElementById('backAllBtn');
+
+            if (isMyList) {
+                myPostsBtn.style.display = 'none';
+                backAllBtn.style.display = 'flex';
+            } else {
+                myPostsBtn.style.display = 'flex';
+                backAllBtn.style.display = 'none';
+            }
+            
+            let targetList = isMyList 
+                ? savedPosts.filter(p => p.author === currentUsername && !p.isAnonymous)
+                : savedPosts;
+
+            if (targetList.length === 0) {
+                document.getElementById('postListContainer').innerHTML = `<div style="text-align: center; color: #64748b; padding: 40px;">ยังไม่มีกระทู้ในส่วนนี้ครับ ลองกดปุ่ม "ตั้งกระทู้" ด้านบนได้เลย!</div>`;
+                updateMyPostsBadge();
+                return;
+            }
+
+            targetList.forEach((post) => {
+                let authorDisplay = post.isAnonymous ? `<span class="anonymous-badge">🕵️‍♀️ คุณแม่นิรนาม</span>` : `👤 ${post.author}`;
+                let isOwner = (post.author === currentUsername && !post.isAnonymous);
+                
+                let ownerButtonsHtml = isOwner ? `
+                    <div class="owner-actions">
+                        <button class="btn-edit-sm" onclick="editPost('${post.id}')">แก้ไข</button>
+                        <button class="btn-delete-sm" onclick="deletePost(event, '${post.id}')">ลบ</button>
+                    </div>
+                ` : '';
+
+                html += `
+                    <div class="post-card animated-fade">
+                        <div class="post-header-info">
+                            <div class="post-author">${authorDisplay}</div>
+                            <div class="post-time">${post.time}</div>
+                        </div>
+                        <div class="post-title" onclick="openPostDetail('${post.id}')">${post.title}</div>
+                        <div class="post-desc">${post.desc}</div>
+                        <div class="post-footer">
+                            <div class="interaction-group">
+                                <button class="interaction-btn ${post.isLiked ? 'liked' : ''}" onclick="toggleLikeFromFeed(event, '${post.id}')">
+                                    ${post.isLiked ? '❤️' : '🤍'} ${post.likes || 0} ถูกใจ
+                                </button>
+                                <button class="interaction-btn" onclick="openPostDetail('${post.id}')">
+                                    💬 ${post.comments ? post.comments.length : 0} ความคิดเห็น
+                                </button>
+                            </div>
+                            ${ownerButtonsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('postListContainer').innerHTML = html;
+            updateMyPostsBadge();
+            localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
+        }
+
+        function toggleLikeFromFeed(event, postId) {
+            event.stopPropagation();
+            const post = savedPosts.find(p => p.id === postId);
+            if (post) {
+                if (post.isLiked) {
+                    post.likes = Math.max(0, (post.likes || 1) - 1);
+                    post.isLiked = false;
+                } else {
+                    post.likes = (post.likes || 0) + 1;
+                    post.isLiked = true;
+                }
+                localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
+                renderPosts(showingMyPostsOnly);
+            }
+        }
+
+        function togglePostModal() {
+            const modal = document.getElementById('postModal');
+            if (modal.style.display === 'block') {
+                modal.style.display = 'none';
+            } else {
+                document.getElementById('modalTitleText').innerText = '✍️ ตั้งกระทู้ใหม่ในชุมชน';
+                document.getElementById('editPostId').value = '';
+                document.getElementById('postTitleInput').value = '';
+                document.getElementById('postDescInput').value = '';
+                document.getElementById('anonymousCheckbox').checked = false;
+                modal.style.display = 'block';
+                modal.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function savePostData() {
+            const editId = document.getElementById('editPostId').value;
+            const title = document.getElementById('postTitleInput').value.trim();
+            const desc = document.getElementById('postDescInput').value.trim();
+            const isAnonymous = document.getElementById('anonymousCheckbox').checked;
+
+            if (!title || !desc) {
+                alert('กรุณากรอกหัวข้อและเนื้อหากระทู้ให้ครบถ้วนครับ!');
+                return;
+            }
+
+            if (editId) {
+                const post = savedPosts.find(p => p.id === editId);
+                if (post) {
+                    post.title = title;
+                    post.desc = desc;
+                    post.isAnonymous = isAnonymous;
+                }
+                alert('แก้ไขกระทู้สำเร็จเรียบร้อยแล้ว!');
+            } else {
+                const newPost = {
+                    id: "post_" + Date.now(),
+                    author: currentUsername,
+                    isAnonymous: isAnonymous,
+                    title: title,
+                    desc: desc,
+                    time: "เมื่อสักครู่นี้",
+                    likes: 0,
+                    isLiked: false,
+                    comments: []
+                };
+                savedPosts.unshift(newPost);
+                alert('ตั้งกระทู้สำเร็จเรียบร้อยแล้ว!');
+            }
+
+            localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
+            document.getElementById('postModal').style.display = 'none';
+            renderPosts(showingMyPostsOnly);
+        }
+
+        function editPost(postId) {
+            const post = savedPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            document.getElementById('modalTitleText').innerText = '✏️ แก้ไขกระทู้ของคุณ';
+            document.getElementById('editPostId').value = post.id;
+            document.getElementById('postTitleInput').value = post.title;
+            document.getElementById('postDescInput').value = post.desc;
+            document.getElementById('anonymousCheckbox').checked = post.isAnonymous;
+
+            const modal = document.getElementById('postModal');
+            modal.style.display = 'block';
+            modal.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deletePost(event, postId) {
+            event.stopPropagation();
+            if (confirm('คุณต้องการลบกระทู้นี้ใช่หรือไม่?')) {
+                savedPosts = savedPosts.filter(p => p.id !== postId);
+                localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
+                renderPosts(showingMyPostsOnly);
+                alert('ลบกระทู้เรียบร้อยแล้วครับ!');
+            }
+        }
+
+        function filterMyPosts() {
+            renderPosts(true);
+        }
+
+        function showAllPosts() {
+            renderPosts(false);
+        }
+
+        let currentOpenPostId = null;
+
+        function openPostDetail(postId) {
+            currentOpenPostId = postId;
+            const post = savedPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            let authorDisplay = post.isAnonymous ? `<span class="anonymous-badge">🕵️‍♀️ คุณแม่นิรนาม</span>` : `👤 ${post.author}`;
+
+            let commentsHtml = '';
+            if (!post.comments || post.comments.length === 0) {
+                commentsHtml = `<div style="color: #94a3b8; font-size: 14px; text-align: center; padding: 15px;">ยังไม่มีความคิดเห็น เป็นคนแรกที่แสดงความคิดเห็นเลยสิคะ!</div>`;
+            } else {
+                post.comments.forEach(c => {
+                    commentsHtml += `
+                        <div class="comment-item animated-fade">
+                            <div class="comment-author">💬 ${c.author}</div>
+                            <div>${c.text}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('postDetailContainer').innerHTML = `
+                <div class="detail-card animated-fade">
+                    <div class="post-header-info" style="margin-bottom: 12px;">
+                        <div class="post-author" style="font-size: 14px;">${authorDisplay}</div>
+                        <div class="post-time">${post.time}</div>
+                    </div>
+                    <h2 style="color: #0369a1; font-size: 22px; margin-bottom: 12px; font-weight: 700;">${post.title}</h2>
+                    <p style="color: #475569; font-size: 15px; line-height: 1.8; margin-bottom: 20px;">${post.desc}</p>
+                    
+                    <div style="display: flex; gap: 15px; border-top: 2px solid #f0f9ff; padding-top: 15px;">
+                        <button class="interaction-btn ${post.isLiked ? 'liked' : ''}" onclick="toggleLikeDetail('${post.id}')" style="font-size: 14px;">
+                            ${post.isLiked ? '❤️' : '🤍'} ${post.likes || 0} ถูกใจ
+                        </button>
+                    </div>
+
+                    <div class="comment-section">
+                        <h4>ความคิดเห็นทั้งหมด (${post.comments ? post.comments.length : 0})</h4>
+                        <div class="comment-list">
+                            ${commentsHtml}
+                        </div>
+
+                        <div class="form-group" style="margin-top: 20px;">
+                            <textarea id="newCommentInput" class="form-control" placeholder="แสดงความคิดเห็นหรือให้คำแนะนำคุณแม่..."></textarea>
+                        </div>
+                        <button class="action-btn" style="margin: 0; padding: 10px;" onclick="submitComment()">ส่งความคิดเห็น</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('mainCommunityView').style.display = 'none';
+            document.getElementById('postDetailView').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleLikeDetail(postId) {
+            const post = savedPosts.find(p => p.id === postId);
+            if (post) {
+                if (post.isLiked) {
+                    post.likes = Math.max(0, (post.likes || 1) - 1);
+                    post.isLiked = false;
+                } else {
+                    post.likes = (post.likes || 0) + 1;
+                    post.isLiked = true;
+                }
+                localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
+                openPostDetail(postId);
+            }
+        }
+
+        function submitComment() {
+            const commentText = document.getElementById('newCommentInput').value.trim();
+            if (!commentText) {
+                alert('กรุณากรอกข้อความความคิดเห็นก่อนส่งครับ!');
+                return;
+            }
+
+            const post = savedPosts.find(p => p.id === currentOpenPostId);
+            if (post) {
+                if (!post.comments) post.comments = [];
+                post.comments.push({
+                    author: currentUsername,
+                    text: commentText
+                });
+                localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
+                openPostDetail(currentOpenPostId);
+            }
+        }
+
+        function goBackToFeed() {
+            document.getElementById('postDetailView').style.display = 'none';
+            document.getElementById('mainCommunityView').style.display = 'block';
+            renderPosts(showingMyPostsOnly);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
+            renderPosts(false);
             const savedImg = localStorage.getItem('userProfileImg');
             if (savedImg) {
                 document.getElementById('navProfileImg').src = savedImg;

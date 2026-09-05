@@ -3,35 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baby Go - พัฒนาการเด็ก</title>
+    <title>Baby Go - บันทึกและแจ้งเตือนการฉีดวัคซีน (0 เดือน - 6 ปี+)</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
-        body { background-color: #ffffff; color: #333333; font-size: 15px; }
+        body { background-color: #f8fafc; color: #333333; font-size: 15px; overflow-x: hidden; }
         
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animated-fade { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
         /* Navbar มาตรฐาน */
         .navbar {
+            background-color: #ffffff;
             padding: 15px 20px;
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid #f0f9ff;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
         .nav-left { display: flex; align-items: center; gap: 20px; }
-        .menu-btn { font-size: 28px; cursor: pointer; color: #0ea5e9; background: none; border: none; }
+        .menu-btn { font-size: 28px; cursor: pointer; color: #0ea5e9; background: none; border: none; transition: transform 0.2s; }
         
         .logo-container { display: flex; align-items: center; gap: 15px; text-decoration: none; }
-        .logo-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
+        .logo-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
         .logo-text { font-size: 20px; font-weight: 500; color: #0284c7; letter-spacing: 0.5px; }
 
-        /* ไอคอนกระดิ่งและโปรไฟล์มุมขวาบน */
-        .nav-right { display: flex; align-items: center; gap: 20px; }
-        .icon-btn { font-size: 30px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .icon-btn { font-size: 26px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; position: relative; }
 
-        /* Sidebar (ซ่อนไว้ก่อน รอคลิกค่อยโผล่) */
+        .badge-dot {
+            position: absolute; top: 0; right: 0; width: 10px; height: 10px;
+            background-color: #ef4444; border-radius: 50%; display: none;
+        }
+
+        /* Sidebar */
         .sidebar {
             position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
             background-color: #f0f9ff; 
-            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
-            transition: 0.3s; z-index: 200; padding: 30px;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.08);
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 30px;
             overflow-y: auto;
         }
         .sidebar.active { left: 0; }
@@ -40,44 +54,219 @@
         .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0ea5e9; }
         
         .sidebar-menu { list-style: none; }
-        .sidebar-menu li a { display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; border-bottom: 1px solid rgba(14, 165, 233, 0.1); }
-        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; }
+        .sidebar-menu li a { 
+            display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; 
+            border-bottom: 1px solid rgba(14, 165, 233, 0.1); transition: all 0.2s; 
+        }
+        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; padding-left: 5px; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); display: none; z-index: 150; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.15); display: none; z-index: 150; backdrop-filter: blur(2px); }
         .overlay.active { display: block; }
 
-        /* Container เนื้อหาหน้าพัฒนาการเด็ก */
-        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        /* Container เนื้อหาหน้าวัคซีน */
+        .container { max-width: 950px; margin: 20px auto 40px auto; padding: 0 20px; }
         
-        .header-section { margin: 20px 0; text-align: center; }
-        .header-section h2 { 
-            font-size: 24px; 
-            font-weight: 600; 
-            color: #0284c7; 
+        .header-section { margin: 10px 0 25px 0; text-align: center; }
+        .header-section h2 { font-size: 26px; font-weight: 600; color: #0284c7; }
+        .header-section p { font-size: 14px; color: #64748b; margin-top: 5px; }
+
+        /* กล่องแจ้งเตือนนัดหมายวัคซีน */
+        .alert-banner {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            border: 1.5px solid #f59e0b; border-radius: 20px; padding: 20px;
+            margin-bottom: 25px; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.12);
         }
-        .header-section p {
-            font-size: 14px;
-            color: #64748b;
-            margin-top: 5px;
+        .alert-top-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 15px; }
+        .alert-left-content { display: flex; align-items: center; gap: 14px; }
+        .alert-icon-box {
+            width: 44px; height: 44px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+        }
+        .alert-text h4 { font-size: 16px; color: #b45309; font-weight: 600; }
+        .alert-text p { font-size: 14px; color: #92400e; margin-top: 2px; font-weight: 500; line-height: 1.4; }
+        
+        .alert-btn-group { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+        
+        /* ปุ่ม "แจ้งเตือน" (อยู่ทางซ้าย) */
+        .btn-notify-me {
+            background-color: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; padding: 6px 12px;
+            border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: 600; transition: 0.2s; white-space: nowrap;
+            display: none; 
+        }
+        .btn-notify-me:hover { background-color: #bae6fd; }
+        .btn-notify-me.active { background-color: #0284c7; color: white; border-color: #0284c7; }
+
+        /* ปุ่มล้างการตั้งค่า (อยู่ทางขวา) */
+        .btn-clear-alert {
+            background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; padding: 6px 12px;
+            border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: 600; transition: 0.2s; white-space: nowrap;
+            display: none;
+        }
+        .btn-clear-alert:hover { background-color: #fecaca; }
+
+        .alert-action-grid {
+            display: grid; grid-template-columns: 1.5fr 1.2fr 1fr; gap: 12px; align-items: start;
+            border-top: 1px solid rgba(245, 158, 11, 0.25); padding-top: 15px; width: 100%; margin-bottom: 15px;
+        }
+        .control-group { display: flex; flex-direction: column; gap: 5px; position: relative; }
+        .control-group label { font-size: 12px; color: #92400e; font-weight: 600; }
+        
+        .alert-date-input {
+            padding: 9px 12px; border: 1px solid #f59e0b; border-radius: 10px; font-size: 13px; background: #fff; color: #333; outline: none; width: 100%;
         }
 
-        .age-group-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
-        .age-card { 
-            background-color: #f0f9ff; 
-            padding: 20px; 
-            border-radius: 12px; 
-            border: 1px solid #e0f2fe;
-            text-decoration: none;
-            color: #334155;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.2s;
+        /* CUSTOM DROPDOWN */
+        .custom-select-container { position: relative; width: 100%; }
+        .custom-select-trigger {
+            padding: 9px 12px; border: 1px solid #f59e0b; border-radius: 10px; font-size: 13px; background: #fff; color: #333;
+            cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;
         }
-        .age-card:hover { background-color: #e0f2fe; }
-        .age-title { font-weight: 500; color: #0284c7; font-size: 16px; }
-        .age-desc { font-size: 13px; color: #64748b; margin-top: 3px; }
-        .arrow { color: #0284c7; font-size: 18px; }
+        .custom-select-trigger::after { content: '▼'; font-size: 10px; color: #b45309; transition: transform 0.2s; }
+        .custom-select-container.open .custom-select-trigger::after { transform: rotate(180deg); }
+
+        .custom-options {
+            position: absolute; top: calc(100% + 4px); left: 0; width: 100%; max-height: 220px; overflow-y: auto;
+            background: #fff; border: 1px solid #f59e0b; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            display: none; z-index: 999;
+        }
+        .custom-select-container.open .custom-options { display: block; }
+        .custom-option {
+            padding: 10px 12px; font-size: 13px; color: #333; cursor: pointer; border-bottom: 1px solid #fdf2e9;
+        }
+        .custom-option:hover { background-color: #fef3c7; color: #b45309; font-weight: 500; }
+        .custom-option:last-child { border-bottom: none; }
+
+        .quick-days-container { display: flex; gap: 5px; }
+        .btn-quick-day {
+            flex: 1; background-color: #fff; color: #b45309; border: 1px solid #f59e0b; padding: 9px 4px;
+            border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s; text-align: center;
+        }
+        .btn-quick-day:hover { background-color: #f59e0b; color: white; }
+
+        /* ส่วนแสดงรายการวัคซีนที่ควรฉีดต่อไปด้านล่างแบนเนอร์เตือน */
+        .banner-next-queue-section {
+            border-top: 1px solid rgba(245, 158, 11, 0.25); padding-top: 12px;
+        }
+        .banner-next-queue-section h5 { font-size: 13px; color: #92400e; margin-bottom: 6px; font-weight: 600; }
+        .banner-queue-list {
+            list-style: none; max-height: 120px; overflow-y: auto; background: #fffdf5; border: 1px solid #fde68a; border-radius: 8px; padding: 8px;
+        }
+        .banner-queue-list li {
+            padding: 4px 6px; font-size: 12px; color: #78350f; border-bottom: 1px dashed #fef3c7; display: flex; justify-content: space-between;
+        }
+        .banner-queue-list li:last-child { border-bottom: none; }
+
+        /* แผงสรุปสถิติ & ปุ่มเปิดหน้าต่างสรุปประวัติ */
+        .summary-wrapper {
+            display: grid; grid-template-columns: 2.5fr 1fr; gap: 20px; margin-bottom: 30px; align-items: center;
+        }
+        .summary-card {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: white; border-radius: 20px; padding: 22px;
+            display: flex; justify-content: space-around; text-align: center;
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.25);
+        }
+        .summary-item h3 { font-size: 26px; font-weight: 600; }
+        .summary-item p { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+
+        .btn-summary-modal {
+            background: linear-gradient(135deg, #10b981, #059669); color: white; border: none;
+            padding: 22px 20px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25); transition: all 0.2s; display: flex;
+            flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;
+            height: 100%;
+        }
+        .btn-summary-modal:hover { filter: brightness(1.05); transform: translateY(-2px); }
+
+        /* Modal สรุปประวัติวัคซีน */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4);
+            display: none; justify-content: center; align-items: center; z-index: 300; backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: #ffffff; width: 90%; max-width: 500px; border-radius: 20px; padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; flex-shrink: 0; }
+        .modal-header h3 { color: #059669; font-size: 18px; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b; }
+        
+        .modal-body-scrollable {
+            overflow-y: auto; max-height: calc(85vh - 80px); padding-right: 4px;
+        }
+
+        .summary-box-modal {
+            background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 15px; margin-bottom: 15px; position: relative;
+        }
+        .summary-box-modal h4 { color: #166534; font-size: 15px; margin-bottom: 5px; }
+        .summary-box-modal p { color: #15803d; font-size: 13px; line-height: 1.4; padding-right: 120px; }
+        
+        .modal-btn-group {
+            position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; align-items: center;
+            display: none; /* ซ่อนไว้ก่อนถ้ายังไม่มีข้อมูลนัด */
+        }
+        .btn-modal-action {
+            background-color: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc;
+            padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .btn-modal-action:hover { background-color: #bae6fd; }
+        .btn-modal-action.active { background-color: #0284c7; color: white; border-color: #0284c7; }
+
+        .btn-modal-delete {
+            background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5;
+            padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .btn-modal-delete:hover { background-color: #fecaca; }
+
+        .modal-list { list-style: none; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; margin-bottom: 15px; }
+        .modal-list li { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; font-size: 13px; color: #334155; }
+        .modal-list li:last-child { border-bottom: none; }
+
+        /* ตารางวัคซีน */
+        .vaccine-section { 
+            background: #ffffff; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
+            padding: 22px; margin-bottom: 25px; border: 1px solid #e0f2fe; 
+        }
+        
+        .section-title-wrapper { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f9ff; padding-bottom: 12px; margin-bottom: 15px; }
+        .section-title { font-size: 18px; font-weight: 600; color: #0284c7; display: flex; align-items: center; gap: 8px; }
+
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+        th { background-color: #f8fafc; color: #0369a1; padding: 12px; font-weight: 500; border-radius: 6px; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle; }
+
+        .status-badge {
+            padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; display: inline-block;
+        }
+        .status-pending { background-color: #fef3c7; color: #d97706; }
+        .status-done { background-color: #dcfce7; color: #16a34a; }
+
+        .date-input { 
+            padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; width: 135px; outline: none; 
+        }
+        
+        .btn-action-group { display: flex; gap: 6px; align-items: center; }
+        .btn-save {
+            background: linear-gradient(135deg, #38bdf8, #0ea5e9); color: white; border: none; padding: 7px 12px;
+            border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(14, 165, 233, 0.25);
+        }
+        .btn-save:hover { filter: brightness(1.05); }
+
+        .btn-reset-row {
+            background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; padding: 7px 10px;
+            border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: 600; transition: 0.2s;
+        }
+        .btn-reset-row:hover { background-color: #fecaca; }
+
+        @media (max-width: 768px) {
+            .alert-action-grid { grid-template-columns: 1fr; }
+            .summary-wrapper { grid-template-columns: 1fr; }
+            .date-input { width: 110px; }
+        }
     </style>
 </head>
 <body>
@@ -91,7 +280,10 @@
             </div>
         </div>
         <div class="nav-right">
-            <a href="notifications.html" class="icon-btn">🔔</a>
+            <a href="notifications.html" class="icon-btn" title="ศูนย์แจ้งเตือน">
+                🔔
+                <span class="badge-dot" id="notifBadge"></span>
+            </a>
             <a href="profile.html" class="icon-btn">👤</a>
         </div>
     </div>
@@ -106,7 +298,7 @@
         <ul class="sidebar-menu">
             <li><a href="content.html">หน้าแรก</a></li>
             <li><a href="development.html">พัฒนาการเด็ก</a></li>
-            <li><a href="vaccine.html">วัคซีน</a></li>
+            <li><a href="vaccine.html" style="color: #0284c7; font-weight: 500;">วัคซีน</a></li>
             <li><a href="nutrition.html">โภชนาการ</a></li>
             <li><a href="knowledge.html">ความรู้</a></li>
             <li><a href="ai_assistant.html">AI วิเคราะห์</a></li>
@@ -116,48 +308,538 @@
         </ul>
     </div>
 
-    <div class="container">
-        <div class="header-section">
-            <h2>พัฒนาการเด็กตามช่วงวัย</h2>
-            <p>เลือกช่วงอายุของน้องเพื่อดูข้อมูลพัฒนาการที่เหมาะสม</p>
-        </div>
-
-        <div class="age-group-list">
-            <a href="#" class="age-card">
-                <div>
-                    <div class="age-title">วัยแรกเกิด - 1 ปี</div>
-                    <div class="age-desc">การพลิกคว่ำ คลาน เริ่มหัดตั้งไข่</div>
+    <!-- Modal สรุปประวัติและคิววัคซีน -->
+    <div class="modal-overlay" id="summaryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📋 สรุปประวัติการฉีดและคิววัคซีน</h3>
+                <button class="modal-close" onclick="toggleSummaryModal(false)">✕</button>
+            </div>
+            
+            <div class="modal-body-scrollable">
+                <div class="summary-box-modal">
+                    <h4>🎯 สถานะนัดหมายถัดไป</h4>
+                    <p id="modalNextAlertText">กำลังโหลดข้อมูล...</p>
+                    <div class="modal-btn-group" id="modalBtnGroup">
+                        <button class="btn-modal-action" id="btnModalSave" onclick="toggleNotifyMe()">แจ้งเตือน</button>
+                        <button class="btn-modal-delete" onclick="clearAlertSettings(); openSummaryModal();">ลบ</button>
+                    </div>
                 </div>
-                <div class="arrow">›</div>
-            </a>
 
-            <a href="#" class="age-card">
-                <div>
-                    <div class="age-title">วัยเตาะแตะ (1 - 3 ปี)</div>
-                    <div class="age-desc">การหัดเดิน การพูดคำแรก และการทรงตัว</div>
-                </div>
-                <div class="arrow">›</div>
-            </a>
-
-            <a href="#" class="age-card">
-                <div>
-                    <div class="age-title">วัยอนุบาล (3 - 6 ปี)</div>
-                    <div class="age-desc">ทักษะทางสังคม การใช้กล้ามเนื้อมัดเล็ก</div>
-                </div>
-                <div class="arrow">›</div>
-            </a>
-
-            <a href="#" class="age-card">
-                <div>
-                    <div class="age-title">วัยประถม (6 - 12 ปี)</div>
-                    <div class="age-desc">การเรียนรู้ เหตุผล และการเข้าสังคม</div>
-                </div>
-                <div class="arrow">›</div>
-            </a>
+                <h4 style="font-size: 14px; color: #334155; margin-bottom: 8px;">✅ รายการที่ฉีดแล้วทั้งหมด:</h4>
+                <ul class="modal-list" id="modalDoneList">
+                    <li>กำลังโหลด...</li>
+                </ul>
+            </div>
         </div>
     </div>
 
+    <div class="container animated-fade">
+        <div class="header-section">
+            <h2>ตารางบันทึกการฉีดวัคซีนเด็ก (พื้นฐาน + วัคซีนทางเลือก)</h2>
+            <p>บันทึกประวัติและตรวจสอบช่วงวัยในการรับวัคซีนของลูกน้อยเพื่อภูมิคุ้มกันที่แข็งแรง</p>
+        </div>
+
+        <!-- กล่องแจ้งเตือนนัดหมายวัคซีน -->
+        <div class="alert-banner" id="alertBanner">
+            <div class="alert-top-row">
+                <div class="alert-left-content">
+                    <div class="alert-icon-box">💡</div>
+                    <div class="alert-text">
+                        <h4>แจ้งเตือนนัดหมายฉีดวัคซีนถัดไป</h4>
+                        <p id="alertMessage">กำลังคำนวณวันนัดจากประวัติการฉีด...</p>
+                    </div>
+                </div>
+                <div class="alert-btn-group">
+                    <!-- ปุ่มแจ้งเตือน (ซ้าย) และปุ่มล้างการตั้งค่า (ขวา) จะซ่อนถ้ายังไม่มีนัด -->
+                    <button class="btn-notify-me" id="btnNotifyMe" onclick="toggleNotifyMe()">แจ้งเตือน</button>
+                    <button class="btn-clear-alert" id="btnClearAlert" onclick="clearAlertSettings()">ล้างการตั้งค่า</button>
+                </div>
+            </div>
+            <div class="alert-action-grid">
+                <div class="control-group">
+                    <label>เลือกดูวัคซีนที่ต้องนัด:</label>
+                    <div class="custom-select-container" id="customSelect">
+                        <div class="custom-select-trigger" id="customSelectTrigger">-- เลือกวัคซีน --</div>
+                        <div class="custom-options" id="customOptions"></div>
+                    </div>
+                    <input type="hidden" id="alertVaccineSelect" value="">
+                </div>
+                <div class="control-group">
+                    <label>ตั้งเตือนด่วน:</label>
+                    <div class="quick-days-container">
+                        <button class="btn-quick-day" onclick="setQuickDays(7)">+7 วัน</button>
+                        <button class="btn-quick-day" onclick="setQuickDays(15)">+15 วัน</button>
+                        <button class="btn-quick-day" onclick="setQuickDays(30)">+30 วัน</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>เลือกวันที่นัดเอง:</label>
+                    <input type="date" class="alert-date-input" id="nextVaccineDate" onchange="saveCustomAlertDate()">
+                </div>
+            </div>
+
+            <!-- ส่วนแสดงรายการวัคซีนที่ควรฉีดต่อไปด้านล่างแบนเนอร์เตือน -->
+            <div class="banner-next-queue-section">
+                <h5>⏳ รายการวัคซีนที่ควรฉีดต่อไป (ตามลำดับอัตโนมัติ):</h5>
+                <ul class="banner-queue-list" id="bannerNextQueueList">
+                    <li>กำลังโหลด...</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- แผงสรุปสถิติ & ปุ่มกดเปิดหน้าต่างสรุปประวัติ -->
+        <div class="summary-wrapper">
+            <div class="summary-card">
+                <div class="summary-item">
+                    <h3 id="totalCount">0</h3>
+                    <p>วัคซีนทั้งหมด</p>
+                </div>
+                <div class="summary-item">
+                    <h3 id="completedCount" style="color: #bbf7d0;">0</h3>
+                    <p>ฉีดแล้ว</p>
+                </div>
+                <div class="summary-item">
+                    <h3 id="pendingCount" style="color: #fef08a;">0</h3>
+                    <p>ยังไม่ได้ฉีด</p>
+                </div>
+            </div>
+            <button class="btn-summary-modal" onclick="openSummaryModal()">
+                <span style="font-size: 20px;">📋</span>
+                <span>สรุปประวัติ & คิววัคซีน</span>
+            </button>
+        </div>
+
+        <!-- พื้นที่แสดงตารางวัคซีน -->
+        <div id="vaccineContainer"></div>
+    </div>
+
     <script>
+        const vaccineData = [
+            {
+                group: "แรกเกิด (0 เดือน)",
+                items: [
+                    { id: "v_bcg", name: "BCG", prevent: "วัณโรค", intervalDays: 30 },
+                    { id: "v_hbv1", name: "HBV เข็ม 1", prevent: "ไวรัสตับอักเสบบี", intervalDays: 60 }
+                ]
+            },
+            {
+                group: "2 เดือน",
+                items: [
+                    { id: "v_dtphib1", name: "DTP-HB-Hib เข็ม 1", prevent: "คอตีบ ไอกรน บาดยักษ์", intervalDays: 60 },
+                    { id: "v_opv1", name: "OPV เข็ม 1", prevent: "โปลิโอหยอด", intervalDays: 60 },
+                    { id: "v_ipv1", name: "IPV เข็ม 1", prevent: "โปลิโอฉีด", intervalDays: 60 },
+                    { id: "v_rotav1", name: "Rotavirus เข็ม 1 (ทางเลือก)", prevent: "ท้องร่วงโรตา", intervalDays: 60 },
+                    { id: "v_pcv1", name: "PCV เข็ม 1 (ทางเลือก)", prevent: "ติดเชื้อนิวโมคอคคัส/ปอดบวม", intervalDays: 60 }
+                ]
+            },
+            {
+                group: "4 เดือน",
+                items: [
+                    { id: "v_dtphib2", name: "DTP-HB-Hib เข็ม 2", prevent: "คอตีบ ไอกรน บาดยักษ์", intervalDays: 60 },
+                    { id: "v_opv2", name: "OPV เข็ม 2", prevent: "โปลิโอหยอด", intervalDays: 60 },
+                    { id: "v_rotav2", name: "Rotavirus เข็ม 2 (ทางเลือก)", prevent: "ท้องร่วงโรตา", intervalDays: 60 },
+                    { id: "v_pcv2", name: "PCV เข็ม 2 (ทางเลือก)", prevent: "ติดเชื้อนิวโมคอคคัส/ปอดบวม", intervalDays: 60 }
+                ]
+            },
+            {
+                group: "6 เดือน",
+                items: [
+                    { id: "v_dtphib3", name: "DTP-HB-Hib เข็ม 3", prevent: "คอตีบ ไอกรน บาดยักษ์", intervalDays: 90 },
+                    { id: "v_opv3", name: "OPV เข็ม 3", prevent: "โปลิโอหยอด", intervalDays: 90 },
+                    { id: "v_jev1", name: "JE เข็ม 1", prevent: "ไข้สมองอักเสบ", intervalDays: 90 },
+                    { id: "v_rotav3", name: "Rotavirus เข็ม 3 (ทางเลือก)", prevent: "ท้องร่วงโรตา", intervalDays: 90 },
+                    { id: "v_pcv3", name: "PCV เข็ม 3 (ทางเลือก)", prevent: "ติดเชื้อนิวโมคอคคัส/ปอดบวม", intervalDays: 90 },
+                    { id: "v_flu1", name: "ไข้หวัดใหญ่ เข็ม 1 (ทางเลือก)", prevent: "ไข้หวัดใหญ่ตามฤดูกาล", intervalDays: 180 }
+                ]
+            },
+            {
+                group: "9 - 12 เดือน",
+                items: [
+                    { id: "v_mmr1", name: "MMR เข็ม 1", prevent: "หัด คางทูม หัดเยอรมัน", intervalDays: 180 },
+                    { id: "v_jev2", name: "JE เข็ม 2", prevent: "ไข้สมองอักเสบ", intervalDays: 180 },
+                    { id: "v_var1", name: "Varicella เข็ม 1 (ทางเลือก)", prevent: "อีสุกอีใส", intervalDays: 180 },
+                    { id: "v_men1", name: "ไข้กาฬหลังแอ่น (ทางเลือก)", prevent: "เยื่อหุ้มสมองอักเสบ", intervalDays: 180 }
+                ]
+            },
+            {
+                group: "1 ปีครึ่ง (18 เดือน)",
+                items: [
+                    { id: "v_dtp4", name: "DTP เข็มกระตุ้น", prevent: "คอตีบ ไอกรน บาดยักษ์", intervalDays: 365 },
+                    { id: "v_opv4", name: "OPV เข็มกระตุ้น", prevent: "โปลิโอหยอด", intervalDays: 365 },
+                    { id: "v_mmr2", name: "MMR เข็ม 2", prevent: "หัด คางทูม หัดเยอรมัน", intervalDays: 365 },
+                    { id: "v_ha1", name: "Hepatitis A เข็ม 1 (ทางเลือก)", prevent: "ตับอักเสบเอ", intervalDays: 180 },
+                    { id: "v_pcv4", name: "PCV เข็มกระตุ้น (ทางเลือก)", prevent: "ติดเชื้อนิวโมคอคคัส/ปอดบวม", intervalDays: 365 }
+                ]
+            },
+            {
+                group: "2 ปี - 3 ปี",
+                items: [
+                    { id: "v_ha2", name: "Hepatitis A เข็ม 2 (ทางเลือก)", prevent: "ตับอักเสบเอ", intervalDays: 730 },
+                    { id: "v_var2", name: "Varicella เข็ม 2 (ทางเลือก)", prevent: "อีสุกอีใส", intervalDays: 730 },
+                    { id: "v_flu_annual", name: "ไข้หวัดใหญ่ประจำปี (ทางเลือก)", prevent: "ไข้หวัดใหญ่ตามฤดูกาล", intervalDays: 365 }
+                ]
+            },
+            {
+                group: "4 - 6 ปี",
+                items: [
+                    { id: "v_dtp5", name: "DTP เข็มก่อนเข้าเรียน", prevent: "คอตีบ ไอกรน บาดยักษ์", intervalDays: 365 },
+                    { id: "v_opv5", name: "OPV เข็มก่อนเข้าเรียน", prevent: "โปลิโอหยอด", intervalDays: 365 },
+                    { id: "v_mmr3", name: "MMR เข็มเก็บตก", prevent: "หัด คางทูม หัดเยอรมัน", intervalDays: 365 }
+                ]
+            },
+            {
+                group: "9 ปีขึ้นไป (วัยเรียน / วัยรุ่น)",
+                items: [
+                    { id: "v_hpv1", name: "HPV เข็ม 1 (ทางเลือก)", prevent: "มะเร็งปากมดลูก / หูดหงอนไก่", intervalDays: 180 },
+                    { id: "v_hpv2", name: "HPV เข็ม 2 (ทางเลือก)", prevent: "มะเร็งปากมดลูก / หูดหงอนไก่", intervalDays: 365 },
+                    { id: "v_dengue", name: "ไข้เลือดออก (ทางเลือก)", prevent: "ไข้เลือดออกสายพันธุ์ต่างๆ", intervalDays: 365 }
+                ]
+            }
+        ];
+
+        function getAllFlattenVaccines() {
+            let list = [];
+            vaccineData.forEach(g => {
+                g.items.forEach(i => list.push(i));
+            });
+            return list;
+        }
+
+        function toggleSummaryModal(isOpen) {
+            const modal = document.getElementById('summaryModal');
+            if (isOpen) {
+                modal.classList.add('active');
+            } else {
+                modal.classList.remove('active');
+            }
+        }
+
+        function openSummaryModal() {
+            const alertText = document.getElementById('alertMessage').innerText;
+            document.getElementById('modalNextAlertText').innerText = alertText;
+
+            const allItems = getAllFlattenVaccines();
+            const doneListElem = document.getElementById('modalDoneList');
+            doneListElem.innerHTML = '';
+
+            let doneCount = 0;
+            allItems.forEach(item => {
+                const saved = JSON.parse(localStorage.getItem(item.id));
+                if (saved && saved.status === 'done' && saved.date) {
+                    doneCount++;
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span>💉 <strong>${item.name}</strong></span> <span style="color: #16a34a; font-weight: 500;">ฉีดเมื่อ: ${saved.date}</span>`;
+                    doneListElem.appendChild(li);
+                }
+            });
+
+            if (doneCount === 0) {
+                doneListElem.innerHTML = '<li style="color: #94a3b8; text-align: center;">ยังไม่มีประวัติการฉีดวัคซีน</li>';
+            }
+
+            checkNotifyMeStatus();
+            toggleSummaryModal(true);
+        }
+
+        function updateBannerNextQueue() {
+            const allItems = getAllFlattenVaccines();
+            const bannerQueueListElem = document.getElementById('bannerNextQueueList');
+            bannerQueueListElem.innerHTML = '';
+
+            let nextQueueCount = 0;
+            allItems.forEach(item => {
+                const saved = JSON.parse(localStorage.getItem(item.id));
+                if (!saved || saved.status !== 'done' || !saved.date) {
+                    nextQueueCount++;
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span>⏳ ${item.name} <small style="color: #b45309;">(${item.prevent})</small></span> <span style="font-weight: 600; color: #d97706;">คิวที่ ${nextQueueCount}</span>`;
+                    bannerQueueListElem.appendChild(li);
+                }
+            });
+
+            if (nextQueueCount === 0) {
+                bannerQueueListElem.innerHTML = '<li style="color: #16a34a; text-align: center; justify-content: center;">ยอดเยี่ยมมาก! ได้รับวัคซีนครบทุกรายการแล้ว</li>';
+            }
+        }
+
+        function pushNotificationToCenter(message) {
+            let notifs = JSON.parse(localStorage.getItem('userNotifications')) || [];
+            const newNotif = {
+                id: Date.now(),
+                title: "นัดหมายฉีดวัคซีน",
+                message: message,
+                date: new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }),
+                read: false
+            };
+            if (notifs.length === 0 || notifs[0].message !== message) {
+                notifs.unshift(newNotif);
+                localStorage.setItem('userNotifications', JSON.stringify(notifs));
+            }
+        }
+
+        function toggleNotifyMe() {
+            const btn = document.getElementById('btnNotifyMe');
+            const modalBtn = document.getElementById('btnModalSave');
+            const isActive = !btn.classList.contains('active');
+            
+            if (isActive) {
+                btn.classList.add('active');
+                btn.innerText = "แจ้งเตือนแล้ว ✓";
+                if(modalBtn) {
+                    modalBtn.classList.add('active');
+                    modalBtn.innerText = "แจ้งเตือนแล้ว ✓";
+                }
+                localStorage.setItem('userNotifyMeActive', 'true');
+                const currentMsg = document.getElementById('alertMessage').innerText;
+                pushNotificationToCenter(currentMsg);
+                alert("ตั้งค่าการแจ้งเตือนสำเร็จ");
+            } else {
+                btn.classList.remove('active');
+                btn.innerText = "แจ้งเตือน";
+                if(modalBtn) {
+                    modalBtn.classList.remove('active');
+                    modalBtn.innerText = "แจ้งเตือน";
+                }
+                localStorage.setItem('userNotifyMeActive', 'false');
+                alert("ยกเลิกการแจ้งเตือน");
+            }
+        }
+
+        function checkNotifyMeStatus() {
+            const active = localStorage.getItem('userNotifyMeActive') === 'true';
+            const btn = document.getElementById('btnNotifyMe');
+            const modalBtn = document.getElementById('btnModalSave');
+
+            if (active) {
+                if(btn) { btn.classList.add('active'); btn.innerText = "แจ้งเตือนแล้ว ✓"; }
+                if(modalBtn) { modalBtn.classList.add('active'); modalBtn.innerText = "แจ้งเตือนแล้ว ✓"; }
+            } else {
+                if(btn) { btn.classList.remove('active'); btn.innerText = "แจ้งเตือน"; }
+                if(modalBtn) { modalBtn.classList.remove('active'); modalBtn.innerText = "แจ้งเตือน"; }
+            }
+        }
+
+        function autoCalculateNextVaccineAlert() {
+            const manualOverride = localStorage.getItem('manualAlertOverride');
+            const savedDate = localStorage.getItem('nextVaccineAlertDate');
+            const savedVaccine = localStorage.getItem('selectedAlertVaccine') || "";
+            const btnNotify = document.getElementById('btnNotifyMe');
+            const btnClear = document.getElementById('btnClearAlert');
+            const modalBtnGroup = document.getElementById('modalBtnGroup');
+
+            if (savedDate && savedVaccine) {
+                if(btnNotify) btnNotify.style.display = 'block';
+                if(btnClear) btnClear.style.display = 'block';
+                if(modalBtnGroup) modalBtnGroup.style.display = 'flex';
+            } else {
+                if(btnNotify) btnNotify.style.display = 'none';
+                if(btnClear) btnClear.style.display = 'none';
+                if(modalBtnGroup) modalBtnGroup.style.display = 'none';
+            }
+
+            if (manualOverride === 'true' && savedDate) {
+                setCustomSelectValue(savedVaccine);
+                document.getElementById('nextVaccineDate').value = savedDate;
+                updateAlertBannerText(savedDate, savedVaccine, "");
+                updateBannerNextQueue();
+                checkNotifyMeStatus();
+                return;
+            }
+
+            if (!savedDate && manualOverride === 'true') {
+                clearAlertSettings();
+                return;
+            }
+
+            const allItems = getAllFlattenVaccines();
+            let lastDoneIndex = -1;
+            let lastDoneDate = null;
+
+            for (let i = 0; i < allItems.length; i++) {
+                const saved = JSON.parse(localStorage.getItem(allItems[i].id));
+                if (saved && saved.status === 'done' && saved.date) {
+                    lastDoneIndex = i;
+                    lastDoneDate = new Date(saved.date);
+                }
+            }
+
+            if (lastDoneIndex !== -1 && lastDoneIndex + 1 < allItems.length) {
+                const lastDoneItem = allItems[lastDoneIndex];
+                const nextItem = allItems[lastDoneIndex + 1];
+
+                let nextDateObj = new Date(lastDoneDate);
+                nextDateObj.setDate(nextDateObj.getDate() + lastDoneItem.intervalDays);
+
+                const yyyy = nextDateObj.getFullYear();
+                const mm = String(nextDateObj.getMonth() + 1).padStart(2, '0');
+                const dd = String(nextDateObj.getDate()).padStart(2, '0');
+                const calculatedDateStr = `${yyyy}-${mm}-${dd}`;
+
+                localStorage.setItem('nextVaccineAlertDate', calculatedDateStr);
+                localStorage.setItem('selectedAlertVaccine', nextItem.name);
+                
+                setCustomSelectValue(nextItem.name);
+                document.getElementById('nextVaccineDate').value = calculatedDateStr;
+                updateAlertBannerText(calculatedDateStr, nextItem.name, lastDoneItem.name);
+                if(btnNotify) btnNotify.style.display = 'block';
+                if(btnClear) btnClear.style.display = 'block';
+                if(modalBtnGroup) modalBtnGroup.style.display = 'flex';
+            } else if (lastDoneIndex === -1 && !savedDate) {
+                clearAlertSettings();
+            }
+            updateBannerNextQueue();
+            checkNotifyMeStatus();
+        }
+
+        function populateCustomDropdown() {
+            const optionsContainer = document.getElementById('customOptions');
+            optionsContainer.innerHTML = '';
+
+            const defaultOpt = document.createElement('div');
+            defaultOpt.className = 'custom-option';
+            defaultOpt.textContent = '-- เลือกวัคซีน --';
+            defaultOpt.onclick = () => selectCustomOption("", "-- เลือกวัคซีน --");
+            optionsContainer.appendChild(defaultOpt);
+
+            vaccineData.forEach(group => {
+                group.items.forEach(item => {
+                    const opt = document.createElement('div');
+                    opt.className = 'custom-option';
+                    opt.textContent = `${item.name} (${group.group})`;
+                    opt.onclick = () => selectCustomOption(item.name, `${item.name} (${group.group})`);
+                    optionsContainer.appendChild(opt);
+                });
+            });
+
+            const savedVaccine = localStorage.getItem('selectedAlertVaccine');
+            if (savedVaccine) {
+                let foundText = savedVaccine;
+                vaccineData.forEach(g => {
+                    g.items.forEach(i => {
+                        if(i.name === savedVaccine) foundText = `${i.name} (${g.group})`;
+                    });
+                });
+                setCustomSelectValue(savedVaccine, foundText);
+            }
+        }
+
+        function setCustomSelectValue(val, textOverride) {
+            document.getElementById('alertVaccineSelect').value = val;
+            const trigger = document.getElementById('customSelectTrigger');
+            if (!val) {
+                trigger.textContent = "-- เลือกวัคซีน --";
+            } else {
+                trigger.textContent = textOverride || val;
+            }
+        }
+
+        function selectCustomOption(val, text) {
+            setCustomSelectValue(val, text);
+            document.getElementById('customSelect').classList.remove('open');
+            localStorage.setItem('selectedAlertVaccine', val);
+            localStorage.setItem('manualAlertOverride', 'true');
+
+            if (val) {
+                setQuickDays(15);
+            }
+        }
+
+        document.getElementById('customSelectTrigger').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.getElementById('customSelect').classList.toggle('open');
+        });
+
+        window.addEventListener('click', () => {
+            const dropdown = document.getElementById('customSelect');
+            if (dropdown) dropdown.classList.remove('open');
+        });
+
+        function setQuickDays(days) {
+            const targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + days);
+            const yyyy = targetDate.getFullYear();
+            const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(targetDate.getDate()).padStart(2, '0');
+            const dateString = `${yyyy}-${mm}-${dd}`;
+
+            document.getElementById('nextVaccineDate').value = dateString;
+            localStorage.setItem('nextVaccineAlertDate', dateString);
+            localStorage.setItem('manualAlertOverride', 'true');
+            
+            const selectedVaccine = document.getElementById('alertVaccineSelect').value || "วัคซีนถัดไป";
+            updateAlertBannerText(dateString, selectedVaccine, "");
+            document.getElementById('btnNotifyMe').style.display = 'block';
+            document.getElementById('btnClearAlert').style.display = 'block';
+            document.getElementById('modalBtnGroup').style.display = 'flex';
+        }
+
+        function saveCustomAlertDate() {
+            const dateVal = document.getElementById('nextVaccineDate').value;
+            localStorage.setItem('nextVaccineAlertDate', dateVal);
+            localStorage.setItem('manualAlertOverride', 'true');
+            const selectedVaccine = document.getElementById('alertVaccineSelect').value || "วัคซีนถัดไป";
+            updateAlertBannerText(dateVal, selectedVaccine, "");
+            if (dateVal) {
+                document.getElementById('btnNotifyMe').style.display = 'block';
+                document.getElementById('btnClearAlert').style.display = 'block';
+                document.getElementById('modalBtnGroup').style.display = 'flex';
+            }
+        }
+
+        function clearAlertSettings() {
+            localStorage.removeItem('nextVaccineAlertDate');
+            localStorage.removeItem('selectedAlertVaccine');
+            localStorage.removeItem('manualAlertOverride');
+            localStorage.removeItem('userNotifyMeActive');
+            
+            setCustomSelectValue("");
+            document.getElementById('nextVaccineDate').value = "";
+            document.getElementById('alertMessage').innerText = "ยังไม่ได้กำหนดวันนัดฉีดวัคซีน กรุณาเลือกวัคซีนหรือเลือกวันที่ด้านล่างครับ";
+            document.getElementById('notifBadge').style.display = 'none';
+            document.getElementById('btnNotifyMe').style.display = 'none';
+            document.getElementById('btnClearAlert').style.display = 'none';
+            document.getElementById('modalBtnGroup').style.display = 'none';
+
+            const modalText = document.getElementById('modalNextAlertText');
+            if(modalText) modalText.innerText = "ยังไม่ได้กำหนดวันนัดฉีดวัคซีน กรุณาเลือกวัคซีนหรือเลือกวันที่ด้านล่างครับ";
+        }
+
+        function updateAlertBannerText(dateStr, vaccineName, lastDoneName) {
+            const alertMsgElem = document.getElementById('alertMessage');
+            const notifBadge = document.getElementById('notifBadge');
+
+            if (!dateStr || !vaccineName) {
+                alertMsgElem.innerText = "ยังไม่ได้กำหนดวันนัดฉีดวัคซีน กรุณาเลือกวัคซีนหรือเลือกวันที่ด้านล่างครับ";
+                notifBadge.style.display = 'none';
+                return;
+            }
+
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const target = new Date(dateStr);
+            target.setHours(0,0,0,0);
+
+            const diffTime = target - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            let prefix = lastDoneName ? `ฉีด [${lastDoneName}] เรียบร้อยแล้ว! ` : "";
+            let fullText = "";
+
+            if (diffDays > 0) {
+                fullText = `${prefix}นัดฉีด [${vaccineName}] ในอีก ${diffDays} วันข้างหน้า (วันที่ ${dateStr})`;
+                notifBadge.style.display = 'block';
+            } else if (diffDays === 0) {
+                fullText = `${prefix}⚠️ ครบกำหนดฉีด [${vaccineName}] ใน **วันนี้** แล้วครับ! (${dateStr})`;
+                notifBadge.style.display = 'block';
+            } else {
+                fullText = `${prefix}⚠️ เลยกำหนดฉีด [${vaccineName}] มาแล้ว ${Math.abs(diffDays)} วัน (นัดเมื่อ ${dateStr})`;
+                notifBadge.style.display = 'block';
+            }
+
+            alertMsgElem.innerHTML = fullText;
+        }
+
         const menuToggle = document.getElementById('menuToggle');
         const closeMenu = document.getElementById('closeMenu');
         const sidebar = document.getElementById('sidebar');
@@ -167,12 +849,101 @@
         closeMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        // ซิงก์รูปโปรไฟล์อัตโนมัติ
+        function renderVaccineTables() {
+            const container = document.getElementById('vaccineContainer');
+            let htmlContent = '';
+            let total = 0;
+            let completed = 0;
+
+            vaccineData.forEach(group => {
+                htmlContent += `
+                    <div class="vaccine-section">
+                        <div class="section-title-wrapper">
+                            <div class="section-title">💉 ช่วงวัย: ${group.group}</div>
+                        </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ชื่อวัคซีน</th>
+                                        <th>โรคที่ป้องกัน</th>
+                                        <th>สถานะ</th>
+                                        <th>วันที่ฉีด</th>
+                                        <th>จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+
+                group.items.forEach(item => {
+                    total++;
+                    const savedData = JSON.parse(localStorage.getItem(item.id)) || { status: 'pending', date: '' };
+                    if (savedData.status === 'done') completed++;
+
+                    htmlContent += `
+                        <tr>
+                            <td><strong>${item.name}</strong></td>
+                            <td><small style="color: #64748b;">${item.prevent}</small></td>
+                            <td>
+                                <span class="status-badge ${savedData.status === 'done' ? 'status-done' : 'status-pending'}">
+                                    ${savedData.status === 'done' ? 'ฉีดแล้ว' : 'ยังไม่ชัดเจน / ยังไม่ฉีด'}
+                                </span>
+                            </td>
+                            <td>
+                                <input type="date" class="date-input" id="date-${item.id}" value="${savedData.date}">
+                            </td>
+                            <td>
+                                <div class="btn-action-group">
+                                    <button class="btn-save" onclick="saveVaccine('${item.id}')">บันทึก</button>
+                                    <button class="btn-reset-row" onclick="resetVaccine('${item.id}')">ล้าง</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                htmlContent += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = htmlContent;
+
+            document.getElementById('totalCount').innerText = total;
+            document.getElementById('completedCount').innerText = completed;
+            document.getElementById('pendingCount').innerText = total - completed;
+
+            populateCustomDropdown();
+            autoCalculateNextVaccineAlert();
+            checkNotifyMeStatus();
+        }
+
+        function saveVaccine(id) {
+            const dateVal = document.getElementById(`date-${id}`).value;
+            const statusVal = dateVal ? 'done' : 'pending';
+
+            const record = { status: statusVal, date: dateVal };
+            localStorage.setItem(id, JSON.stringify(record));
+            
+            localStorage.removeItem('manualAlertOverride');
+            
+            renderVaccineTables();
+        }
+
+        function resetVaccine(id) {
+            localStorage.removeItem(id);
+            document.getElementById(`date-${id}`).value = "";
+            localStorage.removeItem('manualAlertOverride');
+            renderVaccineTables();
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             const savedImg = localStorage.getItem('userProfileImg');
-            if (savedImg) {
-                document.getElementById('navProfileImg').src = savedImg;
-            }
+            if (savedImg) { document.getElementById('navProfileImg').src = savedImg; }
+            renderVaccineTables();
         });
     </script>
 </body>

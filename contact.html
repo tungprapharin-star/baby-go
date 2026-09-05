@@ -4,33 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Baby Go - ติดต่อเรา</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
-        body { background-color: #ffffff; color: #333333; font-size: 15px; }
+        body { background-color: #f8fafc; color: #333333; font-size: 15px; overflow-x: hidden; }
         
-        /* Navbar มาตรฐาน */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animated-fade { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
         .navbar {
+            background-color: #ffffff;
             padding: 15px 20px;
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid #f0f9ff;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
         .nav-left { display: flex; align-items: center; gap: 20px; }
-        .menu-btn { font-size: 28px; cursor: pointer; color: #0ea5e9; background: none; border: none; }
+        .menu-btn { font-size: 28px; cursor: pointer; color: #0ea5e9; background: none; border: none; transition: transform 0.2s; }
         
         .logo-container { display: flex; align-items: center; gap: 15px; text-decoration: none; }
-        .logo-img { width: 40px !important; height: 40px !important; border-radius: 50% !important; object-fit: cover !important; }
+        .logo-img { width: 45px !important; height: 45px !important; border-radius: 50% !important; object-fit: cover !important; }
         .logo-text { font-size: 20px; font-weight: 500; color: #0284c7; letter-spacing: 0.5px; }
 
-        .nav-right { display: flex; align-items: center; gap: 20px; }
-        .icon-btn { font-size: 30px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .icon-btn { font-size: 26px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; position: relative; }
 
-        /* Sidebar (ซ่อนไว้ก่อน) */
+        .badge-dot {
+            position: absolute; top: 0; right: 0; width: 10px; height: 10px;
+            background-color: #ef4444; border-radius: 50%; display: none;
+        }
+
         .sidebar {
             position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
             background-color: #f0f9ff; 
-            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
-            transition: 0.3s; z-index: 200; padding: 30px;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.08);
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 30px;
             overflow-y: auto;
         }
         .sidebar.active { left: 0; }
@@ -39,47 +51,63 @@
         .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0ea5e9; }
         
         .sidebar-menu { list-style: none; }
-        .sidebar-menu li a { display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; border-bottom: 1px solid rgba(14, 165, 233, 0.1); }
-        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; }
+        .sidebar-menu li a { 
+            display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; 
+            border-bottom: 1px solid rgba(14, 165, 233, 0.1); transition: all 0.2s; 
+        }
+        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; padding-left: 5px; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); display: none; z-index: 150; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.15); display: none; z-index: 150; backdrop-filter: blur(2px); }
         .overlay.active { display: block; }
 
-        /* Container เนื้อหาหน้าติดต่อเรา */
-        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 600px; margin: 30px auto 60px auto; padding: 0 20px; }
         
-        .header-section { margin: 20px 0; text-align: center; }
-        .header-section h2 { font-size: 24px; font-weight: 600; color: #0284c7; }
-        .header-section p { font-size: 14px; color: #64748b; margin-top: 5px; }
+        .header-section { margin-bottom: 30px; text-align: center; }
+        .header-section h2 { font-size: 28px; font-weight: 700; color: #0369a1; }
+        .header-section p { font-size: 15px; color: #475569; margin-top: 8px; }
 
         .contact-box {
-            background-color: #f0f9ff;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #e0f2fe;
-            margin-bottom: 20px;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid #bae6fd;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.08);
         }
-        .contact-item { margin-bottom: 12px; color: #334155; font-size: 14px; }
+        .contact-box h3 { font-size: 16px; color: #0369a1; margin-bottom: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .contact-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .contact-item { font-size: 14px; color: #334155; display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
         .contact-item span { font-weight: 600; color: #0284c7; }
 
-        .form-group { margin-bottom: 15px; }
-        .form-label { display: block; font-size: 14px; color: #334155; margin-bottom: 5px; font-weight: 500; }
-        .form-input, .form-textarea {
-            width: 100%; padding: 12px 15px;
-            border: 1px solid #cbd5e1; border-radius: 10px;
-            font-size: 14px; outline: none; font-family: 'Prompt', sans-serif;
-            background-color: #ffffff;
+        .form-card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid #bae6fd;
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.08);
         }
-        .form-input:focus, .form-textarea:focus { border-color: #0284c7; }
-        .form-textarea { height: 120px; resize: none; }
+        .form-card h3 { font-size: 16px; color: #0369a1; margin-bottom: 20px; font-weight: 600; }
+        .form-group { margin-bottom: 18px; }
+        .form-label { display: block; font-size: 14px; color: #0369a1; margin-bottom: 6px; font-weight: 600; }
+        .form-input, .form-textarea {
+            width: 100%; padding: 12px 16px;
+            border: 2px solid #bae6fd; border-radius: 12px;
+            font-size: 14px; outline: none; font-family: 'Prompt', sans-serif;
+            background-color: #f8fafc; color: #334155;
+            transition: all 0.2s;
+        }
+        .form-input:focus, .form-textarea:focus { border-color: #0284c7; background-color: #ffffff; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
+        .form-textarea { height: 130px; resize: vertical; }
 
         .submit-btn {
-            display: block; width: 100%; padding: 12px;
-            background-color: #0284c7; color: white; border: none;
-            border-radius: 10px; font-size: 16px; font-weight: 500;
+            display: block; width: 100%; padding: 14px;
+            background-color: #0ea5e9; color: white; border: none;
+            border-radius: 14px; font-size: 16px; font-weight: 600;
             cursor: pointer; font-family: 'Prompt', sans-serif;
+            transition: 0.2s; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+            margin-top: 10px;
         }
-        .submit-btn:hover { background-color: #0369a1; }
+        .submit-btn:hover { background-color: #0284c7; transform: translateY(-2px); }
     </style>
 </head>
 <body>
@@ -93,8 +121,11 @@
             </div>
         </div>
         <div class="nav-right">
-            <a href="notifications.html" class="icon-btn">🔔</a>
-            <a href="profile.html" class="icon-btn">👤</a>
+            <a href="notifications.html" class="icon-btn" title="ศูนย์แจ้งเตือน">
+                🔔
+                <span class="badge-dot" id="notifBadge"></span>
+            </a>
+            <a href="profile.html" class="icon-btn" title="โปรไฟล์">👤</a>
         </div>
     </div>
 
@@ -113,39 +144,41 @@
             <li><a href="knowledge.html">ความรู้</a></li>
             <li><a href="ai_assistant.html">AI วิเคราะห์</a></li>
             <li><a href="community.html">ชุมชน</a></li>
-            <li><a href="contact.html">ติดต่อเรา</a></li>
+            <li><a href="contact.html" style="color: #0284c7; font-weight: 600;">ติดต่อเรา</a></li>
             <li><a href="login.html" style="color: #ef4444; font-weight: 600; border-bottom: none;">ออกจากระบบ</a></li>
         </ul>
     </div>
 
-    <div class="container">
+    <div class="container animated-fade">
         <div class="header-section">
             <h2>ติดต่อเรา</h2>
             <p>มีข้อสงสัยหรือต้องการความช่วยเหลือ ติดต่อทีมงาน Baby Go ได้เลยค่ะ</p>
         </div>
 
         <div class="contact-box">
-            <div class="contact-item">📍 ที่อยู่: <span>ศูนย์สุขภาพเด็กและครอบครัว (Baby Go HQ)</span></div>
-            <div class="contact-item">📞 โทรศัพท์: <span>02-123-4567</span></div>
-            <div class="contact-item">✉️ อีเมล: <span>support@babygo.com</span></div>
-            <div class="contact-item">⏰ เวลาทำการ: <span>จันทร์ - ศุกร์ (08:30 - 17:00 น.)</span></div>
+            <h3>💬 ช่องทางการติดต่อทีมงาน</h3>
+            <div class="contact-grid">
+                <div class="contact-item">📍 ที่อยู่: <span>เว็บไซต์สุขภาพเด็กและครอบครัว (Baby Go)</span></div>
+                <div class="contact-item">📞 โทรศัพท์: <span>0944108662</span></div>
+                <div class="contact-item">✉️ อีเมล: <span>babygo.admin@gmail.com</span></div>
+                <div class="contact-item">⏰ เวลาทำการ: <span>จันทร์ - ศุกร์ (08:30 - 17:00 น.)</span></div>
+            </div>
         </div>
 
-        <form>
-            <div class="form-group">
-                <label class="form-label">ชื่อ-นามสกุลของคุณแม่</label>
-                <input type="text" class="form-input" placeholder="กรอกชื่อของคุณแม่">
-            </div>
-            <div class="form-group">
-                <label class="form-label">อีเมลหรือเบอร์โทรศัพท์ติดต่อกลับ</label>
-                <input type="text" class="form-input" placeholder="กรอกเบอร์โทรหรืออีเมล">
-            </div>
-            <div class="form-group">
-                <label class="form-label">ข้อความที่ต้องการสอบถาม</label>
-                <textarea class="form-textarea" placeholder="พิมพ์ข้อความของคุณที่นี่..."></textarea>
-            </div>
-            <button type="button" class="submit-btn" onclick="alert('ส่งข้อความสำเร็จแล้วค่ะ ทีมงานจะรีบติดต่อกลับนะ!')">ส่งข้อความ</button>
-        </form>
+        <div class="form-card">
+            <h3>✍️ ส่งข้อความถึงเรา</h3>
+            <form id="contactForm" onsubmit="handleContactSubmit(event)">
+                <div class="form-group">
+                    <label class="form-label">อีเมลของคุณแม่</label>
+                    <input type="email" id="userEmail" class="form-input" placeholder="กรอกอีเมลของคุณแม่ เช่น example@gmail.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ข้อความที่ต้องการสอบถาม</label>
+                    <textarea id="messageContent" class="form-textarea" placeholder="พิมพ์ข้อความของคุณที่นี่..." required></textarea>
+                </div>
+                <button type="submit" id="submitBtn" class="submit-btn">ส่งข้อความ</button>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -164,6 +197,34 @@
                 document.getElementById('navProfileImg').src = savedImg;
             }
         });
+
+        function handleContactSubmit(event) {
+            event.preventDefault();
+            const email = document.getElementById('userEmail').value.trim();
+            const message = document.getElementById('messageContent').value.trim();
+
+            const newMessage = {
+                id: 'msg_' + Date.now(),
+                email: email,
+                message: message,
+                time: new Date().toLocaleString('th-TH')
+            };
+
+            let adminMessages = JSON.parse(localStorage.getItem('babyGoAdminMessages')) || [];
+            adminMessages.unshift(newMessage);
+            localStorage.setItem('babyGoAdminMessages', JSON.stringify(adminMessages));
+
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = 'กำลังส่งข้อความ...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                alert('ส่งข้อความสำเร็จแล้วค่ะ ระบบได้บันทึกข้อมูลส่งถึงแอดมินเรียบร้อย!');
+                document.getElementById('contactForm').reset();
+                btn.innerText = 'ส่งข้อความ';
+                btn.disabled = false;
+            }, 500);
+        }
     </script>
 </body>
 </html>

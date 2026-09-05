@@ -3,93 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baby Go - คลังความรู้สำหรับคุณแม่</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>Baby Go - คลังความรู้คู่มือคุณแม่</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
-        body { background-color: #ffffff; color: #333333; font-size: 15px; }
+        body { background-color: #f0f9ff; color: #333333; font-size: 15px; overflow-x: hidden; }
         
-        /* Navbar มาตรฐาน */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animated-fade { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
         .navbar {
-            padding: 15px 20px;
+            background-color: #ffffff;
+            padding: 15px 25px;
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #f0f9ff;
+            border-bottom: 2px solid #bae6fd;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.08);
         }
         .nav-left { display: flex; align-items: center; gap: 20px; }
-        .menu-btn { font-size: 28px; cursor: pointer; color: #0ea5e9; background: none; border: none; }
+        .menu-btn { font-size: 28px; cursor: pointer; color: #0284c7; background: none; border: none; transition: transform 0.2s; }
+        .menu-btn:hover { transform: scale(1.1); }
         
-        .logo-container { display: flex; align-items: center; gap: 15px; text-decoration: none; }
-        .logo-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
-        .logo-text { font-size: 20px; font-weight: 500; color: #0284c7; letter-spacing: 0.5px; }
+        .logo-container { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #0ea5e9; }
+        .logo-text { font-size: 20px; font-weight: 600; color: #0284c7; }
 
-        /* ไอคอนกระดิ่งและโปรไฟล์มุมขวาบน */
-        .nav-right { display: flex; align-items: center; gap: 20px; }
-        .icon-btn { font-size: 30px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .icon-btn { font-size: 26px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; transition: transform 0.2s; }
 
-        /* Sidebar (ซ่อนไว้ก่อน รอคลิกค่อยโผล่) */
         .sidebar {
             position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
             background-color: #f0f9ff; 
-            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
-            transition: 0.3s; z-index: 200; padding: 30px;
+            box-shadow: 4px 0 25px rgba(0,0,0,0.1);
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 30px;
             overflow-y: auto;
         }
         .sidebar.active { left: 0; }
         .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .sidebar-header h3 { color: #0284c7; }
-        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0ea5e9; }
+        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0284c7; }
         
         .sidebar-menu { list-style: none; }
-        .sidebar-menu li a { display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; border-bottom: 1px solid rgba(14, 165, 233, 0.1); }
-        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; }
+        .sidebar-menu li a { 
+            display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; 
+            border-bottom: 1px solid #bae6fd; transition: all 0.2s; 
+        }
+        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; padding-left: 5px; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); display: none; z-index: 150; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: none; z-index: 150; backdrop-filter: blur(2px); }
         .overlay.active { display: block; }
 
-        /* Container เนื้อหาหน้าคลังความรู้ */
-        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 900px; margin: 30px auto 60px auto; padding: 0 20px; }
         
-        .header-section { margin: 20px 0; text-align: center; }
-        .header-section h2 { 
-            font-size: 24px; 
-            font-weight: 600; 
-            color: #0284c7; 
-        }
-        .header-section p {
-            font-size: 14px;
-            color: #64748b;
-            margin-top: 5px;
-        }
+        .header-section { margin-bottom: 25px; text-align: center; }
+        .header-section h2 { font-size: 28px; font-weight: 700; color: #0369a1; }
+        .header-section p { font-size: 15px; color: #475569; margin-top: 8px; }
 
-        .knowledge-list { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-        .knowledge-card { 
-            background-color: #f0f9ff; 
-            padding: 20px; 
-            border-radius: 12px; 
-            border: 1px solid #e0f2fe;
-            text-decoration: none;
-            display: block;
-            transition: 0.2s;
+        .top-action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
+        
+        .search-box-wrapper { flex: 1; display: flex; gap: 10px; min-width: 280px; align-items: center; }
+        .search-input-container { position: relative; flex: 1; display: flex; align-items: center; }
+        
+        .search-input {
+            width: 100%; padding: 12px 45px 12px 20px; border: 2px solid #bae6fd; border-radius: 14px;
+            font-size: 15px; outline: none; background: #ffffff; color: #334155; font-family: 'Prompt', sans-serif;
+            box-shadow: 0 2px 10px rgba(14, 165, 233, 0.05);
         }
-        .knowledge-card:hover { background-color: #e0f2fe; }
-        .knowledge-title { font-weight: 600; color: #0284c7; font-size: 16px; margin-bottom: 5px; }
-        .knowledge-desc { font-size: 14px; color: #475569; margin-bottom: 10px; }
-        .knowledge-date { font-size: 12px; color: #94a3b8; }
+        .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
+        
+        .clear-search-btn {
+            position: absolute; right: 12px; background: #e0f2fe; border: none;
+            width: 26px; height: 26px; border-radius: 50%;
+            font-size: 13px; color: #0284c7; font-weight: bold; cursor: pointer; 
+            display: none; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .clear-search-btn:hover { background: #ef4444; color: #ffffff; }
+
+        .action-buttons-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .action-btn {
+            background-color: #0ea5e9; color: white; border: none; padding: 12px 18px;
+            border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: 0.2s; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2); display: inline-flex; align-items: center; gap: 6px;
+            font-family: 'Prompt', sans-serif;
+        }
+        .action-btn:hover { background-color: #0284c7; transform: translateY(-2px); }
+        .btn-success { background-color: #10b981; }
+        .btn-success:hover { background-color: #059669; }
+        .btn-my-articles { background-color: #8b5cf6; }
+        .btn-my-articles:hover { background-color: #7c3aed; }
+        
+        .btn-delete-x {
+            background-color: #fee2e2; color: #ef4444; border: 2px solid #fecaca;
+            width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+        }
+        .btn-delete-x:hover { background-color: #ef4444; color: #ffffff; border-color: #dc2626; transform: scale(1.1); }
+
+        .category-filter-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 25px; }
+        .cat-tab {
+            background: #ffffff; border: 2px solid #bae6fd; padding: 8px 12px; border-radius: 12px;
+            font-size: 12px; font-weight: 600; color: #0369a1; cursor: pointer; transition: 0.2s;
+        }
+        .cat-tab:hover { background: #e0f2fe; }
+        .cat-tab.active { background: #0ea5e9; color: #ffffff; border-color: #0284c7; }
+
+        #addArticleModal {
+            background: #ffffff; border: 2px solid #bae6fd; border-radius: 20px;
+            padding: 30px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(14, 165, 233, 0.08);
+            display: none;
+        }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-weight: 600; color: #0369a1; margin-bottom: 6px; font-size: 14px; }
+        .form-control {
+            width: 100%; padding: 12px 16px; border: 2px solid #bae6fd; border-radius: 12px;
+            font-size: 14px; outline: none; font-family: 'Prompt', sans-serif; color: #334155; background: #f8fafc;
+        }
+        .form-control:focus { border-color: #0284c7; background: #ffffff; }
+        textarea.form-control { resize: vertical; min-height: 140px; }
+
+        .knowledge-list { display: grid; grid-template-columns: 1fr; gap: 16px; max-height: 700px; overflow-y: auto; padding-right: 5px; }
+        .knowledge-card { 
+            background-color: #ffffff; padding: 22px 25px; border-radius: 18px; border: 2px solid #bae6fd;
+            cursor: pointer; display: block; box-shadow: 0 6px 20px rgba(14, 165, 233, 0.05);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .knowledge-card:hover { 
+            background: linear-gradient(135deg, #ffffff, #f0f9ff); border-color: #0284c7;
+            transform: translateY(-3px); box-shadow: 0 10px 25px rgba(14, 165, 233, 0.15);
+        }
+        .knowledge-keyword-tag {
+            display: inline-block; background: #e0f2fe; color: #0284c7; font-size: 11px; font-weight: 600;
+            padding: 4px 10px; border-radius: 6px; margin-bottom: 10px;
+        }
+        .knowledge-title { font-weight: 700; color: #0369a1; font-size: 18px; margin-bottom: 8px; }
+        .knowledge-desc { font-size: 14px; color: #475569; margin-bottom: 12px; line-height: 1.6; }
+        .knowledge-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #94a3b8; }
+        
+        .no-result { text-align: center; color: #64748b; padding: 40px; font-size: 15px; display: none; }
+
+        #articleDetailView { display: none; }
+        .btn-back {
+            background-color: #ffffff; color: #0284c7; border: 2px solid #bae6fd;
+            padding: 10px 20px; border-radius: 12px; font-size: 15px; font-weight: 600;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 25px;
+            transition: 0.2s; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+        }
+        .btn-back:hover { background-color: #f0f9ff; border-color: #0284c7; transform: translateX(-3px); }
+
+        .article-content-card {
+            background: #ffffff; border-radius: 24px; border: 2px solid #bae6fd;
+            padding: 40px; box-shadow: 0 10px 35px rgba(14, 165, 233, 0.08);
+        }
+        .article-title-header { border-bottom: 3px solid #f0f9ff; padding-bottom: 20px; margin-bottom: 25px; }
+        .article-title-header h2 { font-size: 26px; color: #0369a1; font-weight: 700; margin-bottom: 12px; line-height: 1.4; }
+        .article-meta { font-size: 13px; color: #94a3b8; display: flex; gap: 20px; }
+        
+        .article-body p { font-size: 15px; color: #334155; line-height: 1.8; margin-bottom: 16px; }
+        .article-body h4 { font-size: 18px; color: #0369a1; margin: 25px 0 10px 0; font-weight: 600; }
+        .article-body ul { padding-left: 20px; margin-bottom: 20px; color: #334155; line-height: 1.8; }
+        .article-body li { margin-bottom: 8px; }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 15px; }
+            .article-content-card { padding: 25px; }
+            .top-action-bar { flex-direction: column; align-items: stretch; }
+            .search-box-wrapper { width: 100%; }
+        }
     </style>
 </head>
 <body>
 
     <div class="navbar">
         <div class="nav-left">
-            <button class="menu-btn" id="menuToggle">☰</button>
+            <button class="menu-btn" id="menuToggle">&#9776;</button>
             <div class="logo-container">
                 <img id="navProfileImg" src="logo.jpg.jpg" alt="Logo" class="logo-img">
                 <span class="logo-text">Baby Go</span>
             </div>
         </div>
         <div class="nav-right">
-            <a href="notifications.html" class="icon-btn">🔔</a>
-            <a href="profile.html" class="icon-btn">👤</a>
+            <a href="notifications.html" class="icon-btn" title="แจ้งเตือน">&#128276;</a>
+            <a href="profile.html" class="icon-btn" title="โปรไฟล์">&#128100;</a>
         </div>
     </div>
 
@@ -98,14 +197,14 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h3>เมนู</h3>
-            <button class="close-btn" id="closeMenu">✕</button>
+            <button class="close-btn" id="closeMenu">&#10005;</button>
         </div>
         <ul class="sidebar-menu">
             <li><a href="content.html">หน้าแรก</a></li>
             <li><a href="development.html">พัฒนาการเด็ก</a></li>
             <li><a href="vaccine.html">วัคซีน</a></li>
             <li><a href="nutrition.html">โภชนาการ</a></li>
-            <li><a href="knowledge.html">ความรู้</a></li>
+            <li><a href="knowledge.html" style="color: #0284c7; font-weight: 600;">ความรู้</a></li>
             <li><a href="ai_assistant.html">AI วิเคราะห์</a></li>
             <li><a href="community.html">ชุมชน</a></li>
             <li><a href="contact.html">ติดต่อเรา</a></li>
@@ -113,31 +212,74 @@
         </ul>
     </div>
 
-    <div class="container">
-        <div class="header-section">
-            <h2>คลังความรู้สำหรับคุณแม่</h2>
-            <p>บทความและสาระน่ารู้ในการดูแลลูกน้อยให้เติบโตอย่างมีคุณภาพ</p>
+    <div class="container animated-fade">
+        
+        <div id="mainKnowledgeView">
+            <div class="header-section">
+                <h2>คลังความรู้คู่มือคุณแม่</h2>
+                <p>แหล่งรวมข้อมูลสุขภาพ วิธีดูแลลูกน้อย และพื้นที่แบ่งปันความรู้จากคุณแม่ทุกท่าน</p>
+            </div>
+
+            <div class="top-action-bar">
+                <div class="search-box-wrapper">
+                    <div class="search-input-container">
+                        <input type="text" id="knowledgeSearchInput" class="search-input" placeholder="🔍 ค้นหาคำถามยอดฮิต เช่น ฟันผุ, ใกล้คลอด..." oninput="toggleClearButton()" onkeypress="handleSearchKeyPress(event)">
+                        <button type="button" id="clearSearchBtn" class="clear-search-btn" onclick="clearSearchInput()" title="ล้างคำค้นหา">✕</button>
+                    </div>
+                    <button class="action-btn" onclick="filterKnowledge()">ค้นหา</button>
+                </div>
+                <div class="action-buttons-group">
+                    <button class="action-btn btn-my-articles" onclick="filterMyArticles()">📄 บทความของฉัน (<span id="myArticlesCountBadge">0</span>)</button>
+                    <button class="action-btn btn-success" onclick="toggleAddForm()">+ เขียนบทความ</button>
+                </div>
+            </div>
+
+            <div class="category-filter-group" id="categoryFilterContainer">
+                <button class="cat-tab active" onclick="filterByCategory('all', this)">ทั้งหมด (<span id="count-all">0</span>)</button>
+                <button class="cat-tab" onclick="filterByCategory('ความรู้ผู้ใช้งาน', this)">💡 ความรู้ผู้ใช้งาน (<span id="count-user">0</span>)</button>
+                <button class="cat-tab" onclick="filterByCategory('สุขภาพช่องปากและฟัน', this)">ฟันและช่องปาก (<span id="count-teeth">0</span>)</button>
+                <button class="cat-tab" onclick="filterByCategory('คุณแม่ตั้งครรภ์และใกล้คลอด', this)">ตั้งครรภ์/ใกล้คลอด (<span id="count-preg">0</span>)</button>
+                <button class="cat-tab" onclick="filterByCategory('พัฒนาการเด็ก', this)">พัฒนาการเด็ก (<span id="count-dev">0</span>)</button>
+                <button class="cat-tab" onclick="filterByCategory('โภชนาการ', this)">โภชนาการและนม (<span id="count-nutri">0</span>)</button>
+                <button class="cat-tab" onclick="filterByCategory('วัคซีนและสุขภาพ', this)">วัคซีนและสุขภาพ (<span id="count-vac">0</span>)</button>
+                <button class="cat-tab" onclick="filterByCategory('พฤติกรรม', this)">พฤติกรรมเด็ก (<span id="count-behav">0</span>)</button>
+                <button class="cat-tab" onclick="filterByCategory('คุณแม่หลังคลอด', this)">แม่หลังคลอด (<span id="count-post">0</span>)</button>
+            </div>
+
+            <div id="addArticleModal">
+                <h3 style="color: #0369a1; margin-bottom: 15px;">✍️ เขียนและเพิ่มบทความความรู้ผู้ใช้งาน</h3>
+                <div class="form-group">
+                    <label>หัวข้อบทความ / ชื่อเรื่อง:</label>
+                    <input type="text" id="newTitle" class="form-control" placeholder="เช่น เทคนิคดูแลลูกน้อยวัยอนุบาล">
+                </div>
+                <div class="form-group">
+                    <label>หมวดหมู่ (ระบบล็อกอัตโนมัติ):</label>
+                    <input type="text" class="form-control" value="ความรู้ผู้ใช้งาน" disabled style="background: #e2e8f0; color: #475569; cursor: not-allowed;">
+                </div>
+                <div class="form-group">
+                    <label>แฮชแท็ก (Keyword Tags):</label>
+                    <input type="text" id="newTag" class="form-control" placeholder="เช่น #เทคนิคคุณแม่ #แชร์ความรู้">
+                </div>
+                <div class="form-group">
+                    <label>เนื้อหาบทความแบบละเอียด:</label>
+                    <textarea id="newBody" class="form-control" placeholder="พิมพ์รายละเอียด คำแนะนำ หรือสาระความรู้ที่มีประโยชน์เพื่อให้คนอื่นได้อ่านที่นี่..."></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="action-btn btn-success" onclick="saveNewArticle()">เผยแพร่บทความ</button>
+                    <button class="action-btn" style="background-color: #94a3b8;" onclick="toggleAddForm()">ยกเลิก</button>
+                </div>
+            </div>
+
+            <div class="knowledge-list" id="knowledgeListContainer"></div>
+
+            <div class="no-result" id="noResultText">ไม่พบบทความที่ตรงกับการค้นหาของคุณ กรุณาลองใหม่อีกครั้ง</div>
         </div>
 
-        <div class="knowledge-list">
-            <a href="#" class="knowledge-card">
-                <div class="knowledge-title">วิธีรับมือเมื่อลูกน้อยร้องไห้งอแงไม่ยอมนอน</div>
-                <div class="knowledge-desc">เทคนิคการกล่อมลูกน้อยให้นอนหลับง่ายขึ้น พร้อมสร้างบรรยากาศที่อบอุ่นในห้องนอน</div>
-                <div class="knowledge-date">อัปเดตล่าสุด</div>
-            </a>
-
-            <a href="#" class="knowledge-card">
-                <div class="knowledge-title">เสริมสร้างพัฒนาการสมองด้วยของเล่นง่ายๆ ที่บ้าน</div>
-                <div class="knowledge-desc">รวมไอเดียกิจกรรมและของเล่นเสริมทักษะที่ช่วยกระตุ้นสมองลูกน้อยในแต่ละช่วงวัย</div>
-                <div class="knowledge-date">อัปเดตล่าสุด</div>
-            </a>
-
-            <a href="#" class="knowledge-card">
-                <div class="knowledge-title">การดูแลสุขภาพช่องปากและฟันซี่แรกของลูก</div>
-                <div class="knowledge-desc">ข้อควรรู้ในการทำความสะอาดเหงือกและฟันน้ำนม เพื่อป้องกันฟันผุตั้งแต่เริ่มต้น</div>
-                <div class="knowledge-date">อัปเดตล่าสุด</div>
-            </a>
+        <div id="articleDetailView">
+            <button class="btn-back" onclick="goBackToKnowledgeList()">&#8249; ย้อนกลับคลังความรู้</button>
+            <div id="articleContentContainer"></div>
         </div>
+
     </div>
 
     <script>
@@ -150,8 +292,983 @@
         closeMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        // ซิงก์รูปโปรไฟล์อัตโนมัติ
+        // ดึงชื่อแอคเคานต์ผู้ใช้จริงจาก localStorage (ถ้าไม่มีใช้ "คุณแม่มือใหม่")
+        const currentUsername = localStorage.getItem('userName') || localStorage.getItem('userAccountName') || 'คุณแม่มือใหม่';
+
+        const detailedArticles = [
+            {
+                cat: "สุขภาพช่องปากและฟัน",
+                tag: "#ฟันผุ #ฟันน้ำนม",
+                title: "วิธีป้องกันโรคฟันผุในเด็กตั้งแต่ฟันซี่แรกขึ้น",
+                desc: "แนวทางดูแลความสะอาดและป้องกันฟันผุตั้งแต่วัยแบเบาะ",
+                body: `<p><strong>วิธีป้องกันโรคฟันผุในเด็กตั้งแต่ฟันซี่แรกขึ้น:</strong></p><ul><li><strong>ทำความสะอาดทันที:</strong> เมื่อฟันซี่แรกขึ้น (ประมาณ 6 เดือน) ให้ใช้ผ้าสะอาดชุบน้ำเช็ดหรือแปรงสีฟันขนนุ่มพิเศษสำหรับเด็กเช็ดคราบขาวและคราบนมออกวันละ 2 ครั้ง</li><li><strong>ใช้ยาสีฟันผสมฟลูออไรด์:</strong> เด็กอายุต่ำกว่า 3 ปี ใช้ปริมาณเท่าเมล็ดข้าวสาร และเด็ก 3-6 ปี ใช้เท่าเมล็ดถั่วเขียว</li><li><strong>งดขวดนมมื้อดึก:</strong> เมื่อลูกอายุเกิน 1 ขวบ ควรเลิกนมมื้อดึกหรือให้ดื่มน้ำเปล่าตามหลังดูดนมเพื่อล้างคราบน้ำตาล</li></ul>`
+            },
+            {
+                cat: "สุขภาพช่องปากและฟัน",
+                tag: "#ฟันผุ #ขวดนม",
+                title: "ภาวะฟันผุจากขวดนม (Baby Bottle Tooth Decay) เกิดจากอะไรและป้องกันอย่างไร?",
+                desc: "สาเหตุและวิธีแก้ปัญหาฟันหน้าบนผุรุนแรงจากการอมหลับคาขวดนม",
+                body: `<p><strong>ภาวะฟันผุจากขวดนม:</strong></p><ul><li><strong>สาเหตุ:</strong> เกิดจากการปล่อยให้เด็กอมจุกนมหลับคาปากขณะนอนหลับ ทำให้น้ำนมค้างแช่บริเวณฟันหน้าบนนานหลายชั่วโมง แบคทีเรียย่อยน้ำตาลเป็นกรดกัดกร่อนเคลือบฟัน</li><li><strong>การป้องกัน:</strong> ห้ามให้เด็กนอนหลับคาขวดนมเด็ดขาด หากจำเป็นให้เปลี่ยนเป็นน้ำเปล่า และเช็ดทำความสะอาดเหงือกและฟันทุกครั้งก่อนนอน</li></ul>`
+            },
+            {
+                cat: "สุขภาพช่องปากและฟัน",
+                tag: "#แปรงฟัน #ลูกงอแง",
+                title: "ลูกไม่ยอมแปรงฟัน ร้องไห้งอแง มีเทคนิคหลอกล่ออย่างไรดี?",
+                desc: "เทคนิคจิตวิทยาช่วยให้เด็กยอมแปรงฟันโดยไม่ร้องไห้งอแง",
+                body: `<p><strong>วิธีรับมือลูกไม่ยอมแปรงฟัน:</strong></p><ul><li><strong>ชวนมีส่วนร่วม:</strong> พาไปเลือกแปรงสีฟันลายการ์ตูนและยาสีฟันรสผลไม้ที่ชอบด้วยตนเอง</li><li><strong>ใช้เกมสมมติ:</strong> แปรงฟันให้ตุ๊กตาก่อน หรือเปิดเพลงจับเวลา 2 นาทีระหว่างแปรง</li><li><strong>สลับกันแปรง:</strong> ให้ลูกถือแปรงลองแปรงเองก่อน แล้วคุณแม่ช่วยแปรงซ้ำให้สะอาดอย่างนิ่มนวล</li></ul>`
+            },
+            {
+                cat: "สุขภาพช่องปากและฟัน",
+                tag: "#ยาสีฟัน #ฟลูออไรด์",
+                title: "ยาสีฟันผสมฟลูออไรด์ สำหรับเด็กแต่ละช่วงวัยควรใช้ปริมาณเท่าไหร่?",
+                desc: "ปริมาณฟลูออไรด์ที่ปลอดภัยและเหมาะสมตามช่วงอายุ",
+                body: `<p><strong>ปริมาณยาสีฟันผสมฟลูออไรด์:</strong></p><ul><li><strong>ต่ำกว่า 3 ปี:</strong> ใช้ปริมาณแตะขนแปรงเท่าเมล็ดข้าวสาร</li><li><strong>3 ถึง 6 ปี:</strong> ใช้ปริมาณเท่าเมล็ดถั่วเขียว และฝึกบ้วนทิ้ง</li><li><strong>6 ปีขึ้นไป:</strong> ใช้ปริมาณความยาวเท่าขนแปรงปกติเหมือนผู้ใหญ่</li></ul>`
+            },
+            {
+                cat: "สุขภาพช่องปากและฟัน",
+                tag: "#ฟันขึ้น #เหงือกบวม",
+                title: "อาการปวดฟันและเหงือกบวมช่วงฟันน้ำนมกำลังขึ้น รับมืออย่างไร?",
+                desc: "วิธีบรรเทาอาการเจ็บเหงือกและงอแงช่วงฟันกำลังโผล่",
+                body: `<p><strong>วิธีรับมือช่วงฟันน้ำนมกำลังขึ้น:</strong></p><ul><li><strong>ยางกัดแช่เย็น:</strong> ให้เด็กกัดยางกัดซิลิโคนสะอาดที่แช่เย็นจัด (ห้ามแข็งจัด) ช่วยลดอาการบวม</li><li><strong>นวดเหงือก:</strong> ใช้มือสะอาดนวดเบาะบริเวณเหงือกที่บวมแดง</li><li><strong>เช็ดน้ำลาย:</strong> คอยซับน้ำลายเพื่อป้องกันผื่นคาง</li></ul>`
+            },
+            {
+                cat: "สุขภาพช่องปากและฟัน",
+                tag: "#ช่องปากทารก",
+                title: "การทำความสะอาดเหงือกและช่องปากทารกแรกเกิดก่อนฟันขึ้น",
+                desc: "ขั้นตอนดูแลช่องปากทารกแบเบาะเพื่อสุขอนามัยที่ดี",
+                body: `<p><strong>การดูแลช่องปากทารกก่อนฟันขึ้น:</strong></p><ul><li>ใช้ผ้าก๊อซสะอาดชุบน้ำต้มสุกที่อุ่นแล้วพันนิ้วมือ</li><li>เช็ดทำความสะอาดสันเหงือก กระพุ้งแก้ม และลิ้นเบาๆ วันละ 2 ครั้ง หลังตื่นนอนและก่อนนอน</li></ul>`
+            },
+            {
+                cat: "สุขภาพช่องปากและฟัน",
+                tag: "#ฟันน้ำนม #ความสำคัญ",
+                title: "ความสำคัญของฟันน้ำนม ทำไมผุแล้วถึงต้องรีบรักษาห้ามปล่อยทิ้งไว้?",
+                desc: "เหตุผลที่ฟันน้ำนมมีความสำคัญต่อการเคี้ยวและการขึ้นของฟันแท้",
+                body: `<p><strong>ความสำคัญของฟันน้ำนม:</strong></p><ul><li>ใช้ในการบดเคี้ยวอาหารและช่วยเรื่องการออกเสียงพูดชัดเจน</li><li>ทำหน้าที่เป็นตัวนำทางให้ฟันแท้ขึ้นมาในตำแหน่งที่ถูกต้อง หากปล่อยให้ผุจนต้องถอนก่อนกำหนด จะทำให้ฟันแท้ขึ้นซ้อนเก</li></ul>`
+            },
+            {
+                cat: "สุขภาพช่องปากและฟัน",
+                tag: "#ทันตแพทย์เด็ก",
+                title: "การพบทันตแพทย์เด็กครั้งแรกควรพาไปตอนอายุเท่าไหร่?",
+                desc: "ช่วงเวลาที่เหมาะสมที่สุดในการพาเด็กไปหาหมอฟันครั้งแรก",
+                body: `<p><strong>การพบทันตแพทย์ครั้งแรก:</strong></p><ul><li>ควรพาไปตรวจเช็กเมื่อฟันซี่แรกขึ้น หรืออย่างช้าที่สุดคือเมื่ออายุครบ 1 ขวบ เพื่อให้เด็กคุ้นเคยกับคลินิกและป้องกันปัญหาฟันผุตั้งแต่เนิ่นๆ</li></ul>`
+            },
+            {
+                cat: "สุขภาพช่องปากและฟัน",
+                tag: "#ฟันซ้อน #ฟันแท้",
+                title: "ฟันแท้ขึ้นซ้อนฟันน้ำนม ความผิดปกติที่ต้องรีบพาหาหมอฟัน",
+                desc: "วิธีแก้ปัญหาฟันแท้โผล่ขึ้นมาด้านหลังฟันน้ำนมที่ยังไม่หลุด",
+                body: `<p><strong>วิธีรับมือฟันแท้ขึ้นซ้อน:</strong></p><ul><li>หากฟันแท้เริ่มโผล่ขึ้นมาด้านหลังแต่ฟันน้ำนมยังแน่นอยู่ ควรรีบพาไปพบทันตแพทย์เพื่อพิจารณาถอนฟันน้ำนมออก เพื่อให้ฟันแท้ดันตัวกลับมาเรียงตัวในตำแหน่งที่ถูกต้อง</li></ul>`
+            },
+            {
+                cat: "สุขภาพช่องปากและฟัน",
+                tag: "#อุบัติเหตุฟันหัก",
+                title: "วิธีปฐมพยาบาลเมื่อเด็กฟันหักหรือฟันโยกหลุดจากอุบัติเหตุ",
+                desc: "สิ่งที่พ่อแม่ต้องทำทันทีเมื่อลูกเกิดอุบัติเหตุทางช่องปาก",
+                body: `<p><strong>การปฐมพยาบาลอุบัติเหตุฟันหลุด:</strong></p><ul><li>หากเป็นฟันแท้หลุดออกมา ห้ามจับรากฟัน ให้จับที่ตัวฟัน ล้างน้ำสะอาดเบาๆ แล้วแช่นมสดหรืออมไว้ในกระพุ้งแก้ม รีบพาไปพบทันตแพทย์ภายใน 1 ชั่วโมง</li></ul>`
+            },
+            {
+                cat: "สุขภาพช่องปากและฟัน",
+                tag: "#เคลือบหลุมร่องฟัน",
+                title: "การเคลือบหลุมร่องฟัน (Sealant) ป้องกันฟันผุในเด็กจำเป็นไหม?",
+                desc: "ประโยชน์ของการเคลือบหลุมร่องฟันกรามแท้ซี่แรก",
+                body: `<p><strong>การเคลือบหลุมร่องฟัน:</strong></p><ul><li>เป็นการทาน้ำยาปิดทับร่องฟันลึกที่แปรงสีฟันเข้าไม่ถึง ช่วยป้องกันเศษอาหารติดและลดโอกาสฟันผุในฟันกรามแท้ซี่แรกได้อย่างมีประสิทธิภาพ</li></ul>`
+            },
+            {
+                cat: "สุขภาพช่องปากและฟัน",
+                tag: "#ขนมหวาน #ฟันผุ",
+                title: "ขนมและอาหารชนิดใดบ้างที่เป็นตัวการทำให้เด็กฟันผุเร็วที่สุด",
+                desc: "ประเภทอาหารเหนียวและอมหวานที่ทำลายสุขภาพฟันเด็กมากที่สุด",
+                body: `<p><strong>อาหารตัวการฟันผุ:</strong></p><ul><li>ลูกอม เยลลี่หนึบหนับ ลูกชุบ ขนมกรุบกรอบที่ติดซอกฟัน และนมเปรี้ยวที่มีน้ำตาลสูง แนะนำให้บ้วนปากหรือแปรงฟันหลังทานทันที</li></ul>`
+            },
+            {
+                cat: "สุขภาพช่องปากและฟัน",
+                tag: "#ไหมขัดฟัน",
+                title: "การใช้ไหมขัดฟันสำหรับเด็กเริ่มทำได้ตั้งแต่อายุเท่าไหร่?",
+                desc: "วิธีทำความสะอาดซอกฟันที่ชิดกันในเด็กเล็ก",
+                body: `<p><strong>การใช้ไหมขัดฟันในเด็ก:</strong></p><ul><li>เริ่มทำได้เมื่อฟันกรามซี่ในของเด็กขึ้นชิดกันติดกัน (ประมาณอายุ 2-3 ขวบขึ้นไป) โดยคุณพ่อคุณแม่ควรใช้ไหมขัดฟันทำความสะอาดซอกฟันให้ลูกวันละ 1 ครั้งก่อนนอน</li></ul>`
+            },
+            {
+                cat: "สุขภาพช่องปากและฟัน",
+                tag: "#เสียวฟัน #ฟันกร่อน",
+                title: "อาการเสียวฟันและฟันกร่อนในเด็กเกิดจากสาเหตุอะไร?",
+                desc: "สาเหตุของผิวเคลือบฟันบางและวิธีบรรเทาอาการเสียวฟัน",
+                body: `<p><strong>อาการฟันกร่อนในเด็ก:</strong></p><ul><li>เกิดจากการดื่มน้ำอัดลม น้ำผลไม้รสเปรี้ยวจัดบ่อยๆ หรือภาวะกรดไหลย้อน ทำให้เคลือบฟันสึกกร่อน ควรลดอาหารรสเปรี้ยวและพบทันตแพทย์เพื่อเคลือบปกป้องผิวฟัน</li></ul>`
+            },
+            {
+                cat: "สุขภาพช่องปากและฟัน",
+                tag: "#จัดฟันเด็ก",
+                title: "การจัดฟันและการสบฟันผิดปกติในเด็กวัยประถม",
+                desc: "สัญญาณเตือนความผิดปกติของการสบฟันที่ต้องพบทันตแพทย์จัดฟัน",
+                body: `<p><strong>การสบฟันผิดปกติในวัยเด็ก:</strong></p><ul><li>อาการฟันล่างคร่อมฟันบน ฟันยื่น หรือฟันหน้าสบเปิด ควรได้รับการประเมินจากทันตแพทย์จัดฟันเด็กตั้งแต่อายุ 7-9 ปี เพื่อแก้ไขโครงสร้างกระดูกขากรรไกรตั้งแต่เนิ่นๆ</li></ul>`
+            },
+            {
+                cat: "คุณแม่ตั้งครรภ์และใกล้คลอด",
+                tag: "#ใกล้คลอด #เจ็บครรภ์จริง",
+                title: "อาการเตือนใกล้คลอด สัญญาณแบบไหนคือเจ็บครรภ์จริง?",
+                desc: "วิธีสังเกตอาการเจ็บครรภ์คลอดจริงและข้อแตกต่างจากอาการเจ็บเตือน",
+                body: `<p><strong>สัญญาณเจ็บครรภ์จริง (True Labor):</strong></p><ul><li><strong>มดลูกหดตัวสม่ำเสมอ:</strong> ท้องแข็งและปวดเกร็งเป็นจังหวะสม่ำเสมอถี่ขึ้นเรื่อยๆ เช่น ทุก 5 นาที</li><li><strong>ความเจ็บปวดเพิ่มขึ้น:</strong> ปวดร้าวจากหลังส่วนล่างลามมาหน้าท้อง เดินหรือพักผ่อนอย่างไรก็ไม่หาย</li><li><strong>มีมูกเลือดหรือน้ำเดิน:</strong> ปากมดลูกเริ่มเปิดขยาย มีมูกปนเลือดสดหรือน้ำใสไหลออกทางช่องคลอด ให้รีบไปโรงพยาบาล</li></ul>`
+            },
+            {
+                cat: "คุณแม่ตั้งครรภ์และใกล้คลอด",
+                tag: "#เจ็บเตือน #BraxtonHicks",
+                title: "ความแตกต่างระหว่างมดลูกบีบตัวเตือน (Braxton Hicks) กับเจ็บครรภ์คลอดจริง",
+                desc: "วิธีแยกแยะอาการท้องแข็งหลอกกับท้องแข็งคลอดจริง",
+                body: `<p><strong>ความแตกต่างระหว่างเจ็บเตือนกับเจ็บจริง:</strong></p><ul><li><strong>เจ็บเตือน:</strong> ท้องแข็งเป็นพักๆ แบบไม่สม่ำเสมอ นานๆ เป็นที และหายไปเองเมื่อนอนพัก</li><li><strong>เจ็บจริง:</strong> ท้องแข็งบีบตัวถี่ขึ้นเรื่อยๆ สม่ำเสมอ พักผ่อนอย่างไรก็ไม่หายปวด</li></ul>`
+            },
+            {
+                cat: "คุณแม่ตั้งครรภ์และใกล้คลอด",
+                tag: "#น้ำเดิน #ถุงน้ำคร่ำแตก",
+                title: "วิธีสังเกตน้ำเดินและการปฏิบัติตัวเมื่อถุงน้ำคร่ำแตก",
+                desc: "วิธีแยกน้ำคร่ำออกจากตกขาวและสิ่งที่ต้องทำทันที",
+                body: `<p><strong>วิธีสังเกตอาการน้ำเดิน:</strong></p><ul><li>เป็นน้ำใสๆ ไหลซึมออกทางช่องคลอดโดยกลั้นไม่ได้ ควรสวมผ้าอนามัยสะอาด บันทึกเวลา และรีบไปโรงพยาบาลทันที (ห้ามสวนล้าง)</li></ul>`
+            },
+            {
+                cat: "คุณแม่ตั้งครรภ์และใกล้คลอด",
+                tag: "#กระเป๋าเตรียมคลอด",
+                title: "กระเป๋าเตรียมคลอดโรงพยาบาล ต้องเตรียมอะไรไปบ้างสำหรับแม่และลูก?",
+                desc: "รายการของใช้จำเป็นที่ต้องจัดเตรียมใส่กระเป๋าไปโรงพยาบาล",
+                body: `<p><strong>รายการกระเป๋าเตรียมคลอด:</strong></p><ul><li><strong>แม่:</strong> ชุดใส่กลับบ้าน, ชุดชั้นให้นม, แผ่นซับน้ำนม, เอกสารบัตรประชาชนและสิทธิ์รักษา</li><li><strong>ลูก:</strong> ชุดเด็กอ่อนผูกหน้า 3 ชุด, ผ้าอ้อมสำเร็จรูปไซส์ Newborn, ผ้าห่อตัว, คาร์ซีท</li></ul>`
+            },
+            {
+                cat: "คุณแม่ตั้งครรภ์และใกล้คลอด",
+                tag: "#วิธีคลอด",
+                title: "การเลือกวิธีคลอดระหว่างคลอดธรรมชาติและการผ่าคลอด แบบไหนเหมาะกับคุณ?",
+                desc: "ข้อดีข้อเสียเปรียบเทียบระหว่างคลอดธรรมชาติและการผ่าตัดคลอด",
+                body: `<p><strong>เปรียบเทียบวิธีคลอด:</strong></p><ul><li><strong>คลอดธรรมชาติ:</strong> ฟื้นตัวไว น้ำนมมาเร็ว ทารกได้รับภูมิคุ้มกัน</li><li><strong>ผ่าคลอด:</strong> กำหนดวันเวลาได้ ลดความเจ็บปวดรอคลอด แต่อาจใช้เวลาฟื้นตัวนานกว่า</li></ul>`
+            },
+            {
+                cat: "คุณแม่ตั้งครรภ์และใกล้คลอด",
+                tag: "#แพ้ท้องรุนแรง",
+                title: "อาการแพ้ท้องรุนแรงในช่วงไตรมาสแรก รับมืออย่างไรดี?",
+                desc: "วิธีบรรเทาอาการคลื่นไส้อาเจียนหนักในช่วงตั้งครรภ์แรกๆ",
+                body: `<p><strong>วิธีรับมืออาการแพ้ท้องรุนแรง:</strong></p><ul><li>แบ่งมื้ออาหารเป็นมื้อเล็กๆ 5-6 มื้อต่อวัน, จิบน้ำเกลือแร่หรือขิงอุ่นๆ, หลีกเลี่ยงอาหารกลิ่นฉุน และทานวิตามินบี 6 ตามแพทย์สั่ง</li></ul>`
+            },
+            {
+                cat: "คุณแม่ตั้งครรภ์และใกล้คลอด",
+                tag: "#ท่านอนคนท้อง",
+                title: "ท่านอนที่เหมาะสมและปลอดภัยสำหรับคุณแม่ตั้งครรภ์เดือนแก่",
+                desc: "ท่านอนตะแคงซ้ายช่วยเพิ่มการไหลเวียนเลือดไปเลี้ยงทารกในครรภ์",
+                body: `<p><strong>ท่านอนคนท้องเดือนแก่:</strong></p><ul><li>ควรนอนตะแคงซ้ายและใช้หมอนรองหนุนระหว่างเข่าและท้อง เพื่อลดแรงกดทับเส้นเลือดใหญ่และช่วยให้หายใจสะดวกขึ้น</li></ul>`
+            },
+            {
+                cat: "คุณแม่ตั้งครรภ์และใกล้คลอด",
+                tag: "#ครรภ์เป็นพิษ",
+                title: "ภาวะครรภ์เป็นพิษ (Preeclampsia) อาการเตือนอันตรายที่แม่ท้องต้องรู้",
+                desc: "สัญญาณความดันโลหิตสูงร่วมกับมีไข่ขาวในปัสสาวะที่ต้องระวัง",
+                body: `<p><strong>อาการเตือนครรภ์เป็นพิษ:</strong></p><ul><li>ปวดศีรษะรุนแรง ตาพร่ามัว จุกแน่นลิ้นปี่ และมีอาการบวมที่ใบหน้าและมืออย่างรวดเร็ว ควรรีบพบแพทย์ทันที</li></ul>`
+            },
+            {
+                cat: "คุณแม่ตั้งครรภ์และใกล้คลอด",
+                tag: "#นับลูกดิ้น",
+                title: "การนับลูกดิ้นในครรภ์ ตัวชี้วัดสุขภาพทารกในครรภ์ที่สำคัญที่สุด",
+                desc: "เกณฑ์การนับลูกดิ้นปกติในช่วงไตรมาสสุดท้ายของการตั้งครรภ์",
+                body: `<p><strong>วิธีนับลูกดิ้น:</strong></p><ul><li>ควรนับหลังมื้ออาหาร โดยลูกควรดิ้นอย่างน้อย 10 ครั้งภายใน 2 ชั่วโมง หากลูกดิ้นน้อยลงผิดปกติให้รีบไปโรงพยาบาล</li></ul>`
+            },
+            {
+                cat: "คุณแม่ตั้งครรภ์และใกล้คลอด",
+                tag: "#อาหารบำรุงครรภ์",
+                title: "อาหารบำรุงครรภ์และวิตามินเสริมที่จำเป็นในแต่ละไตรมาส",
+                desc: "สารอาหารสำคัญเช่นกรดโฟลิก ธาตุเหล็ก และแคลเซียม",
+                body: `<p><strong>อาหารและวิตามินคนท้อง:</strong></p><ul><li>ไตรมาสแรกเน้นโฟลิกป้องกันความพิการ, ไตรมาสสองเน้นแคลเซียมบำรุงกระดูก, ไตรมาสสามเน้นธาตุเหล็กและโปรตีน</li></ul>`
+            },
+            {
+                cat: "คุณแม่ตั้งครรภ์และใกล้คลอด",
+                tag: "#อัลตราซาวด์",
+                title: "การตรวจอัลตราซาวด์ 4 มิติและการตรวจคัดกรองความผิดปกติโครโมโซม",
+                desc: "ความสำคัญของการตรวจคัดกรองความสมบูรณ์ของทารกในครรภ์",
+                body: `<p><strong>การตรวจอัลตราซาวด์:</strong></p><ul><li>ช่วยเช็กความผิดปกติทางกายสถาพ อวัยวะภายใน และตรวจคัดกรองกลุ่มอาการดาวน์ช่วงอายุครรภ์ 11-14 สัปดาห์</li></ul>`
+            },
+            {
+                cat: "คุณแม่ตั้งครรภ์และใกล้คลอด",
+                tag: "#เท้าบวมตะคริว",
+                title: "อาการเท้าบวม ปวดหลัง และตะคริวในคนท้อง บรรเทาอย่างไร?",
+                desc: "วิธีลดอาการปวดเมื่อยกล้ามเนื้อและอาการบวมน้ำในคนท้อง",
+                body: `<p><strong>วิธีบรรเทาอาการปวดบวม:</strong></p><ul><li>นอนยกขาขึ้นสูงเวลานอน, นวดเบาๆ ที่น่องแก้ตะคริว, และสวมรองเท้าส้นเตี้ยที่รองรับน้ำหนักได้ดี</li></ul>`
+            },
+            {
+                cat: "คุณแม่ตั้งครรภ์และใกล้คลอด",
+                tag: "#เดินทางคนท้อง",
+                title: "คุณแม่ท้องแก่ใกล้คลอด สามารถเดินทางไกลหรือขึ้นเครื่องบินได้ไหม?",
+                desc: "ข้อควรระวังและเกณฑ์อายุครรภ์ที่อนุญาตให้เดินทางโดยเครื่องบิน",
+                body: `<p><strong>การเดินทางคนท้อง:</strong></p><ul><li>โดยทั่วไปสายการบินไม่อนุญาตให้หญิงตั้งครรภ์เกิน 36 สัปดาห์ขึ้นเครื่อง และควรปรึกษาแพทย์ก่อนเดินทางไกล</li></ul>`
+            },
+            {
+                cat: "คุณแม่ตั้งครรภ์และใกล้คลอด",
+                tag: "#ฝึกหายใจเบ่งคลอด",
+                title: "การฝึกหายใจและการเบ่งคลอดสำหรับคุณแม่ที่จะคลอดธรรมชาติ",
+                desc: "เทคนิคการหายใจเข้าออกลึกๆ เพื่อช่วยลดความเจ็บปวดและเพิ่มออกซิเจนให้ลูก",
+                body: `<p><strong>เทคนิคหายใจเบ่งคลอด:</strong></p><ul><li>ฝึกหายใจเข้าทางจมูกลึกๆ และเป่าลมออกทางปากยาวๆ เมื่อมดลูกหดตัว และเบ่งลงล่างเมื่อปากมดลูกเปิดเต็มที่ตามคำแนะนำของพยาบาล</li></ul>`
+            },
+            {
+                cat: "คุณแม่ตั้งครรภ์และใกล้คลอด",
+                tag: "#รกเกาะต่ำ",
+                title: "ภาวะรกเกาะต่ำและข้อควรระวังสำคัญสำหรับคุณแม่ตั้งครรภ์",
+                desc: "ภาวะที่รกมาปิดปากมดลูกและสัญญาณเลือดออกทางช่องคลอด",
+                body: `<p><strong>ภาวะรกเกาะต่ำ:</strong></p><ul><li>ต้องงดการมีเพศสัมพันธ์ งดการสวนล้าง และระวังไม่ให้ยกของหนัก หากมีเลือดออกกะปริบกะปรอยต้องรีบพบแพทย์ทันที</li></ul>`
+            },
+            {
+                cat: "พัฒนาการเด็ก",
+                tag: "#พัฒนาการช้า",
+                title: "วิธีสังเกตพัฒนาการช้าในเด็กทารกช่วงขวบปีแรก",
+                desc: "เช็คลิสต์สิ่งที่คุณพ่อคุณแม่ต้องสังเกตเพื่อประเมินความผิดปกติ",
+                body: `<p><strong>เช็คลิสต์สังเกตพัฒนาการช้า:</strong></p><ul><li>อายุ 3 เดือนคอพับไม่แข็ง, 6 เดือนยังพลิกคว่ำไม่ได้, 9 เดือนยังนั่งเองไม่ได้, 1 ปีไม่เกาะยืนและไม่ส่งเสียงโต้ตอบ ควรปรึกษากุมารแพทย์พัฒนาการ</li></ul>`
+            },
+            {
+                cat: "พัฒนาการเด็ก",
+                tag: "#กล้ามเนื้อมัดใหญ่",
+                title: "การกระตุ้นกล้ามเนื้อมัดใหญ่ด้วยกิจกรรมสนุกๆ ที่บ้าน",
+                desc: "รวมกิจกรรมเสริมสร้างความแข็งแรงแขนขาตามช่วงวัย",
+                body: `<p><strong>กิจกรรมกระตุ้นกล้ามเนื้อมัดใหญ่:</strong></p><ul><li>ฝึกนอนคว่ำยกหัว (Tummy Time) สำหรับทารก, ให้คลานข้ามหมอน, และวิ่งเล่นกระโดดบนเบาะสำหรับเด็กโต</li></ul>`
+            },
+            {
+                cat: "พัฒนาการเด็ก",
+                tag: "#พูดช้า",
+                title: "ทำไมลูกถึงยังไม่ยอมพูดตอนอายุ 2 ขวบ ต้องกังวลไหม?",
+                desc: "สาเหตุภาวะพูดช้าและวิธีส่งเสริมภาษาในเด็กเตาะแตะ",
+                body: `<p><strong>วิธีแก้ปัญหาเด็กพูดช้า:</strong></p><ul><li>งดหน้าจอแท็บเล็ตและทีวีเด็ดขาด ชวนพูดคุย เล่านิทาน และเปิดโอกาสให้ลูกได้สื่อสารความต้องการด้วยคำพูด</li></ul>`
+            },
+            {
+                cat: "พัฒนาการเด็ก",
+                tag: "#การมองเห็นได้ยิน",
+                title: "เช็คลิสต์พัฒนาการด้านการมองเห็นและการได้ยินของทารก",
+                desc: "วิธีทดสอบการตอบสนองต่อเสียงและแสงของทารกแรกเกิด",
+                body: `<p><strong>เช็คลิสต์ประสาทสัมผัส:</strong></p><ul><li>ทารกควรหันตามเสียงเรียกเมื่ออายุ 3-4 เดือน และสบตาโต้ตอบกับแม่ได้ตั้งแต่อายุ 2 เดือนขึ้นไป</li></ul>`
+            },
+            {
+                cat: "พัฒนาการเด็ก",
+                tag: "#หัดคลาน",
+                title: "เทคนิคฝึกให้ลูกน้อยหัดคลานอย่างถูกวิธี",
+                desc: "วิธีช่วยกระตุ้นให้เด็กใช้มือและเข่าในการคลานไปข้างหน้า",
+                body: `<p><strong>วิธีฝึกคลาน:</strong></p><ul><li>จัดให้ลูกนอนคว่ำแล้วเอาของเล่นชิ้นโปรดวางไว้ข้างหน้าในระยะเอื้อมไม่ถึง เพื่อกระตุ้นให้พยายามคลานไปหยิบ</li></ul>`
+            },
+            {
+                cat: "พัฒนาการเด็ก",
+                tag: "#กล้ามเนื้อมัดเล็ก",
+                title: "ส่งเสริมการใช้กล้ามเนื้อมัดเล็กผ่านการหยิบจับสิ่งของ",
+                desc: "กิจกรรมเสริมสร้างความแข็งแรงของนิ้วมือและการประสานสายตา",
+                body: `<p><strong>กิจกรรมกล้ามเนื้อมัดเล็ก:</strong></p><ul><li>ให้เด็กฝึกหยิบจับสิ่งของชิ้นเล็กๆ, ต่อบล็อกไม้, และฝึกใช้ช้อนตักอาหารด้วยตนเอง</li></ul>`
+            },
+            {
+                cat: "พัฒนาการเด็ก",
+                tag: "#ภาษาเด็ก",
+                title: "พัฒนาการทางภาษาของเด็กวัยเตาะแตะที่พ่อควรรู้",
+                desc: "ลำดับการเรียนรู้คำศัพท์และการเชื่อมประโยคของเด็กวัย 1-3 ขวบ",
+                body: `<p><strong>พัฒนาการทางภาษา:</strong></p><ul><li>วัย 1 ขวบพูดได้ 1-3 คำ, วัย 2 ขวบเริ่มพูดประโยคสั้นๆ 2 คำติดกัน เช่น "ไปเที่ยว แม่จ๋า"</li></ul>`
+            },
+            {
+                cat: "พัฒนาการเด็ก",
+                tag: "#กระตุ้นสมอง",
+                title: "การกระตุ้นสมองซีกซ้ายและซีกขวาผ่านการเล่น",
+                desc: "กิจกรรมส่งเสริมความคิดสร้างสรรค์และตรรกะเหตุผล",
+                body: `<p><strong>การกระตุ้นสมอง:</strong></p><ul><li>สมองซีกขวาพัฒนาผ่านงานศิลปะและดนตรี สมองซีกซ้ายพัฒนาผ่านตัวต่อเลโก้และการนับเลข</li></ul>`
+            },
+            {
+                cat: "พัฒนาการเด็ก",
+                tag: "#เดินช้า",
+                title: "ลูกเดินช้ากว่าเกณฑ์ เกิดจากสาเหตุอะไรและควรทำอย่างไร?",
+                desc: "ช่วงอายุที่เด็กเริ่มเดินได้เองและวิธีส่งเสริมกล้ามเนื้อขา",
+                body: `<p><strong>วิธีแก้ปัญหาเดินช้า:</strong></p><ul><li>เด็กส่วนใหญ่เริ่มเดินได้เองช่วงอายุ 10-15 เดือน หากเกิน 18 เดือนยังเดินไม่ได้ควรพบแพทย์เพื่อตรวจประเมินกล้ามเนื้อ</li></ul>`
+            },
+            {
+                cat: "พัฒนาการเด็ก",
+                tag: "#เล่นอิสระ",
+                title: "ความสำคัญของการเล่นอิสระ (Free Play) ต่อการเติบโตของเด็ก",
+                desc: "ประโยชน์ของการให้เด็กได้คิดและเลือกวิธีเล่นด้วยตนเอง",
+                body: `<p><strong>ประโยชน์ของการเล่นอิสระ:</strong></p><ul><li>ช่วยเสริมสร้างจินตนาการ ทักษะการแก้ปัญหา และลดความเครียดในเด็กปฐมวัย</li></ul>`
+            },
+            {
+                cat: "พัฒนาการเด็ก",
+                tag: "#ฝึกทรงตัว",
+                title: "การฝึกทักษะการทรงตัวและการเดินสำหรับเด็กวัย 1 ปี",
+                desc: "กิจกรรมช่วยเสริมสร้างระบบการทรงตัวในหูชั้นในและกล้ามเนื้อแกนกลาง",
+                body: `<p><strong>การฝึกทรงตัว:</strong></p><ul><li>ให้เด็กเดินบนพื้นผิวที่หลากหลาย เช่น พื้นหญ้า ทราย หรือเบาะนิ่มๆ ภายใต้การดูแลอย่างใกล้ชิด</li></ul>`
+            },
+            {
+                cat: "พัฒนาการเด็ก",
+                tag: "#อารมณ์สังคม",
+                title: "พัฒนาการทางอารมณ์และสังคมของทารกวัย 6 เดือน",
+                desc: "การแสดงออกทางอารมณ์ การยิ้มตอบ และความกลัวคนแปลกหน้า",
+                body: `<p><strong>พัฒนาการทางสังคม 6 เดือน:</strong></p><ul><li>เด็กเริ่มจำหน้าคนเลี้ยงได้ ยิ้มเก่ง หัวเราะเสียงดัง และอาจมีอาการกลัวคนแปลกหน้า (Stranger Anxiety)</li></ul>`
+            },
+            {
+                cat: "พัฒนาการเด็ก",
+                tag: "#ออทิสติก",
+                title: "สัญญาณเตือนโรคออทิสติกสเปกตรัมที่พ่อแม่ควรสังเกตในวัยเด็กเล็ก",
+                desc: "อาการผิดปกติด้านการสื่อสารและการสบตาที่ต้องระวัง",
+                body: `<p><strong>สัญญาณเตือนออทิสติก:</strong></p><ul><li>เรียกชื่อไม่หัน ไม่สบตา ชี้สิ่งของไม่เป็น และชอบทำพฤติกรรมซ้ำๆ ควรพาพบแพทย์พัฒนาการ</li></ul>`
+            },
+            {
+                cat: "พัฒนาการเด็ก",
+                tag: "#แก้ปัญหา",
+                title: "การส่งเสริมทักษะการแก้ปัญหาผ่านของเล่นปลายเปิด",
+                desc: "ประเภทของเล่นที่ไม่มีกฎตายตัวช่วยกระตุ้นสมองเด็ก",
+                body: `<p><strong>ของเล่นปลายเปิด:</strong></p><ul><li>เช่น บล็อกไม้ ทรายน้ำ หรือกล่องกระดาษ ที่เปิดโอกาสให้เด็กสร้างสรรค์รูปทรงต่างๆ ได้ตามจินตนาการ</li></ul>`
+            },
+            {
+                cat: "พัฒนาการเด็ก",
+                tag: "#EQเด็ก",
+                title: "พัฒนาการด้านความฉลาดทางอารมณ์ (EQ) ในเด็กปฐมวัย",
+                desc: "วิธีสอนให้เด็กเข้าใจและจัดการอารมณ์ตนเองได้ดี",
+                body: `<p><strong>การเสริมสร้าง EQ:</strong></p><ul><li>รับฟังและยอมรับความรู้สึกของลูก สอนให้รู้จักชื่อเรียกอารมณ์ต่างๆ เช่น ดีใจ เสียใจ หรือโกรธ</li></ul>`
+            },
+            {
+                cat: "โภชนาการ",
+                tag: "#อาหารเสริม6เดือน",
+                title: "แนวทางการเริ่มอาหารเสริมมื้อแรก (Solid Foods) สำหรับทารก 6 เดือน",
+                desc: "หลักการป้อนอาหารมื้อแรกและการเลือกวัตถุดิบที่ปลอดภัย",
+                body: `<p><strong>แนวทางอาหารมื้อแรก:</strong></p><ul><li>เริ่มจากข้าวบดละเอียดผสมไข่แดงต้มสุกทีละอย่างเพื่อสังเกตอาการแพ้ 3 วัน ห้ามปรุงรสชาติในเด็กอายุต่ำกว่า 1 ขวบ</li></ul>`
+            },
+            {
+                cat: "โภชนาการ",
+                tag: "#เพิ่มน้ำนมแม่",
+                title: "วิธีเพิ่มน้ำนมแม่ตามธรรมชาติให้มีปริมาณเพียงพอ",
+                desc: "เทคนิคกระตุ้นน้ำนมและการเข้าเต้าที่ถูกต้อง",
+                body: `<p><strong>วิธีเพิ่มน้ำนมแม่:</strong></p><ul><li>ให้ลูกดูดเต้าทุก 2-3 ชั่วโมง ดื่มน้ำอุ่นจัด และพักผ่อนให้เพียงพอเพื่อกระตุ้นฮอร์โมนสร้างน้ำนม</li></ul>`
+            },
+            {
+                cat: "โภชนาการ",
+                tag: "#เก็บรักษานมแม่",
+                title: "การจัดเก็บน้ำนมคั้นในตู้เย็นและช่องแช่แข็งอย่างถูกวิธี",
+                desc: "ระยะเวลาการเก็บรักษานมแม่ในอุณหภูมิต่างๆ",
+                body: `<p><strong>วิธีเก็บนมแม่:</strong></p><ul><li>ช่องธรรมดาเก็บได้ 3-4 วัน ช่องแช่แข็งตู้เย็นประตูเดียวเก็บได้ 2 สัปดาห์ ตู้เย็น 2 ประตูเก็บได้ 3-6 เดือน</li></ul>`
+            },
+            {
+                cat: "โภชนาการ",
+                tag: "#อาหารเสี่ยงภูมิแพ้",
+                title: "อาหารเสริมกลุ่มเสี่ยงภูมิแพ้ ควรเริ่มให้ลูกทานตอนอายุเท่าไหร่?",
+                desc: "คำแนะนำการเริ่มอาหารกลุ่มไข่ ไข่ขาว ถั่ว และปลาทะเล",
+                body: `<p><strong>อาหารเสี่ยงภูมิแพ้:</strong></p><ul><li>ปัจจุบันกุมารแพทย์แนะนำให้เริ่มอาหารกลุ่มเสี่ยงได้ตั้งแต่ 6 เดือน แต่ต้องเริ่มทีละน้อยและสังเกตอาการแพ้อย่างใกล้ชิด</li></ul>`
+            },
+            {
+                cat: "โภชนาการ",
+                tag: "#ลูกไม่กินผัก",
+                title: "ลูกไม่ยอมทานผัก มีวิธีหลอกล่ออย่างไรให้ทานง่ายขึ้น?",
+                desc: "เทคนิคซ่อนผักในอาหารและปรับเมนูให้เด็กทานง่าย",
+                body: `<p><strong>วิธีแก้ลูกไม่กินผัก:</strong></p><ul><li>นำผักไปปั่นผสมในซุป ไข่ตุ๋น หรือทำเป็นแพน케้กผักสีสันสดใส และชวนลูกทำอาหารร่วมกัน</li></ul>`
+            },
+            {
+                cat: "โภชนาการ",
+                tag: "#ธาตุเหล็กทารก",
+                title: "เมนูอาหารบดละเอียดเสริมธาตุเหล็กสำหรับทารกวัย 7-9 เดือน",
+                desc: "วัตถุดิบอาหารที่มีธาตุเหล็กสูงช่วยป้องกันโรคโลหิตจาง",
+                body: `<p><strong>อาหารเสริมธาตุเหล็ก:</strong></p><ul><li>ตับหมูบด ไข่แดง ข้าวโอ๊ต และเนื้อปลาบดละเอียดผสมในข้าวบด เพื่อป้องกันภาวะขาดธาตุเหล็กในทารก</li></ul>`
+            },
+            {
+                cat: "โภชนาการ",
+                tag: "#หย่านมแม่",
+                title: "การหย่านมแม่และการเปลี่ยนผ่านไปดื่มนมกล่อง UHT",
+                desc: "ขั้นตอนการเตรียมตัวหย่านมเมื่อเด็กอายุครบ 1 ปีขึ้นไป",
+                body: `<p><strong>การหย่านมแม่:</strong></p><ul><li>ค่อยๆ ลดมื้อนมแม่ลงทีละมื้อ ฝึกให้ดื่มนมวัวรสจืดจากแก้วหรือกล่องแทนเพื่อปรับระบบย่อยอาหาร</li></ul>`
+            },
+            {
+                cat: "โภชนาการ",
+                tag: "#ลูกเบื่ออาหาร",
+                title: "ภาวะลูกเบื่ออาหารช่วงฟันขึ้น รับมืออย่างไรดี?",
+                desc: "การปรับอาหารให้อ่อนนุ่มและเย็นเพื่อช่วยลดอาการเจ็บเหงือก",
+                body: `<p><strong>รับมือลูกเบื่ออาหารช่วงฟันขึ้น:</strong></p><ul><li>ให้อาหารที่มีลักษณะเย็นและนุ่ม เช่น โยเกิร์ตแช่เย็น ผลไม้แช่เย็นบดละเอียด เพื่อบรรเทาอาการเจ็บเหงือก</li></ul>`
+            },
+            {
+                cat: "โภชนาการ",
+                tag: "#น้ำตาลเกลือเด็ก",
+                title: "น้ำตาลและเกลือในอาหารเด็ก วัยไหนควรเริ่มปรุงรสได้?",
+                desc: "ช่วงอายุที่เหมาะสมในการเริ่มใส่น้ำตาลและเกลือในอาหาร",
+                body: `<p><strong>การปรุงรสอาหารเด็ก:</strong></p><ul><li>ควรหลีกเลี่ยงการเติมเกลือและน้ำตาลในเด็กอายุต่ำกว่า 1 ขวบ เพื่อไม่ให้ไตทำงานหนักและป้องกันติดรสชาติหวานเค็ม</li></ul>`
+            },
+            {
+                cat: "โภชนาการ",
+                tag: "#ไข่แดงปลาทะเล",
+                title: "ประโยชน์ของไข่แดงและปลาทะเลต่อพัฒนาการสมองทารก",
+                desc: "สารอาหารโคลีนและโอเมก้า 3 ในไข่แดงและปลาแซลมอน",
+                body: `<p><strong>ประโยชน์ไข่แดงและปลาทะเล:</strong></p><ul><li>อุดมไปด้วยโคลีนและกรดไขมันจำเป็นที่ช่วยบำรุงระบบประสาทและจอประสาทตาของเด็กทารก</li></ul>`
+            },
+            {
+                cat: "โภชนาการ",
+                tag: "#แพ้นมวัว",
+                title: "การแพ้นมวัวในเด็ก อาการและวิธีเลือกนมทางเลือกที่เหมาะสม",
+                desc: "อาการแพ้โปรตีนนมวัวและคำแนะนำการเลือกนมสูตรพิเศษ",
+                body: `<p><strong>การแพ้นมวัว:</strong></p><ul><li>อาการคัน ผื่นลมพิษ ถ่ายมีมูกเลือด ควรปรึกษาแพทย์เพื่อเปลี่ยนเป็นนมสูตรโปรตีนย่อยสลายอย่างละเอียด (Extensively Hydrolyzed Formula)</li></ul>`
+            },
+            {
+                cat: "โภชนาการ",
+                tag: "#โลหิตจางเด็ก",
+                title: "ภาวะโลหิตจางจากการขาดธาตุเหล็กในเด็กเล็ก ป้องกันอย่างไร?",
+                desc: "ผลกระทบของภาวะขาดธาตุเหล็กต่อพัฒนาการสมองเด็ก",
+                body: `<p><strong>ป้องกันโลหิตจางในเด็ก:</strong></p><ul><li>ให้ทานอาหารที่มีธาตุเหล็กสูงควบคู่กับวิตามินซีเพื่อช่วยในการดูดซึม และทานนมแม่ร่วมด้วยอย่างต่อเนื่อง</li></ul>`
+            },
+            {
+                cat: "โภชนาการ",
+                tag: "#BLWอาหาร",
+                title: "การทำอาหารแนว Baby-Led Weaning (BLW) ให้ลูกกินอาหารเอง",
+                desc: "แนวทางฝึกให้เด็กหยิบจับอาหารชิ้นนิ่มทานด้วยตนเอง",
+                body: `<p><strong>แนวทาง BLW:</strong></p><ul><li>หั่นอาหารเป็นชิ้นยาวขนาดพอดีมือที่เด็กหยิบจับได้ เช่น แครอทต้มสุก บรอกโคลีต้ม เพื่อฝึกการเคี้ยวและการประสานมือ</li></ul>`
+            },
+            {
+                cat: "โภชนาการ",
+                tag: "#น้ำดื่มทารก",
+                title: "ปริมาณน้ำดื่มที่เหมาะสมสำหรับเด็กทารกในแต่ละช่วงวัย",
+                desc: "ข้อควรระวังเรื่องการดื่มน้ำในเด็กทารกอายุต่ำกว่า 6 เดือน",
+                body: `<p><strong>ปริมาณน้ำดื่มทารก:</strong></p><ul><li>เด็กต่ำกว่า 6 เดือนที่กินนมแม่อย่างเดียวไม่ต้องดื่มน้ำเพิ่ม เมื่อเริ่มอาหารเสริมจึงค่อยๆ จิบน้ำต้มสุกตามปริมาณน้อยๆ</li></ul>`
+            },
+            {
+                cat: "โภชนาการ",
+                tag: "#วิตามินดีธาตุเหล็ก",
+                title: "วิตามินดีและธาตุเหล็กเสริม ความจำเป็นสำหรับทารกกินนมแม่",
+                desc: "ความสำคัญของการเสริมวิตามินดีและธาตุเหล็กในนมแม่",
+                body: `<p><strong>วิตามินเสริมสำหรับทารกกินนมแม่:</strong></p><ul><li>ทารกกินนมแม่อย่างเดียวควรได้รับวิตามินดีเสริมตามคำแนะนำของกุมารแพทย์เพื่อป้องกันโรคกระดูกอ่อน</li></ul>`
+            },
+            {
+                cat: "วัคซีนและสุขภาพ",
+                tag: "#ตารางวัคซีน",
+                title: "ตารางวัคซีนพื้นฐานและวัคซีนเสริมที่จำเป็นสำหรับเด็กไทย",
+                desc: "รายการวัคซีนตั้งแต่แรกเกิดจนถึงวัยเรียนตามประกาศกระทรวงสาธารณสุข",
+                body: `<p><strong>ตารางวัคซีนเด็กไทย:</strong></p><ul><li>วัคซีนพื้นฐานเช่น บีซีจี, ตับอักเสบี, คอตีบ-บาดทะยัก-ไอกรน, โปลิโอ และวัคซีนเสริมเช่น โรตา, RSV, ไอพีวี ตามคำแนะนำแพทย์</li></ul>`
+            },
+            {
+                cat: "วัคซีนและสุขภาพ",
+                tag: "#ไข้หลังฉีดวัคซีน",
+                title: "วิธีรับมือและเช็ดตัวลดไข้หลังฉีดวัคซีนประจำปี",
+                desc: "การดูแลเด็กมีไข้ตัวร้อนงอแงหลังฉีดวัคซีนและการเช็ดตัวที่ถูกต้อง",
+                body: `<p><strong>วิธีรับมือไข้หลังฉีดวัคซีน:</strong></p><ul><li>เช็ดตัวด้วยน้ำอุ่นบิดหมาดบริเวณซอกคอและรักแร้ ป้อนยาลดไข้พาราเซตามอลชนิดน้ำเชื่อมตามน้ำหนักตัว</li></ul>`
+            },
+            {
+                cat: "วัคซีนและสุขภาพ",
+                tag: "#ท้องร่วงเด็ก",
+                title: "อาการท้องร่วงและโรคอุจจาระร่วงในเด็กเล็ก อันตรายแค่ไหน?",
+                desc: "วิธีสังเกตอาการขาดน้ำและวิธีปฐมพยาบาลเบื้องต้น",
+                body: `<p><strong>วิธีรับมือท้องร่วงในเด็ก:</strong></p><ul><li>ให้ดื่มเกลือแร่ (ORS) ทีละน้อยเพื่อป้องกันภาวะขาดน้ำ ห้ามซื้อยาหยุดถ่ายให้เด็กกินเองเด็ดขาด</li></ul>`
+            },
+            {
+                cat: "วัคซีนและสุขภาพ",
+                tag: "#RSVมือเท้าปาก",
+                title: "วิธีสังเกตอาการโรค RSV และมือ เท้า ปาก ในเด็กอนุบาล",
+                desc: "อาการเตือนและวิธีป้องกันโรคติดต่อในโรงเรียน",
+                body: `<p><strong>วิธีสังเกตโรคติดต่อเด็ก:</strong></p><ul><li>RSV มีเสมหะมาก หายใจครืดคราด มือเท้าระบาดมีตุ่มแผลในปาก ให้แยกเด็กหยุดเรียนเพื่อป้องกันการแพร่ระบาด</li></ul>`
+            },
+            {
+                cat: "วัคซีนและสุขภาพ",
+                tag: "#ไข้หวัดคัดจมูก",
+                title: "ลูกเป็นไข้หวัดคัดจมูกตอนกลางคืน มีวิธีบรรเทาอย่างไร?",
+                desc: "วิธีล้างจมูกด้วยน้ำเกลือและการเพิ่มความชื้นในห้องนอน",
+                body: `<p><strong>วิธีแก้หวัดคัดจมูกกลางคืน:</strong></p><ul><li>หยอดน้ำเกลือล้างจมูกขจัดน้ำมูก ใช้เครื่องทำความชื้นในห้องนอน และหนุนหมอนให้สูงขึ้นเล็กน้อย</li></ul>`
+            },
+            {
+                cat: "วัคซีนและสุขภาพ",
+                tag: "#ผื่นผ้าอ้อม",
+                title: "การดูแลรักษาแผลผื่นผ้าอ้อม (Diaper Rash) ให้หายไว",
+                desc: "วิธีทำความสะอาดผิวและเลือกใช้ครีมทาป้องกันผื่น",
+                body: `<p><strong>การรักษาผื่นผ้าอ้อม:</strong></p><ul><li>เปลี่ยนผ้าอ้อมบ่อยๆ ล้างทำความสะอาดด้วยน้ำเปล่าซับให้แห้งสนิท และทาครีมที่มีส่วนผสมของซิงค์ออกไซด์</li></ul>`
+            },
+            {
+                cat: "วัคซีนและสุขภาพ",
+                tag: "#ลูกสะอึก",
+                title: "ลูกสะอึกบ่อยอันตรายไหม มีวิธีแก้เบื้องต้นอย่างไร?",
+                desc: "สาเหตุการสะอึกของทารกและวิธีช่วยให้หายสะอึก",
+                body: `<p><strong>วิธีแก้ลูกสะอึก:</strong></p><ul><li>เกิดจากการหดตัวของกะบังลมหลังดื่มนม ให้จับอุ้มเรอไล่ลม หรือให้ดื่มนมแม่เพิ่มอีกเล็กน้อย</li></ul>`
+            },
+            {
+                cat: "วัคซีนและสุขภาพ",
+                tag: "#สำลักอาหาร",
+                title: "การปฐมพยาบาลเบื้องต้นเมื่อลูกสำลักอาหารหรือสิ่งแปลกปลอม",
+                desc: "เทคนิคการกระแทกหลังและการกดหน้าอกในทารกและเด็กโต",
+                body: `<p><strong>ปฐมพยาบาลสำลักสิ่งแปลกปลอม:</strong></p><ul><li>สำหรับทารกคว่ำตัวลงบนแขนแล้วตบหลังเบาๆ 5 ครั้ง หากไม่หลุดให้พลิกหงายกดหน้าอก 5 ครั้ง รีบนำส่งโรงพยาบาลด่วน</li></ul>`
+            },
+            {
+                cat: "วัคซีนและสุขภาพ",
+                tag: "#หอบหืดภูมิแพ้",
+                title: "โรคหอบหืดและภูมิแพ้อากาศในเด็ก ดูแลอย่างไรไม่ให้กำเริบ",
+                desc: "วิธีหลีกเลี่ยงสารก่อภูมิแพ้ไรฝุ่นและฝุ่น PM 2.5 ในบ้าน",
+                body: `<p><strong>ดูแลเด็กภูมิแพ้:</strong></p><ul><li>ทำความสะอาดห้องนอน ซักเครื่องนอนด้วยน้ำร้อน หลีกเลี่ยงตุ๊กตาผ้าขน และเปิดเครื่องฟอกอากาศ</li></ul>`
+            },
+            {
+                cat: "วัคซีนและสุขภาพ",
+                tag: "#ตรวจสุขภาพเด็ก",
+                title: "การตรวจสุขภาพประจำปีและประเมินภาวะโภชนาการของเด็ก",
+                desc: "ความสำคัญของการติดตามกราฟการเจริญเติบโต",
+                body: `<p><strong>ตรวจสุขภาพประจำปี:</strong></p><ul><li>ประเมินน้ำหนัก ส่วนสูง และพัฒนาการตามเกณฑ์มาตรฐาน เพื่อป้องกันภาวะทุพโภชนาการ</li></ul>`
+            },
+            {
+                cat: "วัคซีนและสุขภาพ",
+                tag: "#ล้างจมูก",
+                title: "วิธีล้างจมูกด้วยน้ำเกลือเพื่อบรรเทาอาการคัดจมูกในเด็ก",
+                desc: "ขั้นตอนการใช้น้ำเกลือสลัดล้างโพรงจมูกอย่างถูกวิธี",
+                body: `<p><strong>วิธีล้างจมูกเด็ก:</strong></p><ul><li>ใช้ไซริงค์ดูดน้ำเกลือปราศเชื้อฉีดเข้าโพรงจมูกขณะเด็กเอียงคอ เพื่อชะล้างน้ำมูกเหนียวข้นออก</li></ul>`
+            },
+            {
+                cat: "วัคซีนและสุขภาพ",
+                tag: "#อีสุกอีใส",
+                title: "โรคอีสุกอีใสและการดูแลรักษาแผลไม่ให้เกิดรอยแผลเป็น",
+                desc: "วิธีลดอาการคันและป้องกันการติดเชื้อแบคทีเรียซ้ำซ้อน",
+                body: `<p><strong>ดูแลโรคอีสุกอีใส:</strong></p><ul><li>ตัดเล็บเด็กให้สั้น ทายาคาลาไมน์ลดคัน ห้ามแกะเกาตุ่มน้ำเพื่อให้หายสนิทโดยไม่ทิ้งรอยแผลเป็น</li></ul>`
+            },
+            {
+                cat: "วัคซีนและสุขภาพ",
+                tag: "#ไข้เลือดออก",
+                title: "ไข้เลือดออกในเด็ก อาการระยะวิกฤตที่ต้องรีบพบแพทย์",
+                desc: "สังเกตอาการซึม ปวดท้อง อาเจียนและภาวะช็อก",
+                body: `<p><strong>อาการไข้เลือดออกวิกฤต:</strong></p><ul><li>ไข้สูงลอย 2-7 วัน ร่วมกับอาการซึม เบื่ออาหาร ปวดท้องรุนแรง มือเท้าเย็น รีบพาพบแพทย์ทันที</li></ul>`
+            },
+            {
+                cat: "วัคซีนและสุขภาพ",
+                tag: "#อุบัติเหตุหัวกระแทก",
+                title: "อุบัติเหตุพลัดตกหกคะเมน การปฐมพยาบาลศีรษะกระแทกพื้น",
+                desc: "สัญญาณอันตรายหลังศีรษะกระแทกที่ต้องไปโรงพยาบาลด่วน",
+                body: `<p><strong>สังเกตหลังหัวกระแทก:</strong></p><ul><li>หากมีอาการอาเจียนพุ่ง ซึม ชัก หรือเดินเซ ควรรีบพาไปเอ็กซ์เรย์สมองที่โรงพยาบาลทันที</li></ul>`
+            },
+            {
+                cat: "วัคซีนและสุขภาพ",
+                tag: "#น้ำร้อนลวก",
+                title: "การปฐมพยาบาลเมื่อเด็กโดนน้ำร้อนลวกหรือไฟลวกเบื้องต้น",
+                desc: "สิ่งที่ควรทำและข้อห้ามเด็ดขาดในการรักษาแผลน้ำร้อนลวก",
+                body: `<p><strong>ปฐมพยาบาลน้ำร้อนลวก:</strong></p><ul><li>ใช้น้ำอุณหภูมิปกติราดหรือแช่แผลนาน 15-20 นาที ห้ามทายาสีฟันหรือน้ำปลาเด็ดขาดเพราะเสี่ยงติดเชื้อ</li></ul>`
+            },
+            {
+                cat: "พฤติกรรม",
+                tag: "#วัยทอง2ขวบ",
+                title: "การรับมือกับพฤติกรรมดื้อและอาละวาด (Terrible Twos)",
+                desc: "จิตวิทยาจัดการเด็กอาละวาดลงไปนอนดิ้นกับพื้นโดยไม่ใช้ความรุนแรง",
+                body: `<p><strong>วิธีรับมือเด็กอาละวาด (Terrible Twos):</strong></p><ul><li>ตั้งสติและใจเย็น ห้ามตีเด็ก ปล่อยให้สงบสติอารมณ์ในที่ปลอดภัย และเบี่ยงเบนความสนใจเมื่อเริ่มงอแง</li></ul>`
+            },
+            {
+                cat: "พฤติกรรม",
+                tag: "#วินัยเชิงบวก",
+                title: "วิธีฝึกวินัยเชิงบวก (Positive Discipline) โดยไม่ใช้ความรุนแรง",
+                desc: "เทคนิคการตั้งกติกาและการเสริมแรงเชิงบวกในครอบครัว",
+                body: `<p><strong>การฝึกวินัยเชิงบวก:</strong></p><ul><li>ใช้คำพูดเชิงบวก อธิบายเหตุผล ชื่นชมเมื่อเด็กทำความดี และกำหนดขอบเขตพฤติกรรมอย่างชัดเจน</li></ul>`
+            },
+            {
+                cat: "พฤติกรรม",
+                tag: "#ติดจอแท็บเล็ต",
+                title: "ลูกติดจอแท็บเล็ตและมือถือ ทำอย่างไรถึงจะเลิกได้?",
+                desc: "วิธีปรับพฤติกรรมเด็กติดหน้าจอและแนวทางทดแทนเวลาว่าง",
+                body: `<p><strong>วิธีแก้เด็กติดจอ:</strong></p><ul><li>เด็ดขาดกำหนดเวลาร่วมกัน ชวนทำกิจกรรมเล่นศิลปะ ต่อเลโก้ และพ่อแม่ต้องไม่เล่นมือถือต่อหน้าลูก</li></ul>`
+            },
+            {
+                cat: "พฤติกรรม",
+                tag: "#อิจฉาน้อง",
+                title: "ปัญหาลูกอิจฉาน้องใหม่ในครอบครัว รับมืออย่างไรให้ลงตัว?",
+                desc: "วิธีสร้างความรู้สึกปลอดภัยและแบ่งเวลาให้ลูกคนโตอย่างเท่าเทียม",
+                body: `<p><strong>รับมือลูกอิจฉาน้อง:</strong></p><ul><li>ให้ลูกคนโตมีส่วนร่วมในการช่วยเลี้ยงน้อง และจัดเวลาพิเศษเฉพาะตัวให้ลูกคนโตโดยไม่มีน้องมาเกี่ยวข้อง</li></ul>`
+            },
+            {
+                cat: "พฤติกรรม",
+                tag: "#สอนแบ่งปัน",
+                title: "การสอนให้ลูกรู้จักการแบ่งปันและการเข้าสังคมกับเพื่อน",
+                desc: "วิธีปลูกฝังน้ำใจและการเล่นร่วมกับผู้อื่นตามช่วงวัย",
+                body: `<p><strong>สอนลูกเรื่องการแบ่งปัน:</strong></p><ul><li>ไม่บังคับให้แบ่งของเล่นชิ้นโปรดทันที แต่ให้ฝึกสลับกันเล่นและชมเชยเมื่อเด็กยอมแบ่งปันด้วยความเต็มใจ</li></ul>`
+            },
+            {
+                cat: "พฤติกรรม",
+                tag: "#นอนแยกห้อง",
+                title: "วิธีฝึกลูกให้นอนแยกห้องนอนด้วยตนเองอย่างนุ่มนวล",
+                desc: "ขั้นตอนการปรับบรรยากาศห้องนอนเพื่อความมั่นใจของเด็ก",
+                body: `<p><strong>ฝึกนอนแยกห้อง:</strong></p><ul><li>เริ่มจากนอนเตียงข้างกันแล้วค่อยขยับแยกห้อง สร้างกิจวัตรก่อนนอน อ่านนิทาน และเปิดไฟส่องสว่างอ่อนๆ</li></ul>`
+            },
+            {
+                cat: "พฤติกรรม",
+                tag: "#กัดเล็บเด็ก",
+                title: "พฤติกรรมกัดเล็บหรือดึงผมของเด็ก สัญญาณความเครียดหรือไม่?",
+                desc: "สาเหตุพฤติกรรมซ้ำๆ และวิธีช่วยผ่อนคลายความเครียดให้เด็ก",
+                body: `<p><strong>แก้พฤติกรรมกัดเล็บ:</strong></p><ul><li>สังเกตหาความเครียดรอบตัวเด็ก ตัดเล็บให้สั้น และหากิจกรรมให้มือได้หยิบจับของเล่นแทน</li></ul>`
+            },
+            {
+                cat: "พฤติกรรม",
+                tag: "#สร้างความมั่นใจ",
+                title: "การสร้างความมั่นใจในตนเอง (Self-Esteem) ให้กับเด็ก",
+                desc: "วิธีส่งเสริมศักยภาพและการกล้าแสดงออกอย่างเหมาะสม",
+                body: `<p><strong>สร้าง Self-Esteem ให้ลูก:</strong></p><ul><li>ชื่นชมที่ความพยายามและความตั้งใจ มากกว่าผลลัพธ์ ให้ลูกได้ลองตัดสินใจเรื่องง่ายๆ ด้วยตนเอง</li></ul>`
+            },
+            {
+                cat: "พฤติกรรม",
+                tag: "#พูดคำหยาบโกหก",
+                title: "วิธีจัดการกับปัญหาลูกพูดคำหยาบหรือพูดโกหก",
+                desc: "จิตวิทยาการปรับพฤติกรรมเมื่อเด็กเริ่มพูดคำไม่สุภาพ",
+                body: `<p><strong>รับมือลูกพูดคำหยาบ:</strong></p><ul><li>นิ่งและไม่แสดงอาการตลกขบขัน อธิบายเหตุผลว่าคำนั้นไม่สุภาพ และสอนคำพูดทดแทนที่ถูกต้อง</li></ul>`
+            },
+            {
+                cat: "พฤติกรรม",
+                tag: "#ควบคุมอารมณ์พ่อแม่",
+                title: "การควบคุมอารมณ์ของคุณพ่อคุณแม่เวลาลูกงอแงหนักมาก",
+                desc: "วิธีตั้งสติและจัดการความเครียดของตนเองขณะเลี้ยงลูก",
+                body: `<p><strong>วิธีควบคุมอารมณ์ตนเอง:</strong></p><ul><li>สูดหายใจลึกๆ เดินเลี่ยงออกจากจุดเกิดเหตุชั่วคราวเพื่อให้สงบสติอารมณ์ ก่อนกลับมาคุยกับลูกด้วยเหตุผล</li></ul>`
+            },
+            {
+                cat: "พฤติกรรม",
+                tag: "#ลูกขี้อาย",
+                title: "การแก้ปัญหาลูกขี้อายและกลัวการเข้าสังคม",
+                desc: "วิธีค่อยๆ พาเด็กปรับตัวในสถานการณ์ใหม่และเพื่อนใหม่",
+                body: `<p><strong>วิธีแก้ลูกขี้อาย:</strong></p><ul><li>ไม่บังคับหรือดุด่าให้เด็กอาย พาไปทำกิจกรรมกลุ่มเล็กๆ และให้เวลาลูกได้ปรับตัวตามจังหวะของตนเอง</li></ul>`
+            },
+            {
+                cat: "พฤติกรรม",
+                tag: "#รักการอ่าน",
+                title: "การสร้างนิสัยรักการอ่านและการเรียนรู้ให้กับเด็ก",
+                desc: "เทคนิคเล่านิทานและจัดมุมหนังสือกระตุ้นจินตนาการ",
+                body: `<p><strong>สร้างนิสัยรักการอ่าน:</strong></p><ul><li>อ่านหนังสือนิทานให้ลูกฟังทุกวันก่อนนอน จัดมุมหนังสือเข้าถึงง่าย และให้ลูกเลือกหนังสือด้วยตนเอง</li></ul>`
+            },
+            {
+                cat: "พฤติกรรม",
+                tag: "#ความรับผิดชอบ",
+                title: "วิธีปลูกฝังความรับผิดชอบผ่านการทำงานบ้านตามวัย",
+                desc: "การมอบหมายหน้าที่ง่ายๆ เช่น เก็บของเล่นและจัดโต๊ะอาหาร",
+                body: `<p><strong>ปลูกฝังความรับผิดชอบ:</strong></p><ul><li>มอบหมายงานบ้านที่เหมาะสมกับวัย เช่น เก็บของเล่นเข้าที่ ช่วยยกจานพลาสติก เพื่อสร้างความภาคภูมิใจ</li></ul>`
+            },
+            {
+                cat: "พฤติกรรม",
+                tag: "#คำปฏิเสธไม่เอา",
+                title: "การรับมือเมื่อลูกพูดปฏิเสธคำสั่งทุกคำ ('ไม่เอา!')",
+                desc: "เทคนิคการให้ทางเลือกจำกัดเพื่อลดการต่อต้านของเด็ก",
+                body: `<p><strong>รับมือลูกพูดปฏิเสธ:</strong></p><ul><li>เปลี่ยนจากการออกคำสั่งตรงๆ เป็นการให้ทางเลือกแบบจำกัด เช่น "หนูจะใส่เสื้อสีแดงหรือสีฟ้า?"</li></ul>`
+            },
+            {
+                cat: "พฤติกรรม",
+                tag: "#แกล้งเพื่อน",
+                title: "พฤติกรรมการแกล้งเพื่อนหรือรังแกผู้อื่นในโรงเรียน",
+                desc: "วิธีสอนเรื่องความเห็นอกเห็นใจและการขอโทษอย่างจริงใจ",
+                body: `<p><strong>แก้พฤติกรรมแกล้งเพื่อน:</strong></p><ul><li>พูดคุยทำความเข้าใจถึงสาเหตุ สอนให้ตระหนักถึงความเจ็บปวดของผู้อื่น และฝึกให้กล่าวคำขอโทษ</li></ul>`
+            },
+            {
+                cat: "คุณแม่หลังคลอด",
+                tag: "#ฟื้นฟูร่างกาย",
+                title: "การฟื้นฟูร่างกายของคุณแม่หลังคลอดธรรมชาติและผ่าคลอด",
+                desc: "แนวทางการดูแลแผลและการพักผ่อนเพื่อฟื้นฟูพลังงาน",
+                body: `<p><strong>การฟื้นฟูร่างกายหลังคลอด:</strong></p><ul><li>นอนหลับพักผ่อนให้เพียงพอ ทานอาหารที่มีประโยชน์ครบ 5 หมู่ และดูแลความสะอาดแผลผ่าตัดหรือแผลฝีเย็บอย่างเคร่งครัด</li></ul>`
+            },
+            {
+                cat: "คุณแม่หลังคลอด",
+                tag: "#ซึมเศร้าหลังคลอด",
+                title: "วิธีรับมือกับภาวะซึมเศร้าหลังคลอด (Baby Blues)",
+                desc: "อาการอารมณ์ดิ่ง ร้องไห้ง่ายหลังคลอดและวิธีบำบัดจิตใจ",
+                body: `<p><strong>วิธีรับมือ Baby Blues:</strong></p><ul><li>ระบายความรู้สึกกับสามี ขอความช่วยเหลือแบ่งเบาภาระเลี้ยงลูก และพบแพทย์หากอาการดิ่งไม่ยอมหายเกิน 2 สัปดาห์</li></ul>`
+            },
+            {
+                cat: "คุณแม่หลังคลอด",
+                tag: "#กระชับสัดส่วน",
+                title: "การออกกำลังกายเบื้องต้นเพื่อกระชับสัดส่วนหลังคลอด",
+                desc: "ท่าบริหารร่างกายเบาๆ และการบริหารกล้ามเนื้ออุ้งเชิงกราน",
+                body: `<p><strong>ออกกำลังกายหลังคลอด:</strong></p><ul><li>เริ่มจากการเดินเบาๆ และบริหารอุ้งเชิงกราน (Kegel Exercise) หลังจากแพทย์อนุญาต (ประมาณ 6 สัปดาห์หลังคลอด)</li></ul>`
+            },
+            {
+                cat: "คุณแม่หลังคลอด",
+                tag: "#ผมร่วงหลังคลอด",
+                title: "ปัญหาผมร่วงหลังคลอด เกิดจากอะไรและแก้ได้อย่างไร?",
+                desc: "สาเหตุฮอร์โมนเปลี่ยนแปลงทำให้ผมร่วงกระจุกและวิธีบำรุง",
+                body: `<p><strong>ปัญหาผมร่วงหลังคลอด:</strong></p><ul><li>เกิดจากฮอร์โมนเอสโตรเจนลดลงหลังคลอด ทานอาหารโปรตีนและวิตามินสูง เลี่ยงสารเคมี และผมจะงอกใหม่เองตามธรรมชาติ</li></ul>`
+            },
+            {
+                cat: "คุณแม่หลังคลอด",
+                tag: "#ดูแลแผลหลังคลอด",
+                title: "การดูแลแผลฝีเย็บและแผลผ่าตัดหน้าท้องไม่ให้ติดเชื้อ",
+                desc: "วิธีทำความสะอาดและข้อควรระวังเพื่อป้องกันแผลอักเสบ",
+                body: `<p><strong>การดูแลแผลหลังคลอด:</strong></p><ul><li>ทำความสะอาดแผลด้วยน้ำสะอาดซับให้แห้งสนิททุกครั้งหลังเข้าห้องน้ำ หลีกเลี่ยงการยกของหนักเพื่อป้องกันแผลปริ</li></ul>`
+            },
+            {
+                cat: "คุณแม่หลังคลอด",
+                tag: "#นอนหลับแม่ลูกอ่อน",
+                title: "เคล็ดลับการนอนหลับพักผ่อนชดเชยสำหรับแม่ลูกอ่อน",
+                desc: "วิธีจัดการเวลานอนตามรอบการหลับของทารก",
+                body: `<p><strong>เคล็ดลับนอนหลับแม่ลูกอ่อน:</strong></p><ul><li>หลับพักผ่อนพร้อมกับลูกในช่วงเวลากลางวัน และให้สามีช่วยผลัดเวรตื่นมาดูแลลูกตอนกลางคืนบ้าง</li></ul>`
+            },
+            {
+                cat: "คุณแม่หลังคลอด",
+                tag: "#เต้านมคัดตึง",
+                title: "ภาวะเต้านมคัดตึงและวิธีนวดเต้านมบรรเทาอาการ",
+                desc: "วิธีประคบอุ่นและนวดระบายน้ำนมเพื่อลดอาการปวดเต้า",
+                body: `<p><strong>วิธีแก้เต้านมคัดตึง:</strong></p><ul><li>ประคบอุ่นก่อนให้นม นวดคลายเต้านมเบาๆ และให้ลูกดูดนมอย่างสม่ำเสมอ หรือใช้เครื่องปั๊มนมระบายออก</li></ul>`
+            },
+            {
+                cat: "คุณแม่หลังคลอด",
+                tag: "#อาหารบำรุงแม่หลังคลอด",
+                title: "อาหารบำรุงน้ำนมและฟื้นฟูสุขภาพคุณแม่หลังคลอด",
+                desc: "เมนูอาหารสมุนไพรไทยช่วยขับน้ำนมและบำรุงโลหิต",
+                body: `<p><strong>อาหารบำรุงแม่หลังคลอด:</strong></p><ul><li>แกงเลียงหัวปลีใส่กุ้ง, ขิงสด, ใบกะเพรา และดื่มน้ำอุ่นตลอดวันเพื่อช่วยเพิ่มปริมาณน้ำนมและบำรุงร่างกาย</li></ul>`
+            },
+            {
+                cat: "คุณแม่หลังคลอด",
+                tag: "#ความสัมพันธ์สามีภรรยา",
+                title: "การปรับตัวของความสัมพันธ์สามีภรรยาหลังมีลูกน้อย",
+                desc: "การสื่อสารและความเข้าใจกันเพื่อลดความขัดแย้งในครอบครัว",
+                body: `<p><strong>ปรับตัวหลังมีลูก:</strong></p><ul><li>พูดคุยเปิดใจเรื่องการแบ่งหน้าที่ดูแลลูก สื่อสารด้วยความเข้าใจ และหาเวลาเติมความหวานให้กันบ้าง</li></ul>`
+            },
+            {
+                cat: "คุณแม่หลังคลอด",
+                tag: "#สิทธิลาคลอด",
+                title: "สิทธิประโยชน์และการลาคลอดตามกฎหมายที่คุณแม่ควรรู้",
+                desc: "ข้อมูลการลาคลอด 98 วันและการเบิกเงินสงเคราะห์บุตรประกันสังคม",
+                body: `<p><strong>สิทธิลาคลอดประกันสังคม:</strong></p><ul><li>คุณแม่ทำงานมีสิทธิลาคลอดได้ 98 วัน (รวมวันหยุด) พร้อมรับเงินทดแทนการขาดรายได้ และเบิกเงินสงเคราะห์บุตรรายเดือน</li></ul>`
+            }
+        ];
+
+        let articlesData = {};
+        let savedCustomArticles = JSON.parse(localStorage.getItem('babyGoCustomArticles')) || [];
+
+        function updateCategoryCounts() {
+            let counts = {
+                all: 0,
+                'ความรู้ผู้ใช้งาน': 0,
+                'สุขภาพช่องปากและฟัน': 0,
+                'คุณแม่ตั้งครรภ์และใกล้คลอด': 0,
+                'พัฒนาการเด็ก': 0,
+                'โภชนาการ': 0,
+                'วัคซีนและสุขภาพ': 0,
+                'พฤติกรรม': 0,
+                'คุณแม่หลังคลอด': 0
+            };
+
+            savedCustomArticles.forEach(() => {
+                counts['ความรู้ผู้ใช้งาน']++;
+                counts.all++;
+            });
+
+            detailedArticles.forEach(article => {
+                if (counts[article.cat] !== undefined) {
+                    counts[article.cat]++;
+                }
+                counts.all++;
+            });
+
+            document.getElementById('count-all').innerText = counts.all;
+            document.getElementById('count-user').innerText = counts['ความรู้ผู้ใช้งาน'];
+            document.getElementById('count-teeth').innerText = counts['สุขภาพช่องปากและฟัน'];
+            document.getElementById('count-preg').innerText = counts['คุณแม่ตั้งครรภ์และใกล้คลอด'];
+            document.getElementById('count-dev').innerText = counts['พัฒนาการเด็ก'];
+            document.getElementById('count-nutri').innerText = counts['โภชนาการ'];
+            document.getElementById('count-vac').innerText = counts['วัคซีนและสุขภาพ'];
+            document.getElementById('count-behav').innerText = counts['พฤติกรรม'];
+            document.getElementById('count-post').innerText = counts['คุณแม่หลังคลอด'];
+
+            document.getElementById('myArticlesCountBadge').innerText = savedCustomArticles.length;
+        }
+
+        function renderArticlesList(isMyArticlesOnly = false) {
+            let listHtml = '';
+            articlesData = {};
+            let counter = 1;
+
+            if (isMyArticlesOnly) {
+                if (savedCustomArticles.length === 0) {
+                    document.getElementById('knowledgeListContainer').innerHTML = `<div style="text-align: center; color: #64748b; padding: 40px;">คุณยังไม่ได้เขียนบทความใดๆ ครับ ลองกดปุ่ม "+ เขียนบทความ" ด้านบนดูได้เลย!</div>`;
+                    updateCategoryCounts();
+                    return;
+                }
+                savedCustomArticles.forEach((article) => {
+                    articlesData[article.id] = article;
+                    listHtml += `
+                        <div class="knowledge-card animated-fade" data-category="ความรู้ผู้ใช้งาน" style="border-color: #8b5cf6; background: #faf5ff;">
+                            <div style="position: absolute; top: 18px; right: 18px; z-index: 20;">
+                                <button class="btn-delete-x" onclick="deleteMyArticle(event, '${article.id}')" title="ลบบทความ">✕</button>
+                            </div>
+                            <div onclick="openArticle('${article.id}')" style="cursor: pointer; padding-right: 45px;">
+                                <span class="knowledge-keyword-tag" style="background: #ede9fe; color: #7c3aed;">${article.tag} [บทความของฉัน]</span>
+                                <div class="knowledge-title">💡 ${article.title}</div>
+                                <div class="knowledge-desc">${article.desc}</div>
+                                <div class="knowledge-footer">
+                                    <span style="color: #7c3aed; font-weight: 600;">เขียนโดย ${currentUsername}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                savedCustomArticles.forEach((article) => {
+                    articlesData[article.id] = article;
+                    listHtml += `
+                        <div class="knowledge-card animated-fade" data-category="ความรู้ผู้ใช้งาน" onclick="openArticle('${article.id}')" style="border-color: #10b981; background: #fdf4ff;">
+                            <span class="knowledge-keyword-tag" style="background: #d1fae5; color: #047857;">${article.tag} [หมวด: ความรู้ผู้ใช้งาน]</span>
+                            <div class="knowledge-title">💡 ${article.title}</div>
+                            <div class="knowledge-desc">${article.desc}</div>
+                            <div class="knowledge-footer">
+                                <span style="color: #059669; font-weight: 600;">เขียนโดย ${currentUsername}</span>
+                                <span class="knowledge-date">บทความผู้ใช้</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                detailedArticles.forEach((article) => {
+                    let articleId = "art" + counter;
+                    articlesData[articleId] = {
+                        title: article.title,
+                        category: article.cat,
+                        keyword: article.tag,
+                        author: currentUsername, // บังคับดึงชื่อแอคปัจจุบันมาโชว์ทั้งหมด
+                        date: "อัปเดตล่าสุด",
+                        body: article.body
+                    };
+
+                    listHtml += `
+                        <div class="knowledge-card" data-category="${article.cat}" onclick="openArticle('${articleId}')">
+                            <span class="knowledge-keyword-tag">${article.tag} [หมวด: ${article.cat}]</span>
+                            <div class="knowledge-title">${article.title}</div>
+                            <div class="knowledge-desc">${article.desc}</div>
+                            <div class="knowledge-footer">
+                                <span>เขียนโดย ${currentUsername}</span>
+                                <span class="knowledge-date">บทความที่ ${counter} / 100</span>
+                            </div>
+                        </div>
+                    `;
+                    counter++;
+                });
+            }
+
+            document.getElementById('knowledgeListContainer').innerHTML = listHtml;
+            updateCategoryCounts();
+        }
+
+        function toggleClearButton() {
+            const input = document.getElementById('knowledgeSearchInput');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (input.value.trim() !== '') {
+                clearBtn.style.display = 'flex';
+            } else {
+                clearBtn.style.display = 'none';
+            }
+        }
+
+        function clearSearchInput() {
+            const input = document.getElementById('knowledgeSearchInput');
+            input.value = '';
+            toggleClearButton();
+            filterKnowledge();
+        }
+
+        function toggleAddForm() {
+            const modal = document.getElementById('addArticleModal');
+            if (modal.style.display === 'block') {
+                modal.style.display = 'none';
+            } else {
+                modal.style.display = 'block';
+                modal.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function saveNewArticle() {
+            const title = document.getElementById('newTitle').value.trim();
+            const tag = document.getElementById('newTag').value.trim() || '#ความรู้ผู้ใช้งาน';
+            const rawBody = document.getElementById('newBody').value.trim();
+
+            if (!title || !rawBody) {
+                alert('กรุณากรอกหัวข้อและเนื้อหาบทความให้ครบถ้วนครับ!');
+                return;
+            }
+
+            const formattedBody = `<p><strong>เรื่อง:</strong> ${title}</p><p>${rawBody.replace(/\n/g, '<br>')}</p>`;
+            
+            const newObj = {
+                id: "custom_" + Date.now(),
+                cat: "ความรู้ผู้ใช้งาน",
+                tag: tag,
+                title: title,
+                desc: rawBody.substring(0, 90) + '...',
+                author: currentUsername,
+                body: formattedBody
+            };
+
+            savedCustomArticles.unshift(newObj);
+            localStorage.setItem('babyGoCustomArticles', JSON.stringify(savedCustomArticles));
+
+            document.getElementById('newTitle').value = '';
+            document.getElementById('newTag').value = '';
+            document.getElementById('newBody').value = '';
+            document.getElementById('addArticleModal').style.display = 'none';
+
+            renderArticlesList(false);
+            alert('เพิ่มบทความความรู้ผู้ใช้งานสำเร็จเรียบร้อยแล้ว!');
+        }
+
+        function deleteMyArticle(event, articleId) {
+            event.stopPropagation();
+            if (confirm('คุณต้องการลบบทความนี้ใช่หรือไม่?')) {
+                savedCustomArticles = savedCustomArticles.filter(art => art.id !== articleId);
+                localStorage.setItem('babyGoCustomArticles', JSON.stringify(savedCustomArticles));
+                renderArticlesList(true);
+                alert('ลบบทความเรียบร้อยแล้วครับ!');
+            }
+        }
+
+        let currentActiveCategory = 'all';
+
+        function filterByCategory(categoryName, btnElem) {
+            currentActiveCategory = categoryName;
+            document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+            if (btnElem) btnElem.classList.add('active');
+            renderArticlesList(false);
+            applySearchAndFilter();
+        }
+
+        function filterMyArticles() {
+            document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+            renderArticlesList(true);
+        }
+
+        function openArticle(articleId) {
+            const article = articlesData[articleId];
+            if (!article) return;
+
+            const container = document.getElementById('articleContentContainer');
+            container.innerHTML = `
+                <div class="article-content-card animated-fade">
+                    <div class="article-title-header">
+                        <span class="knowledge-keyword-tag">${article.keyword || article.tag} [หมวด: ${article.category || article.cat}]</span>
+                        <h2>${article.title}</h2>
+                        <div class="article-meta">
+                            <span>เขียนโดย ${article.author || currentUsername}</span>
+                            <span>${article.date || 'อัปเดตล่าสุด'}</span>
+                        </div>
+                    </div>
+                    <div class="article-body">
+                        ${article.body}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('mainKnowledgeView').style.display = 'none';
+            document.getElementById('articleDetailView').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goBackToKnowledgeList() {
+            document.getElementById('articleDetailView').style.display = 'none';
+            document.getElementById('mainKnowledgeView').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function filterKnowledge() {
+            applySearchAndFilter();
+        }
+
+        function handleSearchKeyPress(event) {
+            if (event.key === 'Enter') {
+                applySearchAndFilter();
+            }
+        }
+
+        function applySearchAndFilter() {
+            const keyword = document.getElementById('knowledgeSearchInput').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.knowledge-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                const textContent = card.innerText.toLowerCase();
+
+                const matchesCategory = (currentActiveCategory === 'all' || cardCategory === currentActiveCategory);
+                const matchesKeyword = (keyword === '' || textContent.includes(keyword));
+
+                if (matchesCategory && matchesKeyword) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            const noResult = document.getElementById('noResultText');
+            noResult.style.display = (visibleCount === 0) ? 'block' : 'none';
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
+            renderArticlesList(false);
+            toggleClearButton();
             const savedImg = localStorage.getItem('userProfileImg');
             if (savedImg) {
                 document.getElementById('navProfileImg').src = savedImg;

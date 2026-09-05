@@ -5,7 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Baby Go - ศูนย์ดูแลเด็กเล็ก</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        html, body {
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000; /* ป้องกันกระพริบขาว */
+        }
+        .hero-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            overflow: hidden;
+        }
+        .hero-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .welcome-box {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.2);
+            border: 1px solid #e0f2fe;
+            margin-bottom: 15vh;
+            max-width: 90%;
+            width: 320px;
+        }
+        .welcome-box h1 {
+            color: #0369a1;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: lowercase;
+        }
+        .btn-login {
+            display: inline-block;
+            background-color: #0284c7;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        .btn-login:hover {
+            background-color: #0369a1;
+        }
+    </style>
 </head>
 <body>
 

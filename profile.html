@@ -3,97 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baby Go - โปรไฟล์ของฉัน</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>Baby Go - โปรไฟล์และการเจริญเติบโต</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
-        body { background-color: #ffffff; color: #333333; font-size: 15px; }
+        body { background-color: #f8fafc; color: #334155; font-size: 15px; }
         
         /* Navbar มาตรฐาน */
         .navbar {
             padding: 15px 20px;
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #f0f9ff;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
-        .nav-left { display: flex; align-items: center; gap: 20px; }
-        .menu-btn { font-size: 28px; cursor: pointer; color: #0ea5e9; background: none; border: none; }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .menu-btn { font-size: 26px; cursor: pointer; color: #0284c7; background: none; border: none; }
         
-        .logo-container { display: flex; align-items: center; gap: 15px; text-decoration: none; }
-        .logo-img { width: 40px !important; height: 40px !important; border-radius: 50% !important; object-fit: cover !important; }
-        .logo-text { font-size: 20px; font-weight: 500; color: #0284c7; letter-spacing: 0.5px; }
+        .logo-container { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-img { width: 38px !important; height: 38px !important; border-radius: 50% !important; object-fit: cover !important; }
+        .logo-text { font-size: 18px; font-weight: 600; color: #0284c7; letter-spacing: 0.5px; }
 
-        .nav-right { display: flex; align-items: center; gap: 20px; }
-        .icon-btn { font-size: 30px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .icon-btn { font-size: 24px; cursor: pointer; background: none; border: none; color: #0284c7; text-decoration: none; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: #f0f9ff; transition: 0.2s; }
+        .icon-btn:hover { background: #e0f2fe; }
 
-        /* Sidebar (ซ่อนไว้ก่อน) */
+        /* Sidebar */
         .sidebar {
             position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
-            background-color: #f0f9ff; 
-            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
-            transition: 0.3s; z-index: 200; padding: 30px;
+            background-color: #ffffff; 
+            box-shadow: 4px 0 15px rgba(0,0,0,0.08);
+            transition: 0.3s ease; z-index: 200; padding: 25px;
             overflow-y: auto;
         }
         .sidebar.active { left: 0; }
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .sidebar-header h3 { color: #0284c7; }
-        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0ea5e9; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .sidebar-header h3 { color: #0284c7; font-weight: 600; }
+        .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b; }
         
         .sidebar-menu { list-style: none; }
-        .sidebar-menu li a { display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; border-bottom: 1px solid rgba(14, 165, 233, 0.1); }
-        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; }
+        .sidebar-menu li a { display: block; padding: 12px 15px; color: #334155; text-decoration: none; font-weight: 400; border-radius: 8px; margin-bottom: 5px; transition: 0.2s; }
+        .sidebar-menu li a:hover { background: #f0f9ff; color: #0284c7; font-weight: 500; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); display: none; z-index: 150; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: none; z-index: 150; backdrop-filter: blur(2px); }
         .overlay.active { display: block; }
 
-        /* Container เนื้อหาหน้าโปรไฟล์ */
-        .container { max-width: 500px; margin: 0 auto; padding: 20px; text-align: center; }
+        /* Container เนื้อหาหลัก */
+        .container { max-width: 650px; margin: 0 auto; padding: 25px 15px 50px; }
         
-        .profile-container { position: relative; width: 110px; height: 110px; margin: 20px auto 10px; }
+        /* Profile Card */
+        .profile-card {
+            background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.3);
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-container { position: relative; width: 100px; height: 100px; margin: 0 auto 15px; }
         .profile-img {
-            width: 110px; height: 110px; border-radius: 50%; object-fit: cover;
-            border: 3px solid #0284c7;
+            width: 100px; height: 100px; border-radius: 50%; object-fit: cover;
+            border: 4px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         .upload-label {
             position: absolute; bottom: 0; right: 0;
-            background-color: #0284c7; color: white;
+            background-color: #ffffff; color: #0284c7;
             width: 32px; height: 32px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: 0.2s;
         }
+        .upload-label:hover { transform: scale(1.1); }
         #fileInput { display: none; }
         
-        h2 { font-size: 22px; font-weight: 600; color: #0284c7; margin-bottom: 5px; }
-        .profile-email { color: #64748b; font-size: 14px; margin-bottom: 25px; }
+        .profile-card h2 { font-size: 22px; font-weight: 600; margin-bottom: 4px; color: #ffffff; }
+        .profile-email { color: rgba(255, 255, 255, 0.9); font-size: 13px; font-weight: 300; }
 
-        .info-box {
-            background-color: #f0f9ff;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: left;
-            border: 1px solid #e0f2fe;
+        /* การจัดกลุ่มฟอร์ม */
+        .card-box {
+            background-color: #ffffff;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid #f1f5f9;
             margin-bottom: 20px;
         }
-        .form-group { margin-bottom: 12px; }
-        .form-label { font-size: 13px; font-weight: 600; color: #0284c7; display: block; margin-bottom: 4px; }
-        .form-input {
-            width: 100%; padding: 10px 12px;
-            border: 1px solid #cbd5e1; border-radius: 8px;
-            font-size: 14px; font-family: 'Prompt', sans-serif; outline: none;
-            background-color: #ffffff;
+        .card-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #0284c7;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #f0f9ff;
+            padding-bottom: 10px;
         }
-        .form-input:focus { border-color: #0284c7; }
 
-        .save-btn {
-            display: block; width: 100%; padding: 12px;
-            background-color: #0284c7; color: white; border: none;
-            border-radius: 10px; font-size: 15px; font-weight: 500;
-            cursor: pointer; font-family: 'Prompt', sans-serif; margin-bottom: 10px;
+        .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .form-group { margin-bottom: 15px; }
+        
+        .form-label { font-size: 13px; font-weight: 500; color: #475569; display: block; margin-bottom: 6px; }
+        .form-input {
+            width: 100%; padding: 11px 14px;
+            border: 1px solid #cbd5e1; border-radius: 10px;
+            font-size: 14px; font-family: 'Prompt', sans-serif; outline: none;
+            background-color: #f8fafc; transition: 0.2s;
         }
-        .save-btn:hover { background-color: #0369a1; }
+        .form-input:focus { border-color: #0284c7; background-color: #ffffff; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1); }
+        .form-input.disabled { background-color: #e2e8f0; color: #64748b; cursor: not-allowed; }
+
+        /* ปุ่มกดต่างๆ */
+        .btn {
+            display: block; width: 100%; padding: 13px;
+            border: none; border-radius: 12px; font-size: 15px; font-weight: 500;
+            cursor: pointer; font-family: 'Prompt', sans-serif; transition: 0.2s;
+            text-align: center;
+        }
+        .btn-primary { background-color: #0284c7; color: white; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25); }
+        .btn-primary:hover { background-color: #0369a1; transform: translateY(-1px); }
+        
+        .btn-success { background-color: #10b981; color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); margin-top: 5px; }
+        .btn-success:hover { background-color: #059669; }
+
+        /* ตารางประวัติการเจริญเติบโต */
+        .table-responsive { width: 100%; overflow-x: auto; margin-top: 10px; }
+        .growth-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        .growth-table th { background-color: #f0f9ff; color: #0284c7; padding: 10px; font-weight: 600; }
+        .growth-table td { padding: 10px; border-bottom: 1px solid #f1f5f9; color: #475569; }
+        .growth-table tr:hover { background-color: #f8fafc; }
+        .del-btn { background: #fee2e2; color: #ef4444; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .del-btn:hover { background: #fecaca; }
+        .no-data { text-align: center; color: #94a3b8; padding: 20px; font-size: 13px; }
+
+        @media (max-width: 480px) {
+            .form-grid-3 { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
+    <!-- Navbar -->
     <div class="navbar">
         <div class="nav-left">
             <button class="menu-btn" id="menuToggle">☰</button>
@@ -103,60 +158,117 @@
             </div>
         </div>
         <div class="nav-right">
-            <a href="notifications.html" class="icon-btn">🔔</a>
-            <a href="profile.html" class="icon-btn">👤</a>
+            <a href="notifications.html" class="icon-btn" title="การแจ้งเตือน">🔔</a>
+            <a href="profile.html" class="icon-btn" title="โปรไฟล์">👤</a>
         </div>
     </div>
 
     <div class="overlay" id="overlay"></div>
     
+    <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3>เมนู</h3>
+            <h3>เมนูหลัก</h3>
             <button class="close-btn" id="closeMenu">✕</button>
         </div>
         <ul class="sidebar-menu">
-            <li><a href="content.html">หน้าแรก</a></li>
-            <li><a href="development.html">พัฒนาการเด็ก</a></li>
-            <li><a href="vaccine.html">วัคซีน</a></li>
-            <li><a href="nutrition.html">โภชนาการ</a></li>
-            <li><a href="knowledge.html">ความรู้</a></li>
-            <li><a href="ai_assistant.html">AI วิเคราะห์</a></li>
-            <li><a href="community.html">ชุมชน</a></li>
-            <li><a href="contact.html">ติดต่อเรา</a></li>
-            <li><a href="login.html" style="color: #ef4444; font-weight: 600; border-bottom: none;">ออกจากระบบ</a></li>
+            <li><a href="content.html">🏠 หน้าแรก</a></li>
+            <li><a href="development.html">📊 พัฒนาการเด็ก</a></li>
+            <li><a href="vaccine.html">💉 วัคซีน</a></li>
+            <li><a href="nutrition.html">🍲 โภชนาการ</a></li>
+            <li><a href="knowledge.html">📚 ความรู้</a></li>
+            <li><a href="ai_assistant.html">🤖 AI วิเคราะห์</a></li>
+            <li><a href="community.html">💬 ชุมชน</a></li>
+            <li><a href="contact.html">📞 ติดต่อเรา</a></li>
+            <li><a href="login.html" style="color: #ef4444; font-weight: 500;">🚪 ออกจากระบบ</a></li>
         </ul>
     </div>
 
+    <!-- Main Container -->
     <div class="container">
-        <div class="profile-container">
-            <img id="profileImage" src="logo.jpg.jpg" alt="Profile" class="profile-img">
-            <label for="fileInput" class="upload-label" title="เปลี่ยนรูปโปรไฟล์">📷</label>
-            <input type="file" id="fileInput" accept="image/*" onchange="previewImage(event)">
-        </div>
         
-        <h2 id="displayName">คุณแม่คนสวย</h2>
-        <div class="profile-email">mother.babygo@email.com</div>
+        <!-- Profile Banner -->
+        <div class="profile-card">
+            <div class="profile-container">
+                <img id="profileImage" src="logo.jpg.jpg" alt="Profile" class="profile-img">
+                <label for="fileInput" class="upload-label" title="เปลี่ยนรูปโปรไฟล์">📷</label>
+                <input type="file" id="fileInput" accept="image/*" onchange="previewImage(event)">
+            </div>
+            <h2 id="displayName">คุณแม่คนสวย</h2>
+            <div class="profile-email">mother.babygo@email.com</div>
+        </div>
 
-        <div class="info-box">
+        <!-- Section 1: ข้อมูลส่วนตัว -->
+        <div class="card-box">
+            <div class="card-title">✨ ข้อมูลส่วนตัว</div>
             <div class="form-group">
-                <label class="form-label">ชื่อ-นามสกุล</label>
-                <input type="text" id="nameInput" class="form-input" value="พิมพิใจ ใจดี">
+                <label class="form-label">ชื่อ-นามสกุล (แก้ไขได้)</label>
+                <input type="text" id="nameInput" class="form-input" value="คุณแม่คนสวย" oninput="updateDisplayName(this.value)">
+            </div>
+            <div class="form-group">
+                <label class="form-label">อีเมล (ไม่สามารถแก้ไขได้)</label>
+                <input type="email" id="emailInput" class="form-input disabled" value="mother.babygo@email.com" disabled>
             </div>
             <div class="form-group">
                 <label class="form-label">ชื่อเล่นน้อง</label>
                 <input type="text" id="babyInput" class="form-input" value="น้องปาล์ม & น้องไปร์ท">
             </div>
             <div class="form-group">
-                <label class="form-label">อายุครรภ์ / น้อง</label>
+                <label class="form-label">อายุครรภ์ / น้องปัจจุบัน</label>
                 <input type="text" id="ageInput" class="form-input" value="1 ขวบ 2 เดือน">
+            </div>
+            <button type="button" class="btn btn-primary" onclick="saveProfile()">บันทึกข้อมูลส่วนตัว</button>
+        </div>
+
+        <!-- Section 2: บันทึกข้อมูลการเจริญเติบโตของเด็ก -->
+        <div class="card-box">
+            <div class="card-title">📈 บันทึกการเจริญเติบโตของเด็ก</div>
+            <div class="form-group">
+                <label class="form-label">วันที่บันทึก</label>
+                <input type="date" id="recordDate" class="form-input">
+            </div>
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label class="form-label">น้ำหนัก (กก.)</label>
+                    <input type="number" step="0.1" id="weightInput" class="form-input" placeholder="เช่น 10.5">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ส่วนสูง (ซม.)</label>
+                    <input type="number" step="0.1" id="heightInput" class="form-input" placeholder="เช่น 78.0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">รอบศีรษะ (ซม.)</label>
+                    <input type="number" step="0.1" id="headInput" class="form-input" placeholder="เช่น 45.0">
+                </div>
+            </div>
+            <button type="button" class="btn btn-success" onclick="addGrowthRecord()">+ บันทึกข้อมูลการเติบโต</button>
+        </div>
+
+        <!-- Section 3: ประวัติการเจริญเติบโตย้อนหลัง -->
+        <div class="card-box">
+            <div class="card-title">📜 ประวัติการเจริญเติบโตย้อนหลัง</div>
+            <div class="table-responsive">
+                <table class="growth-table">
+                    <thead>
+                        <tr>
+                            <th>วันที่</th>
+                            <th>น้ำหนัก</th>
+                            <th>ส่วนสูง</th>
+                            <th>รอบหัว</th>
+                            <th style="text-align: center;">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="growthTableBody">
+                        <!-- ข้อมูลจะถูกเพิ่มเข้ามาด้วย JavaScript -->
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <button type="button" class="save-btn" onclick="saveProfile()">บันทึกข้อมูล</button>
     </div>
 
     <script>
+        // ควบคุม Sidebar
         const menuToggle = document.getElementById('menuToggle');
         const closeMenu = document.getElementById('closeMenu');
         const sidebar = document.getElementById('sidebar');
@@ -168,21 +280,37 @@
 
         let tempImgUrl = "";
 
+        // อัปเดตชื่อบนการ์ดแบบ Real-time
+        function updateDisplayName(val) {
+            document.getElementById('displayName').innerText = val ? val : 'คุณแม่คนสวย';
+        }
+
+        // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
         window.addEventListener('DOMContentLoaded', () => {
             const savedName = localStorage.getItem('userName');
             const savedImg = localStorage.getItem('userProfileImg');
+            const savedBaby = localStorage.getItem('babyName');
+            const savedAge = localStorage.getItem('babyAge');
 
             if (savedName) {
                 document.getElementById('nameInput').value = savedName;
                 document.getElementById('displayName').innerText = savedName;
             }
+            if (savedBaby) document.getElementById('babyInput').value = savedBaby;
+            if (savedAge) document.getElementById('ageInput').value = savedAge;
+
             if (savedImg) {
                 document.getElementById('profileImage').src = savedImg;
                 document.getElementById('navProfileImg').src = savedImg;
                 tempImgUrl = savedImg;
             }
+
+            // ตั้งค่าวันที่ปัจจุบันในช่องบันทึกการเติบโตเมื่อเข้าหน้าเว็บครั้งแรก
+            document.getElementById('recordDate').valueAsDate = new Date();
+            loadGrowthRecords();
         });
 
+        // อัปโหลดและพรีวิวรูปภาพ
         function previewImage(event) {
             const reader = new FileReader();
             reader.onload = function(){
@@ -193,16 +321,82 @@
             reader.readAsDataURL(event.target.files[0]);
         }
 
+        // บันทึกโปรไฟล์
         function saveProfile() {
             const name = document.getElementById('nameInput').value;
-            document.getElementById('displayName').innerText = name;
-            
+            const baby = document.getElementById('babyInput').value;
+            const age = document.getElementById('ageInput').value;
+
             localStorage.setItem('userName', name);
+            localStorage.setItem('babyName', baby);
+            localStorage.setItem('babyAge', age);
             if (tempImgUrl) {
                 localStorage.setItem('userProfileImg', tempImgUrl);
             }
 
-            alert('บันทึกข้อมูลและซิงก์เรียบร้อยแล้วค่ะ!');
+            alert('บันทึกข้อมูลส่วนตัวเรียบร้อยแล้วค่ะ! ✨');
+        }
+
+        // บันทึกข้อมูลการเจริญเติบโต
+        function addGrowthRecord() {
+            const date = document.getElementById('recordDate').value;
+            const weight = document.getElementById('weightInput').value;
+            const height = document.getElementById('heightInput').value;
+            const head = document.getElementById('headInput').value;
+
+            if (!date || !weight || !height) {
+                alert('กรุณากรอกวันที่ น้ำหนัก และส่วนสูงให้ครบถ้วนนะคะ');
+                return;
+            }
+
+            const newRecord = { date, weight, height, head: head || '-' };
+            
+            let records = JSON.parse(localStorage.getItem('growthRecords')) || [];
+            records.unshift(newRecord);
+            localStorage.setItem('growthRecords', JSON.stringify(records));
+
+            // รีเซ็ตช่องวันที่, น้ำหนัก, ส่วนสูง และรอบศีรษะให้ว่าง (เคลียร์ค่า) หลังกดบันทึก
+            document.getElementById('recordDate').value = '';
+            document.getElementById('weightInput').value = '';
+            document.getElementById('heightInput').value = '';
+            document.getElementById('headInput').value = '';
+
+            loadGrowthRecords();
+            alert('บันทึกข้อมูลการเจริญเติบโตสำเร็จ! 📈');
+        }
+
+        // โหลดข้อมูลแสดงในตาราง
+        function loadGrowthRecords() {
+            const tbody = document.getElementById('growthTableBody');
+            let records = JSON.parse(localStorage.getItem('growthRecords')) || [];
+
+            if (records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="no-data">ยังไม่มีประวัติการบันทึกข้อมูล</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            records.forEach((rec, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${rec.date}</td>
+                        <td>${rec.weight} กก.</td>
+                        <td>${rec.height} ซม.</td>
+                        <td>${rec.head} ${rec.head !== '-' ? 'ซม.' : ''}</td>
+                        <td style="text-align: center;"><button class="del-btn" onclick="deleteRecord(${index})">ลบ</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ลบข้อมูลประวัติ
+        function deleteRecord(index) {
+            if (confirm('คุณต้องการลบรายการบันทึกนี้ใช่หรือไม่?')) {
+                let records = JSON.parse(localStorage.getItem('growthRecords')) || [];
+                records.splice(index, 1);
+                localStorage.setItem('growthRecords', JSON.stringify(records));
+                loadGrowthRecords();
+            }
         }
     </script>
 </body>
