@@ -305,10 +305,14 @@
                     }
                 }
 
-                const hasNewNotif = localStorage.getItem('babyGoHasNewNotification_' + safeKey);
-                if (hasNewNotif === 'true') {
-                    document.getElementById('notifBadge').style.display = 'block';
-                }
+                const badgeRef = ref(db, `userNotificationsMeta/${safeKey}/hasNew`);
+                onValue(badgeRef, (snapshot) => {
+                    const hasNew = snapshot.val();
+                    const notifBadge = document.getElementById('notifBadge');
+                    if (notifBadge) {
+                        notifBadge.style.display = (hasNew === true) ? 'block' : 'none';
+                    }
+                });
 
                 const emailInput = document.getElementById('userEmail');
                 if (emailInput && !emailInput.value) {
@@ -405,19 +409,19 @@
 
                     set(ref(db, `babyGoAdminMessages/${firebaseKey}/replies`), replies).then(() => {
                         const targetSafeKey = userEmail.replace(/[@.]/g, '_');
-                        let notifs = JSON.parse(localStorage.getItem('userNotifications_' + targetSafeKey)) || [];
                         
-                        notifs.unshift({
-                            id: Date.now(),
+                        // บันทึกการแจ้งเตือนขึ้น Firebase Realtime Database ของผู้ใช้นั้นๆ โดยตรง
+                        const newNotifRef = push(ref(db, `userNotifications/${targetSafeKey}`));
+                        set(newNotifRef, {
                             icon: "💬",
                             title: "แอดมินตอบกลับข้อความของคุณแล้ว!",
                             message: `แอดมิน: "${replyText}"`,
                             date: new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }),
-                            read: false
+                            timestamp: Date.now()
                         });
 
-                        localStorage.setItem('userNotifications_' + targetSafeKey, JSON.stringify(notifs));
-                        localStorage.setItem('babyGoHasNewNotification_' + targetSafeKey, 'true');
+                        // เปิดสถานะจุดแจ้งเตือนสีแดงบน Navbar ของผู้ใช้
+                        set(ref(db, `userNotificationsMeta/${targetSafeKey}/hasNew`), true);
 
                         alert(`ส่งข้อความตอบกลับไปยังอีเมล ${userEmail} สำเร็จแล้ว!`);
                         replyInput.value = '';

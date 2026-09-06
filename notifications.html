@@ -189,11 +189,11 @@
         const ADMIN_EMAIL = 'babygo.admin@gmail.com';
     </script>
 
-    <!-- Firebase SDK สำหรับดึงและจัดการแจ้งเตือนแบบเรียลไทม์ -->
+    <!-- Firebase SDK สำหรับดึงและจัดการแจ้งเตือนรวมถึงแจ้งเตือนวัคซีนแบบเรียลไทม์ -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, set, get, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get, remove, onValue, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB2QNZSSDXnIuHTFVFQn8gzx7JBWTRn8i0",
@@ -228,6 +228,9 @@
                 if (adminLink) adminLink.style.display = 'block';
             }
 
+            // ตรวจสอบการแจ้งเตือนวัคซีนจากข้อมูลวันเกิดเด็กที่บันทึกไว้
+            checkVaccineReminders(safeKey);
+
             // ล้างจุดแดงแจ้งเตือนเมื่อเปิดเข้ามาหน้านี้
             const badgeRef = ref(db, `userNotificationsMeta/${safeKey}/hasNew`);
             set(badgeRef, false);
@@ -256,6 +259,44 @@
                 }
             });
         });
+
+        // ฟังก์ชันตรวจสอบและสร้างแจ้งเตือนวัคซีนอัตโนมัติจากข้อมูลวันเกิดในเครื่อง
+        function checkVaccineReminders(safeKey) {
+            const babyDob = localStorage.getItem('babyDob_' + safeKey);
+            if (!babyDob) return;
+
+            const dob = new Date(babyDob);
+            const today = new Date();
+            const diffTime = today - dob;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            // ตรวจสอบช่วงวัคซีนแรกเกิด / 2 เดือน / 4 เดือน เป็นต้น
+            let vaccineAlerts = [];
+            if (diffDays >= 0 && diffDays <= 7) {
+                vaccineAlerts.push({ title: "แจ้งเตือนฉีดวัคซีนแรกเกิด", message: "น้องมีกำหนดรับวัคซีนบีซีจี (BCG) และตับอักเสบ B ครั้งที่ 1" });
+            }
+            if (diffDays >= 55 && diffDays <= 65) {
+                vaccineAlerts.push({ title: "แจ้งเตือนฉีดวัคซีน 2 เดือน", message: "น้องมีกำหนดรับวัคซีนคอตีบ บาดทะยัก ไอกรน โปลิโอ และโรตา" });
+            }
+
+            if (vaccineAlerts.length > 0) {
+                const checkedKey = 'vaccineChecked_' + safeKey + '_' + diffDays;
+                if (!localStorage.getItem(checkedKey)) {
+                    vaccineAlerts.forEach(alertItem => {
+                        const newNotifRef = push(ref(db, `userNotifications/${safeKey}`));
+                        set(newNotifRef, {
+                            icon: "💉",
+                            title: alertItem.title,
+                            message: alertItem.message,
+                            date: new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }),
+                            timestamp: Date.now()
+                        });
+                    });
+                    set(ref(db, `userNotificationsMeta/${safeKey}/hasNew`), true);
+                    localStorage.setItem(checkedKey, 'true');
+                }
+            }
+        }
 
         window.renderNotifications = function(notifs, safeKey) {
             const container = document.getElementById('notifListContainer');
@@ -289,7 +330,7 @@
         window.deleteSingleNotification = function(safeKey, firebaseKey) {
             if (confirm('คุณต้องการลบการแจ้งเตือนนี้ใช่หรือไม่?')) {
                 remove(ref(db, `userNotifications/${safeKey}/${firebaseKey}`)).then(() => {
-                    // อัปเดตสำเร็จ
+                    // ลบสำเร็จ
                 });
             }
         }
