@@ -242,9 +242,389 @@
 
     </div>
 
+    <!-- Firebase SDK สำหรับดึงข้อมูลชุมชนแบบเรียลไทม์ออนไลน์ -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, push, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2QNZSSDXnIuHTFVFQn8gzx7JBWTRn8i0",
+            authDomain: "babygo-database-c51bb.firebaseapp.com",
+            projectId: "babygo-database-c51bb",
+            storageBucket: "babygo-database-c51bb.firebasestorage.app",
+            messagingSenderId: "288446121324",
+            appId: "1:288446121324:web:d565a8b27893e761a8df49",
+            databaseURL: "https://babygo-database-c51bb-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const ADMIN_EMAIL = 'babygo.admin@gmail.com';
+
+        let currentEmail = "guest@babygo.com";
+        let currentUsername = "คุณแม่มือใหม่";
+        let isAdmin = false;
+        let allPostsData = [];
+        let showingMyPostsOnly = false;
+        let currentOpenPostId = null;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.email) {
+                currentEmail = user.email;
+            } else {
+                currentEmail = localStorage.getItem('userEmail') || "guest@babygo.com";
+            }
+
+            localStorage.setItem('userEmail', currentEmail);
+            isAdmin = (currentEmail.toLowerCase() === ADMIN_EMAIL);
+
+            const safeKey = currentEmail.replace(/[@.]/g, '_');
+            currentUsername = localStorage.getItem('userName_' + safeKey) || localStorage.getItem('userName') || 'คุณแม่มือใหม่';
+
+            if (isAdmin) {
+                const adminLink = document.getElementById('adminMenuLink');
+                if (adminLink) adminLink.style.display = 'block';
+            }
+
+            const savedImg = localStorage.getItem('userProfileImg_' + safeKey);
+            if (savedImg) {
+                const profileNavBtn = document.getElementById('profileNavBtn');
+                if (profileNavBtn) {
+                    profileNavBtn.innerHTML = `<img src="${savedImg}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                }
+            }
+
+            // ฟังข้อมูลกระทู้แบบเรียลไทม์จาก Firebase Realtime Database
+            const postsRef = ref(db, 'communityPosts');
+            onValue(postsRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    allPostsData = Object.keys(data).map(key => ({
+                        firebaseKey: key,
+                        ...data[key]
+                    }));
+                    // เรียงโพสต์ใหม่ไว้บนสุด
+                    allPostsData.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                } else {
+                    // ถ้ายังไม่มีข้อมูล ให้ใส่โพสต์ตั้งต้น
+                    const defaultPost = {
+                        id: "post_1",
+                        author: "คุณแม่น้องไทเกอร์",
+                        userEmail: "default@babygo.com",
+                        isAnonymous: false,
+                        title: "แชร์ไอเดียเมนูลับทำให้น้องยอมกินผักค่ะ!",
+                        desc: "พอลองเอาแครอทไปต้มแล้วปั้นผสมกับข้าวตุ๋น ปั้นเป็นก้อนเล็กๆ น้องหยิบกินเองสนุกมาก แม่ๆ บ้านไหนลองทำดูนะคะ ได้ผลดีมากเลยค่ะ",
+                        time: "3 ชั่วโมงที่แล้ว",
+                        likes: 0,
+                        isLiked: false,
+                        comments: [],
+                        timestamp: Date.now()
+                    };
+                    set(ref(db, 'communityPosts/post_1'), defaultPost);
+                    allPostsData = [defaultPost];
+                }
+
+                if (document.getElementById('postDetailView').style.display === 'block' && currentOpenPostId) {
+                    openPostDetail(currentOpenPostId);
+                } else {
+                    renderPosts(showingMyPostsOnly);
+                }
+            });
+        });
+
+        window.updateMyPostsBadge = function() {
+            const myCount = allPostsData.filter(p => p.userEmail === currentEmail && !p.isAnonymous).length;
+            document.getElementById('myPostsCountBadge').innerText = myCount;
+        }
+
+        window.renderPosts = function(isMyList = false) {
+            showingMyPostsOnly = isMyList;
+            let html = '';
+            
+            const myPostsBtn = document.getElementById('myPostsBtn');
+            const backAllBtn = document.getElementById('backAllBtn');
+
+            if (isMyList) {
+                myPostsBtn.style.display = 'none';
+                backAllBtn.style.display = 'flex';
+            } else {
+                myPostsBtn.style.display = 'flex';
+                backAllBtn.style.display = 'none';
+            }
+            
+            let targetList = isMyList 
+                ? allPostsData.filter(p => p.userEmail === currentEmail && !p.isAnonymous)
+                : allPostsData;
+
+            if (targetList.length === 0) {
+                document.getElementById('postListContainer').innerHTML = `<div style="text-align: center; color: #64748b; padding: 40px;">ยังไม่มีกระทู้ในส่วนนี้ครับ ลองกดปุ่ม "ตั้งกระทู้" ด้านบนได้เลย!</div>`;
+                updateMyPostsBadge();
+                return;
+            }
+
+            targetList.forEach((post) => {
+                let authorDisplay = post.isAnonymous ? `<span class="anonymous-badge">🕵️‍♀️ คุณแม่นิรนาม</span>` : `👤 ${post.author}`;
+                let isOwner = (post.userEmail === currentEmail && !post.isAnonymous);
+                let canDelete = isOwner || isAdmin;
+                let canEdit = isOwner;
+                
+                let ownerButtonsHtml = (canEdit || canDelete) ? `
+                    <div class="owner-actions">
+                        ${canEdit ? `<button class="btn-edit-sm" onclick="playClickSound(); editPost('${post.firebaseKey}')">แก้ไข</button>` : ''}
+                        ${canDelete ? `<button class="btn-delete-sm" onclick="playClickSound(); deletePost(event, '${post.firebaseKey}')">ลบ</button>` : ''}
+                    </div>
+                ` : '';
+
+                html += `
+                    <div class="post-card animated-fade">
+                        <div class="post-header-info">
+                            <div class="post-author">${authorDisplay} ${isAdmin ? '<span style="color: #d946ef; font-size: 11px; margin-left: 5px;">[Admin Mode]</span>' : ''}</div>
+                            <div class="post-time">${post.time}</div>
+                        </div>
+                        <div class="post-title" onclick="playClickSound(); openPostDetail('${post.firebaseKey}')">${post.title}</div>
+                        <div class="post-desc">${post.desc}</div>
+                        <div class="post-footer">
+                            <div class="interaction-group">
+                                <button class="interaction-btn ${post.isLiked ? 'liked' : ''}" onclick="playClickSound(); toggleLikeFromFeed(event, '${post.firebaseKey}')">
+                                    ${post.isLiked ? '❤️' : '🤍'} ${post.likes || 0} ถูกใจ
+                                </button>
+                                <button class="interaction-btn" onclick="playClickSound(); openPostDetail('${post.firebaseKey}')">
+                                    💬 ${post.comments ? post.comments.length : 0} ความคิดเห็น
+                                </button>
+                            </div>
+                            ${ownerButtonsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('postListContainer').innerHTML = html;
+            updateMyPostsBadge();
+        }
+
+        window.toggleLikeFromFeed = function(event, firebaseKey) {
+            event.stopPropagation();
+            const post = allPostsData.find(p => p.firebaseKey === firebaseKey);
+            if (post) {
+                let newLikes = post.likes || 0;
+                let newIsLiked = !post.isLiked;
+                if (newIsLiked) {
+                    newLikes += 1;
+                } else {
+                    newLikes = Math.max(0, newLikes - 1);
+                }
+
+                set(ref(db, `communityPosts/${firebaseKey}/likes`), newLikes);
+                set(ref(db, `communityPosts/${firebaseKey}/isLiked`), newIsLiked);
+            }
+        }
+
+        window.togglePostModal = function() {
+            const modal = document.getElementById('postModal');
+            if (modal.style.display === 'block') {
+                modal.style.display = 'none';
+            } else {
+                document.getElementById('modalTitleText').innerText = '✍️ ตั้งกระทู้ใหม่ในชุมชน';
+                document.getElementById('editPostId').value = '';
+                document.getElementById('postTitleInput').value = '';
+                document.getElementById('postDescInput').value = '';
+                document.getElementById('anonymousCheckbox').checked = false;
+                modal.style.display = 'block';
+                modal.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        window.savePostData = function() {
+            const editKey = document.getElementById('editPostId').value;
+            const title = document.getElementById('postTitleInput').value.trim();
+            const desc = document.getElementById('postDescInput').value.trim();
+            const isAnonymous = document.getElementById('anonymousCheckbox').checked;
+
+            if (!title || !desc) {
+                alert('กรุณากรอกหัวข้อและเนื้อหากระทู้ให้ครบถ้วนครับ!');
+                return;
+            }
+
+            if (editKey) {
+                const post = allPostsData.find(p => p.firebaseKey === editKey);
+                if (post) {
+                    if (post.userEmail !== currentEmail && !isAdmin) {
+                        alert('คุณไม่มีสิทธิ์แก้ไขกระทู้นี้ครับ!');
+                        return;
+                    }
+                    set(ref(db, `communityPosts/${editKey}/title`), title);
+                    set(ref(db, `communityPosts/${editKey}/desc`), desc);
+                    set(ref(db, `communityPosts/${editKey}/isAnonymous`), isAnonymous);
+                }
+                alert('แก้ไขกระทู้สำเร็จเรียบร้อยแล้ว!');
+            } else {
+                const newPostRef = push(ref(db, 'communityPosts'));
+                const newPostData = {
+                    id: "post_" + Date.now(),
+                    author: currentUsername,
+                    userEmail: currentEmail,
+                    isAnonymous: isAnonymous,
+                    title: title,
+                    desc: desc,
+                    time: "เมื่อสักครู่นี้",
+                    likes: 0,
+                    isLiked: false,
+                    comments: [],
+                    timestamp: Date.now()
+                };
+                set(newPostRef, newPostData);
+                alert('ตั้งกระทู้สำเร็จเรียบร้อยแล้ว!');
+            }
+
+            document.getElementById('postModal').style.display = 'none';
+        }
+
+        window.editPost = function(firebaseKey) {
+            const post = allPostsData.find(p => p.firebaseKey === firebaseKey);
+            if (!post) return;
+
+            if (post.userEmail !== currentEmail && !isAdmin) {
+                alert('คุณไม่มีสิทธิ์แก้ไขกระทู้นี้ครับ!');
+                return;
+            }
+
+            document.getElementById('modalTitleText').innerText = '✏️ แก้ไขกระทู้ของคุณ';
+            document.getElementById('editPostId').value = post.firebaseKey;
+            document.getElementById('postTitleInput').value = post.title;
+            document.getElementById('postDescInput').value = post.desc;
+            document.getElementById('anonymousCheckbox').checked = post.isAnonymous;
+
+            const modal = document.getElementById('postModal');
+            modal.style.display = 'block';
+            modal.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.deletePost = function(event, firebaseKey) {
+            event.stopPropagation();
+            const post = allPostsData.find(p => p.firebaseKey === firebaseKey);
+            if (!post) return;
+
+            if (post.userEmail !== currentEmail && !isAdmin) {
+                alert('เฉพาะแอดมินหรือเจ้าของโพสต์เท่านั้นที่มีสิทธิ์ลบครับ!');
+                return;
+            }
+
+            if (confirm(isAdmin && post.userEmail !== currentEmail ? '[Admin Mode] คุณต้องการลบโพสต์นี้ในฐานะแอดมินใช่หรือไม่?' : 'คุณต้องการลบกระทู้นี้ใช่หรือไม่?')) {
+                remove(ref(db, `communityPosts/${firebaseKey}`));
+                alert('ลบกระทู้เรียบร้อยแล้วครับ!');
+            }
+        }
+
+        window.filterMyPosts = function() {
+            renderPosts(true);
+        }
+
+        window.showAllPosts = function() {
+            renderPosts(false);
+        }
+
+        window.openPostDetail = function(firebaseKey) {
+            currentOpenPostId = firebaseKey;
+            const post = allPostsData.find(p => p.firebaseKey === firebaseKey);
+            if (!post) return;
+
+            let authorDisplay = post.isAnonymous ? `<span class="anonymous-badge">🕵️‍♀️ คุณแม่นิรนาม</span>` : `👤 ${post.author}`;
+
+            let commentsHtml = '';
+            if (!post.comments || post.comments.length === 0) {
+                commentsHtml = `<div style="color: #94a3b8; font-size: 14px; text-align: center; padding: 15px;">ยังไม่มีความคิดเห็น เป็นคนแรกที่แสดงความคิดเห็นเลยสิคะ!</div>`;
+            } else {
+                post.comments.forEach(c => {
+                    commentsHtml += `
+                        <div class="comment-item animated-fade">
+                            <div class="comment-author">💬 ${c.author}</div>
+                            <div>${c.text}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('postDetailContainer').innerHTML = `
+                <div class="detail-card animated-fade">
+                    <div class="post-header-info" style="margin-bottom: 12px;">
+                        <div class="post-author" style="font-size: 14px;">${authorDisplay}</div>
+                        <div class="post-time">${post.time}</div>
+                    </div>
+                    <h2 style="color: #0369a1; font-size: 22px; margin-bottom: 12px; font-weight: 700;">${post.title}</h2>
+                    <p style="color: #475569; font-size: 15px; line-height: 1.8; margin-bottom: 20px;">${post.desc}</p>
+                    
+                    <div style="display: flex; gap: 15px; border-top: 1px solid #f0f9ff; padding-top: 15px;">
+                        <button class="interaction-btn ${post.isLiked ? 'liked' : ''}" onclick="playClickSound(); toggleLikeDetail('${post.firebaseKey}')" style="font-size: 14px;">
+                            ${post.isLiked ? '❤️' : '🤍'} ${post.likes || 0} ถูกใจ
+                        </button>
+                    </div>
+
+                    <div class="comment-section">
+                        <h4>ความคิดเห็นทั้งหมด (${post.comments ? post.comments.length : 0})</h4>
+                        <div class="comment-list">
+                            ${commentsHtml}
+                        </div>
+
+                        <div class="form-group" style="margin-top: 20px;">
+                            <textarea id="newCommentInput" class="form-control" placeholder="แสดงความคิดเห็นหรือให้คำแนะนำคุณแม่..."></textarea>
+                        </div>
+                        <button class="action-btn" style="margin: 0; padding: 12px;" onclick="playClickSound(); submitComment()">ส่งความคิดเห็น</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('mainCommunityView').style.display = 'none';
+            document.getElementById('postDetailView').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.toggleLikeDetail = function(firebaseKey) {
+            const post = allPostsData.find(p => p.firebaseKey === firebaseKey);
+            if (post) {
+                let newLikes = post.likes || 0;
+                let newIsLiked = !post.isLiked;
+                if (newIsLiked) {
+                    newLikes += 1;
+                } else {
+                    newLikes = Math.max(0, newLikes - 1);
+                }
+
+                set(ref(db, `communityPosts/${firebaseKey}/likes`), newLikes);
+                set(ref(db, `communityPosts/${firebaseKey}/isLiked`), newIsLiked);
+            }
+        }
+
+        window.submitComment = function() {
+            const commentText = document.getElementById('newCommentInput').value.trim();
+            if (!commentText) {
+                alert('กรุณากรอกข้อความความคิดเห็นก่อนส่งครับ!');
+                return;
+            }
+
+            const post = allPostsData.find(p => p.firebaseKey === currentOpenPostId);
+            if (post) {
+                let comments = post.comments || [];
+                comments.push({
+                    author: currentUsername,
+                    text: commentText
+                });
+
+                set(ref(db, `communityPosts/${currentOpenPostId}/comments`), comments);
+                document.getElementById('newCommentInput').value = '';
+            }
+        }
+
+        window.goBackToFeed = function() {
+            document.getElementById('postDetailView').style.display = 'none';
+            document.getElementById('mainCommunityView').style.display = 'block';
+            renderPosts(showingMyPostsOnly);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+
     <script>
         let audioCtx = null;
-
         function playClickSound() {
             try {
                 if (!audioCtx) {
@@ -282,389 +662,6 @@
         menuToggle.addEventListener('click', toggleMenu);
         closeMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
-
-        function getCurrentEmail() {
-            return localStorage.getItem('userEmail') || 'guest@babygo.com';
-        }
-
-        function getCurrentSafeKey() {
-            return getCurrentEmail().replace(/[@.]/g, '_');
-        }
-
-        function getCurrentUsername() {
-            const safeKey = getCurrentSafeKey();
-            return localStorage.getItem('userName_' + safeKey) || localStorage.getItem('userName') || 'คุณแม่มือใหม่';
-        }
-
-        const currentEmail = getCurrentEmail();
-        const currentUsername = getCurrentUsername();
-        const ADMIN_EMAIL = 'babygo.admin@gmail.com';
-        const isAdmin = (currentEmail.toLowerCase() === ADMIN_EMAIL);
-
-        const singleDefaultPost = {
-            id: "post_1",
-            author: "คุณแม่น้องไทเกอร์",
-            userEmail: "default@babygo.com",
-            isAnonymous: false,
-            title: "แชร์ไอเดียเมนูลับทำให้น้องยอมกินผักค่ะ!",
-            desc: "พอลองเอาแครอทไปต้มแล้วปั้นผสมกับข้าวตุ๋น ปั้นเป็นก้อนเล็กๆ น้องหยิบกินเองสนุกมาก แม่ๆ บ้านไหนลองทำดูนะคะ ได้ผลดีมากเลยค่ะ",
-            time: "3 ชั่วโมงที่แล้ว",
-            likes: 0,
-            isLiked: false,
-            comments: []
-        };
-
-        // ใช้ key กลางร่วมกัน เพื่อให้ทุกคนเห็นโพสต์ทั้งหมดเหมือนกัน
-        let savedPosts = JSON.parse(localStorage.getItem('babyGoCommunityPosts'));
-        if (!savedPosts || !Array.isArray(savedPosts) || savedPosts.length === 0) {
-            savedPosts = [singleDefaultPost];
-            localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
-        }
-
-        let showingMyPostsOnly = false;
-
-        function updateMyPostsBadge() {
-            const myCount = savedPosts.filter(p => p.userEmail === currentEmail && !p.isAnonymous).length;
-            document.getElementById('myPostsCountBadge').innerText = myCount;
-        }
-
-        function addNotification(targetEmail, title, message) {
-            if (!targetEmail) return;
-            const targetSafeKey = targetEmail.replace(/[@.]/g, '_');
-            let notifs = JSON.parse(localStorage.getItem('userNotifications_' + targetSafeKey)) || [];
-            notifs.unshift({
-                id: Date.now(),
-                title: title,
-                message: message,
-                date: new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }),
-                read: false
-            });
-            localStorage.setItem('userNotifications_' + targetSafeKey, JSON.stringify(notifs));
-            localStorage.setItem('babyGoHasNewNotification_' + targetSafeKey, 'true');
-        }
-
-        function renderPosts(isMyList = false) {
-            showingMyPostsOnly = isMyList;
-            let html = '';
-            
-            const myPostsBtn = document.getElementById('myPostsBtn');
-            const backAllBtn = document.getElementById('backAllBtn');
-
-            if (isMyList) {
-                myPostsBtn.style.display = 'none';
-                backAllBtn.style.display = 'flex';
-            } else {
-                myPostsBtn.style.display = 'flex';
-                backAllBtn.style.display = 'none';
-            }
-            
-            let targetList = isMyList 
-                ? savedPosts.filter(p => p.userEmail === currentEmail && !p.isAnonymous)
-                : savedPosts;
-
-            if (targetList.length === 0) {
-                document.getElementById('postListContainer').innerHTML = `<div style="text-align: center; color: #64748b; padding: 40px;">ยังไม่มีกระทู้ในส่วนนี้ครับ ลองกดปุ่ม "ตั้งกระทู้" ด้านบนได้เลย!</div>`;
-                updateMyPostsBadge();
-                return;
-            }
-
-            targetList.forEach((post) => {
-                let authorDisplay = post.isAnonymous ? `<span class="anonymous-badge">🕵️‍♀️ คุณแม่นิรนาม</span>` : `👤 ${post.author}`;
-                
-                let isOwner = (post.userEmail === currentEmail && !post.isAnonymous);
-                // เงื่อนไขสิทธิ์: เจ้าของโพสต์ลบได้ หรือ แอดมินหลักลบได้ทุกโพสต์
-                let canDelete = isOwner || isAdmin;
-                let canEdit = isOwner;
-                
-                let ownerButtonsHtml = (canEdit || canDelete) ? `
-                    <div class="owner-actions">
-                        ${canEdit ? `<button class="btn-edit-sm" onclick="playClickSound(); editPost('${post.id}')">แก้ไข</button>` : ''}
-                        ${canDelete ? `<button class="btn-delete-sm" onclick="playClickSound(); deletePost(event, '${post.id}')">ลบ</button>` : ''}
-                    </div>
-                ` : '';
-
-                html += `
-                    <div class="post-card animated-fade">
-                        <div class="post-header-info">
-                            <div class="post-author">${authorDisplay} ${isAdmin ? '<span style="color: #d946ef; font-size: 11px; margin-left: 5px;">[Admin Mode]</span>' : ''}</div>
-                            <div class="post-time">${post.time}</div>
-                        </div>
-                        <div class="post-title" onclick="playClickSound(); openPostDetail('${post.id}')">${post.title}</div>
-                        <div class="post-desc">${post.desc}</div>
-                        <div class="post-footer">
-                            <div class="interaction-group">
-                                <button class="interaction-btn ${post.isLiked ? 'liked' : ''}" onclick="playClickSound(); toggleLikeFromFeed(event, '${post.id}')">
-                                    ${post.isLiked ? '❤️' : '🤍'} ${post.likes || 0} ถูกใจ
-                                </button>
-                                <button class="interaction-btn" onclick="playClickSound(); openPostDetail('${post.id}')">
-                                    💬 ${post.comments ? post.comments.length : 0} ความคิดเห็น
-                                </button>
-                            </div>
-                            ${ownerButtonsHtml}
-                        </div>
-                    </div>
-                `;
-            });
-            document.getElementById('postListContainer').innerHTML = html;
-            updateMyPostsBadge();
-        }
-
-        function toggleLikeFromFeed(event, postId) {
-            event.stopPropagation();
-            const post = savedPosts.find(p => p.id === postId);
-            if (post) {
-                if (post.isLiked) {
-                    post.likes = Math.max(0, (post.likes || 1) - 1);
-                    post.isLiked = false;
-                } else {
-                    post.likes = (post.likes || 0) + 1;
-                    post.isLiked = true;
-                    if (post.userEmail && post.userEmail !== currentEmail) {
-                        addNotification(post.userEmail, "มีคนถูกใจกระทู้ของคุณ!", `มีแม่ๆ ในชุมชนกดถูกใจกระทู้ "${post.title}" ของคุณ (${post.likes} ถูกใจ)`);
-                    }
-                }
-                localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
-                renderPosts(showingMyPostsOnly);
-            }
-        }
-
-        function togglePostModal() {
-            const modal = document.getElementById('postModal');
-            if (modal.style.display === 'block') {
-                modal.style.display = 'none';
-            } else {
-                document.getElementById('modalTitleText').innerText = '✍️ ตั้งกระทู้ใหม่ในชุมชน';
-                document.getElementById('editPostId').value = '';
-                document.getElementById('postTitleInput').value = '';
-                document.getElementById('postDescInput').value = '';
-                document.getElementById('anonymousCheckbox').checked = false;
-                modal.style.display = 'block';
-                modal.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
-        function savePostData() {
-            const editId = document.getElementById('editPostId').value;
-            const title = document.getElementById('postTitleInput').value.trim();
-            const desc = document.getElementById('postDescInput').value.trim();
-            const isAnonymous = document.getElementById('anonymousCheckbox').checked;
-
-            if (!title || !desc) {
-                alert('กรุณากรอกหัวข้อและเนื้อหากระทู้ให้ครบถ้วนครับ!');
-                return;
-            }
-
-            // โหลดข้อมูลล่าสุดจาก localStorage เพื่อป้องกันข้อมูลตีกัน
-            savedPosts = JSON.parse(localStorage.getItem('babyGoCommunityPosts')) || [];
-
-            if (editId) {
-                const post = savedPosts.find(p => p.id === editId);
-                if (post) {
-                    if (post.userEmail !== currentEmail && !isAdmin) {
-                        alert('คุณไม่มีสิทธิ์แก้ไขกระทู้นี้ครับ!');
-                        return;
-                    }
-                    post.title = title;
-                    post.desc = desc;
-                    post.isAnonymous = isAnonymous;
-                }
-                alert('แก้ไขกระทู้สำเร็จเรียบร้อยแล้ว!');
-            } else {
-                const newPost = {
-                    id: "post_" + Date.now(),
-                    author: currentUsername,
-                    userEmail: currentEmail,
-                    isAnonymous: isAnonymous,
-                    title: title,
-                    desc: desc,
-                    time: "เมื่อสักครู่นี้",
-                    likes: 0,
-                    isLiked: false,
-                    comments: []
-                };
-                savedPosts.unshift(newPost);
-                alert('ตั้งกระทู้สำเร็จเรียบร้อยแล้ว!');
-            }
-
-            localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
-            document.getElementById('postModal').style.display = 'none';
-            renderPosts(showingMyPostsOnly);
-        }
-
-        function editPost(postId) {
-            const post = savedPosts.find(p => p.id === postId);
-            if (!post) return;
-
-            if (post.userEmail !== currentEmail && !isAdmin) {
-                alert('คุณไม่มีสิทธิ์แก้ไขกระทู้นี้ครับ!');
-                return;
-            }
-
-            document.getElementById('modalTitleText').innerText = '✏️ แก้ไขกระทู้ของคุณ';
-            document.getElementById('editPostId').value = post.id;
-            document.getElementById('postTitleInput').value = post.title;
-            document.getElementById('postDescInput').value = post.desc;
-            document.getElementById('anonymousCheckbox').checked = post.isAnonymous;
-
-            const modal = document.getElementById('postModal');
-            modal.style.display = 'block';
-            modal.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function deletePost(event, postId) {
-            event.stopPropagation();
-            const post = savedPosts.find(p => p.id === postId);
-            if (!post) return;
-
-            // ให้สิทธิ์เฉพาะเจ้าของโพสต์ หรือ แอดมินหลัก เท่านั้นที่ลบได้
-            if (post.userEmail !== currentEmail && !isAdmin) {
-                alert('เฉพาะแอดมินหรือเจ้าของโพสต์เท่านั้นที่มีสิทธิ์ลบครับ!');
-                return;
-            }
-
-            if (confirm(isAdmin && post.userEmail !== currentEmail ? '[Admin Mode] คุณต้องการลบโพสต์นี้ในฐานะแอดมินใช่หรือไม่?' : 'คุณต้องการลบกระทู้นี้ใช่หรือไม่?')) {
-                savedPosts = savedPosts.filter(p => p.id !== postId);
-                localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
-                renderPosts(showingMyPostsOnly);
-                alert('ลบกระทู้เรียบร้อยแล้วครับ!');
-            }
-        }
-
-        function filterMyPosts() {
-            renderPosts(true);
-        }
-
-        function showAllPosts() {
-            renderPosts(false);
-        }
-
-        let currentOpenPostId = null;
-
-        function openPostDetail(postId) {
-            currentOpenPostId = postId;
-            const post = savedPosts.find(p => p.id === postId);
-            if (!post) return;
-
-            let authorDisplay = post.isAnonymous ? `<span class="anonymous-badge">🕵️‍♀️ คุณแม่นิรนาม</span>` : `👤 ${post.author}`;
-
-            let commentsHtml = '';
-            if (!post.comments || post.comments.length === 0) {
-                commentsHtml = `<div style="color: #94a3b8; font-size: 14px; text-align: center; padding: 15px;">ยังไม่มีความคิดเห็น เป็นคนแรกที่แสดงความคิดเห็นเลยสิคะ!</div>`;
-            } else {
-                post.comments.forEach(c => {
-                    commentsHtml += `
-                        <div class="comment-item animated-fade">
-                            <div class="comment-author">💬 ${c.author}</div>
-                            <div>${c.text}</div>
-                        </div>
-                    `;
-                });
-            }
-
-            document.getElementById('postDetailContainer').innerHTML = `
-                <div class="detail-card animated-fade">
-                    <div class="post-header-info" style="margin-bottom: 12px;">
-                        <div class="post-author" style="font-size: 14px;">${authorDisplay}</div>
-                        <div class="post-time">${post.time}</div>
-                    </div>
-                    <h2 style="color: #0369a1; font-size: 22px; margin-bottom: 12px; font-weight: 700;">${post.title}</h2>
-                    <p style="color: #475569; font-size: 15px; line-height: 1.8; margin-bottom: 20px;">${post.desc}</p>
-                    
-                    <div style="display: flex; gap: 15px; border-top: 1px solid #f0f9ff; padding-top: 15px;">
-                        <button class="interaction-btn ${post.isLiked ? 'liked' : ''}" onclick="playClickSound(); toggleLikeDetail('${post.id}')" style="font-size: 14px;">
-                            ${post.isLiked ? '❤️' : '🤍'} ${post.likes || 0} ถูกใจ
-                        </button>
-                    </div>
-
-                    <div class="comment-section">
-                        <h4>ความคิดเห็นทั้งหมด (${post.comments ? post.comments.length : 0})</h4>
-                        <div class="comment-list">
-                            ${commentsHtml}
-                        </div>
-
-                        <div class="form-group" style="margin-top: 20px;">
-                            <textarea id="newCommentInput" class="form-control" placeholder="แสดงความคิดเห็นหรือให้คำแนะนำคุณแม่..."></textarea>
-                        </div>
-                        <button class="action-btn" style="margin: 0; padding: 12px;" onclick="playClickSound(); submitComment()">ส่งความคิดเห็น</button>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('mainCommunityView').style.display = 'none';
-            document.getElementById('postDetailView').style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function toggleLikeDetail(postId) {
-            const post = savedPosts.find(p => p.id === postId);
-            if (post) {
-                if (post.isLiked) {
-                    post.likes = Math.max(0, (post.likes || 1) - 1);
-                    post.isLiked = false;
-                } else {
-                    post.likes = (post.likes || 0) + 1;
-                    post.isLiked = true;
-                    if (post.userEmail && post.userEmail !== currentEmail) {
-                        addNotification(post.userEmail, "มีคนถูกใจกระทู้ของคุณ!", `มีแม่ๆ ในชุมชนกดถูกใจกระทู้ "${post.title}" ของคุณ (${post.likes} ถูกใจ)`);
-                    }
-                }
-                localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
-                openPostDetail(postId);
-            }
-        }
-
-        function submitComment() {
-            const commentText = document.getElementById('newCommentInput').value.trim();
-            if (!commentText) {
-                alert('กรุณากรอกข้อความความคิดเห็นก่อนส่งครับ!');
-                return;
-            }
-
-            // โหลดข้อมูลล่าสุดก่อนบันทึกคอมเมนต์
-            savedPosts = JSON.parse(localStorage.getItem('babyGoCommunityPosts')) || [];
-            const post = savedPosts.find(p => p.id === currentOpenPostId);
-            if (post) {
-                if (!post.comments) post.comments = [];
-                post.comments.push({
-                    author: currentUsername,
-                    text: commentText
-                });
-                localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
-                
-                if (post.userEmail && post.userEmail !== currentEmail) {
-                    addNotification(post.userEmail, "มีความคิดเห็นใหม่ในกระทู้ของคุณ", `${currentUsername} แสดงความคิดเห็นในกระทู้ "${post.title}": "${commentText}"`);
-                }
-
-                openPostDetail(currentOpenPostId);
-            }
-        }
-
-        function goBackToFeed() {
-            // โหลดข้อมูลโพสต์ล่าสุดทุกครั้งที่กดกลับหน้าฟีด
-            savedPosts = JSON.parse(localStorage.getItem('babyGoCommunityPosts')) || [];
-            document.getElementById('postDetailView').style.display = 'none';
-            document.getElementById('mainCommunityView').style.display = 'block';
-            renderPosts(showingMyPostsOnly);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            // โหลดข้อมูลล่าสุดตอนเปิดหน้าเว็บ
-            savedPosts = JSON.parse(localStorage.getItem('babyGoCommunityPosts')) || [singleDefaultPost];
-            renderPosts(false);
-
-            const savedImg = localStorage.getItem('userProfileImg_' + getCurrentSafeKey());
-            if (savedImg) {
-                const profileNavBtn = document.getElementById('profileNavBtn');
-                if (profileNavBtn) {
-                    profileNavBtn.innerHTML = `<img src="${savedImg}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-                }
-            }
-
-            if (isAdmin) {
-                document.getElementById('adminMenuLink').style.display = 'block';
-            }
-        });
     </script>
 </body>
 </html>

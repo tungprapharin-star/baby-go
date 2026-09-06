@@ -150,7 +150,6 @@
                 &#128276;
                 <span class="badge-dot" id="notifBadge"></span>
             </a>
-            <!-- ปุ่มโปรไฟล์ที่ถูกต้องตามระบบอื่น -->
             <a href="profile.html" class="icon-btn" id="profileNavBtn" title="โปรไฟล์" onclick="playClickSound()">&#128100;</a>
         </div>
     </div>
@@ -259,10 +258,11 @@
 
     </div>
 
-    <!-- Firebase SDK สำหรับดึงข้อมูลผู้ใช้ปัจจุบันและแยกข้อมูลตามเมล -->
+    <!-- Firebase SDK สำหรับเชื่อมต่อข้อมูลโปรไฟล์และประวัติการเติบโตแบบเรียลไทม์ -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB2QNZSSDXnIuHTFVFQn8gzx7JBWTRn8i0",
@@ -270,102 +270,158 @@
             projectId: "babygo-database-c51bb",
             storageBucket: "babygo-database-c51bb.firebasestorage.app",
             messagingSenderId: "288446121324",
-            appId: "1:288446121324:web:d565a8b27893e761a8df49"
+            appId: "1:288446121324:web:d565a8b27893e761a8df49",
+            databaseURL: "https://babygo-database-c51bb-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getDatabase(app);
         const ADMIN_EMAIL = 'babygo.admin@gmail.com';
 
-        onAuthStateChanged(auth, (user) => {
-            const emailInput = document.getElementById('emailInput');
-            const profileEmailDisplay = document.getElementById('profileEmailDisplay');
+        let currentEmail = "";
+        let safeKey = "";
 
-            let currentEmail = "";
+        onAuthStateChanged(auth, (user) => {
             if (user && user.email) {
                 currentEmail = user.email;
             } else {
-                currentEmail = localStorage.getItem('userEmail') || "";
+                currentEmail = localStorage.getItem('userEmail') || "guest@babygo.com";
             }
 
-            if (currentEmail) {
-                emailInput.value = currentEmail;
-                profileEmailDisplay.innerText = currentEmail;
-                localStorage.setItem('userEmail', currentEmail);
+            localStorage.setItem('userEmail', currentEmail);
+            safeKey = currentEmail.replace(/[@.]/g, '_');
 
-                const safeKey = currentEmail.replace(/[@.]/g, '_');
-                
-                // โหลดรูปโปรไฟล์มาแสดงที่ปุ่ม Navbar มุมขวาบนอัตโนมัติ
-                const savedImg = localStorage.getItem('userProfileImg_' + safeKey);
-                if (savedImg) {
-                    const profileNavBtn = document.getElementById('profileNavBtn');
-                    if (profileNavBtn) {
-                        profileNavBtn.innerHTML = `<img src="${savedImg}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            document.getElementById('emailInput').value = currentEmail;
+            document.getElementById('profileEmailDisplay').innerText = currentEmail;
+
+            if (currentEmail.toLowerCase() === ADMIN_EMAIL) {
+                const adminLink = document.getElementById('adminMenuLink');
+                if (adminLink) adminLink.style.display = 'block';
+            }
+
+            // ดึงข้อมูลโปรไฟล์แบบเรียลไทม์จาก Firebase
+            const profileRef = ref(db, `userProfiles/${safeKey}`);
+            onValue(profileRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    document.getElementById('nameInput').value = data.name || '';
+                    document.getElementById('displayName').innerText = data.name || 'ชื่อผู้ใช้งาน';
+                    document.getElementById('babyInput').value = data.babyName || '';
+                    document.getElementById('ageInput').value = data.babyAge || '';
+                    
+                    if (data.profileImg) {
+                        document.getElementById('profileImage').src = data.profileImg;
+                        window.tempImgUrl = data.profileImg;
+                        const profileNavBtn = document.getElementById('profileNavBtn');
+                        if (profileNavBtn) {
+                            profileNavBtn.innerHTML = `<img src="${data.profileImg}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                        }
                     }
+                } else {
+                    document.getElementById('displayName').innerText = 'ชื่อผู้ใช้งาน';
                 }
+            });
 
-                const hasNewNotif = localStorage.getItem('babyGoHasNewNotification_' + safeKey);
-                if (hasNewNotif === 'true') {
-                    const badge = document.getElementById('notifBadge');
-                    if (badge) badge.style.display = 'block';
+            // ดึงข้อมูลประวัติการเจริญเติบโตแบบเรียลไทม์จาก Firebase
+            const growthRef = ref(db, `growthRecords/${safeKey}`);
+            onValue(growthRef, (snapshot) => {
+                const data = snapshot.val();
+                const tbody = document.getElementById('growthTableBody');
+                
+                if (data) {
+                    let records = Object.keys(data).map(key => ({
+                        firebaseKey: key,
+                        ...data[key]
+                    }));
+                    // เรียงวันที่ใหม่ล่าสุดไว้บน
+                    records.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                    window.currentGrowthRecords = records;
+                    
+                    if (records.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="no-data">ยังไม่มีประวัติการบันทึกข้อมูล</td></tr>`;
+                        return;
+                    }
+
+                    tbody.innerHTML = '';
+                    records.forEach((rec, index) => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${rec.date}</td>
+                                <td>${rec.weight} กก.</td>
+                                <td>${rec.height} ซม.</td>
+                                <td>${rec.head || '-'} ${rec.head && rec.head !== '-' ? 'ซม.' : ''}</td>
+                                <td style="text-align: center;"><button class="del-btn" onclick="playClickSound(); deleteRecord('${rec.firebaseKey}')">ลบ</button></td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" class="no-data">ยังไม่มีประวัติการบันทึกข้อมูล</td></tr>`;
                 }
-
-                if (currentEmail.toLowerCase() === ADMIN_EMAIL) {
-                    const adminLink = document.getElementById('adminMenuLink');
-                    if (adminLink) adminLink.style.display = 'block';
-                }
-            } else {
-                emailInput.value = "";
-                profileEmailDisplay.innerText = "ยังไม่ได้เข้าสู่ระบบ";
-            }
-
-            loadUserDataByEmail(currentEmail);
-        });
-
-        function loadUserDataByEmail(email) {
-            const safeKey = email ? email.replace(/[@.]/g, '_') : 'guest';
-            
-            const savedName = localStorage.getItem('userName_' + safeKey);
-            const savedBaby = localStorage.getItem('babyName_' + safeKey);
-            const savedAge = localStorage.getItem('babyAge_' + safeKey);
-            const savedImg = localStorage.getItem('userProfileImg_' + safeKey);
-
-            if (savedName) {
-                document.getElementById('nameInput').value = savedName;
-                document.getElementById('displayName').innerText = savedName;
-            } else {
-                document.getElementById('nameInput').value = "";
-                document.getElementById('displayName').innerText = "ชื่อผู้ใช้งาน";
-            }
-
-            if (savedBaby) {
-                document.getElementById('babyInput').value = savedBaby;
-            } else {
-                document.getElementById('babyInput').value = "";
-            }
-
-            if (savedAge) {
-                document.getElementById('ageInput').value = savedAge;
-            } else {
-                document.getElementById('ageInput').value = "";
-            }
-
-            if (savedImg) {
-                document.getElementById('profileImage').src = savedImg;
-                window.tempImgUrl = savedImg;
-            } else {
-                document.getElementById('profileImage').src = "logo.jpg.jpg";
-                window.tempImgUrl = "";
-            }
+            });
 
             document.getElementById('recordDate').valueAsDate = new Date();
-            loadGrowthRecords(safeKey);
+        });
+
+        window.saveProfile = function() {
+            const name = document.getElementById('nameInput').value.trim();
+            const babyName = document.getElementById('babyInput').value.trim();
+            const babyAge = document.getElementById('ageInput').value.trim();
+            const profileImg = window.tempImgUrl || document.getElementById('profileImage').src;
+
+            const profileData = {
+                name,
+                babyName,
+                babyAge,
+                profileImg,
+                email: currentEmail
+            };
+
+            set(ref(db, `userProfiles/${safeKey}`), profileData).then(() => {
+                alert('บันทึกข้อมูลส่วนตัวลงคลาวด์เรียบร้อยแล้วค่ะ! ✨');
+            }).catch((err) => {
+                alert('เกิดข้อผิดพลาดในการบันทึก: ' + err.message);
+            });
+        }
+
+        window.addGrowthRecord = function() {
+            const date = document.getElementById('recordDate').value;
+            const weight = document.getElementById('weightInput').value;
+            const height = document.getElementById('heightInput').value;
+            const head = document.getElementById('headInput').value;
+
+            if (!date || !weight || !height) {
+                alert('กรุณากรอกวันที่ น้ำหนัก และส่วนสูงให้ครบถ้วนนะคะ');
+                return;
+            }
+
+            const newRecord = { date, weight, height, head: head || '-' };
+            const growthListRef = ref(db, `growthRecords/${safeKey}`);
+            const newRecordRef = push(growthListRef);
+
+            set(newRecordRef, newRecord).then(() => {
+                document.getElementById('recordDate').valueAsDate = new Date();
+                document.getElementById('weightInput').value = '';
+                document.getElementById('heightInput').value = '';
+                document.getElementById('headInput').value = '';
+                alert('บันทึกข้อมูลการเติบโตสำเร็จ! 📈');
+            }).catch((err) => {
+                alert('เกิดข้อผิดพลาด: ' + err.message);
+            });
+        }
+
+        window.deleteRecord = function(firebaseKey) {
+            if (confirm('คุณต้องการลบรายการบันทึกนี้ใช่หรือไม่?')) {
+                remove(ref(db, `growthRecords/${safeKey}/${firebaseKey}`)).then(() => {
+                    alert('ลบรายการเรียบร้อยแล้วค่ะ');
+                });
+            }
         }
     </script>
 
     <script>
         let audioCtx = null;
-
         function playClickSound() {
             try {
                 if (!audioCtx) {
@@ -404,106 +460,22 @@
         closeMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        let tempImgUrl = "";
-
-        function updateDisplayName(val) {
+        window.tempImgUrl = "";
+        window.updateDisplayName = function(val) {
             document.getElementById('displayName').innerText = val ? val : 'ชื่อผู้ใช้งาน';
         }
 
-        function previewImage(event) {
+        window.previewImage = function(event) {
             const reader = new FileReader();
             reader.onload = function(){
-                tempImgUrl = reader.result;
-                document.getElementById('profileImage').src = tempImgUrl;
+                window.tempImgUrl = reader.result;
+                document.getElementById('profileImage').src = window.tempImgUrl;
                 const profileNavBtn = document.getElementById('profileNavBtn');
                 if (profileNavBtn) {
-                    profileNavBtn.innerHTML = `<img src="${tempImgUrl}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    profileNavBtn.innerHTML = `<img src="${window.tempImgUrl}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
                 }
             };
             reader.readAsDataURL(event.target.files[0]);
-        }
-
-        function getCurrentSafeKey() {
-            const email = localStorage.getItem('userEmail');
-            return email ? email.replace(/[@.]/g, '_') : 'guest';
-        }
-
-        function saveProfile() {
-            const name = document.getElementById('nameInput').value;
-            const baby = document.getElementById('babyInput').value;
-            const age = document.getElementById('ageInput').value;
-            const safeKey = getCurrentSafeKey();
-
-            localStorage.setItem('userName_' + safeKey, name);
-            localStorage.setItem('babyName_' + safeKey, baby);
-            localStorage.setItem('babyAge_' + safeKey, age);
-            if (tempImgUrl) {
-                localStorage.setItem('userProfileImg_' + safeKey, tempImgUrl);
-            }
-
-            alert('บันทึกข้อมูลส่วนตัวเรียบร้อยแล้วค่ะ! ✨');
-        }
-
-        function addGrowthRecord() {
-            const date = document.getElementById('recordDate').value;
-            const weight = document.getElementById('weightInput').value;
-            const height = document.getElementById('heightInput').value;
-            const head = document.getElementById('headInput').value;
-
-            if (!date || !weight || !height) {
-                alert('กรุณากรอกวันที่ น้ำหนัก และส่วนสูงให้ครบถ้วนนะคะ');
-                return;
-            }
-
-            const newRecord = { date, weight, height, head: head || '-' };
-            const safeKey = getCurrentSafeKey();
-            
-            let records = JSON.parse(localStorage.getItem('growthRecords_' + safeKey)) || [];
-            records.unshift(newRecord);
-            localStorage.setItem('growthRecords_' + safeKey, JSON.stringify(records));
-
-            document.getElementById('recordDate').value = '';
-            document.getElementById('weightInput').value = '';
-            document.getElementById('heightInput').value = '';
-            document.getElementById('headInput').value = '';
-
-            loadGrowthRecords(safeKey);
-            alert('บันทึกข้อมูลการเจริญเติบโตสำเร็จ! 📈');
-        }
-
-        function loadGrowthRecords(safeKey) {
-            const tbody = document.getElementById('growthTableBody');
-            if (!safeKey) safeKey = getCurrentSafeKey();
-            
-            let records = JSON.parse(localStorage.getItem('growthRecords_' + safeKey)) || [];
-
-            if (records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="no-data">ยังไม่มีประวัติการบันทึกข้อมูล</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = '';
-            records.forEach((rec, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${rec.date}</td>
-                        <td>${rec.weight} กก.</td>
-                        <td>${rec.height} ซม.</td>
-                        <td>${rec.head} ${rec.head !== '-' ? 'ซม.' : ''}</td>
-                        <td style="text-align: center;"><button class="del-btn" onclick="playClickSound(); deleteRecord(${index})">ลบ</button></td>
-                    </tr>
-                `;
-            });
-        }
-
-        function deleteRecord(index) {
-            if (confirm('คุณต้องการลบรายการบันทึกนี้ใช่หรือไม่?')) {
-                const safeKey = getCurrentSafeKey();
-                let records = JSON.parse(localStorage.getItem('growthRecords_' + safeKey)) || [];
-                records.splice(index, 1);
-                localStorage.setItem('growthRecords_' + safeKey, JSON.stringify(records));
-                loadGrowthRecords(safeKey);
-            }
         }
     </script>
 </body>

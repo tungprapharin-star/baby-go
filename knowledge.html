@@ -198,7 +198,7 @@
         </div>
         <div class="nav-right">
             <a href="notifications.html" class="icon-btn" title="แจ้งเตือน" onclick="playClickSound()">&#128276;</a>
-            <a href="profile.html" class="icon-btn" title="โปรไฟล์" onclick="playClickSound()">&#128100;</a>
+            <a href="profile.html" class="icon-btn" id="profileNavBtn" title="โปรไฟล์" onclick="playClickSound()">&#128100;</a>
         </div>
     </div>
 
@@ -291,7 +291,7 @@
             <!-- ฟอร์มแก้ไขบทความ -->
             <div id="editArticleModal">
                 <h3 style="color: #0369a1; margin-bottom: 15px; font-weight: 700;">✏️ แก้ไขบทความความรู้</h3>
-                <input type="hidden" id="editArticleId">
+                <input type="hidden" id="editArticleFirebaseKey">
                 <input type="hidden" id="editArticleType">
                 <div class="form-group">
                     <label>หัวข้อบทความ / ชื่อเรื่อง:</label>
@@ -323,59 +323,35 @@
 
     </div>
 
-    <script>
-        let audioCtx = null;
+    <!-- Firebase SDK สำหรับซิงค์ข้อมูลคลังความรู้ออนไลน์แบบเรียลไทม์ -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, push, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        function playClickSound() {
-            try {
-                if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2QNZSSDXnIuHTFVFQn8gzx7JBWTRn8i0",
+            authDomain: "babygo-database-c51bb.firebaseapp.com",
+            projectId: "babygo-database-c51bb",
+            storageBucket: "babygo-database-c51bb.firebasestorage.app",
+            messagingSenderId: "288446121324",
+            appId: "1:288446121324:web:d565a8b27893e761a8df49",
+            databaseURL: "https://babygo-database-c51bb-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
 
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(900, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.06);
-                
-                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
-                
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.06);
-            } catch (err) {
-                console.log("Audio not supported or blocked", err);
-            }
-        }
-
-        const menuToggle = document.getElementById('menuToggle');
-        const closeMenu = document.getElementById('closeMenu');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-        function toggleMenu() { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); }
-        menuToggle.addEventListener('click', toggleMenu);
-        closeMenu.addEventListener('click', toggleMenu);
-        overlay.addEventListener('click', toggleMenu);
-
-        function getCurrentEmail() {
-            return localStorage.getItem('userEmail') || 'guest@babygo.com';
-        }
-
-        function getCurrentSafeKey() {
-            return getCurrentEmail().replace(/[@.]/g, '_');
-        }
-
-        const currentUsername = localStorage.getItem('userName_' + getCurrentSafeKey()) || localStorage.getItem('userName') || 'คุณแม่มือใหม่';
-        const currentEmail = getCurrentEmail();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
         const ADMIN_EMAIL = 'babygo.admin@gmail.com';
-        const isAdmin = (currentEmail.toLowerCase() === ADMIN_EMAIL);
+
+        let currentEmail = "guest@babygo.com";
+        let currentUsername = "คุณแม่มือใหม่";
+        let isAdmin = false;
+        let savedCustomArticles = [];
+        let systemArticles = [];
+        let articlesData = {};
+        let showingMyArticlesOnly = false;
+        let currentActiveCategory = 'all';
 
         const initialDetailedArticles = [
             {
@@ -1080,11 +1056,53 @@
             }
         ];
 
-        let articlesData = {};
-        let savedCustomArticles = JSON.parse(localStorage.getItem('babyGoCustomArticles')) || [];
-        let systemArticles = JSON.parse(localStorage.getItem('babyGoSystemArticles')) || initialDetailedArticles;
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.email) {
+                currentEmail = user.email;
+            } else {
+                currentEmail = localStorage.getItem('userEmail') || "guest@babygo.com";
+            }
 
-        function updateCategoryCounts() {
+            localStorage.setItem('userEmail', currentEmail);
+            isAdmin = (currentEmail.toLowerCase() === ADMIN_EMAIL);
+
+            const safeKey = currentEmail.replace(/[@.]/g, '_');
+            currentUsername = localStorage.getItem('userName_' + safeKey) || localStorage.getItem('userName') || 'คุณแม่มือใหม่';
+
+            if (isAdmin) {
+                const adminLink = document.getElementById('adminMenuLink');
+                if (adminLink) adminLink.style.display = 'block';
+            }
+
+            const savedImg = localStorage.getItem('userProfileImg_' + safeKey);
+            if (savedImg) {
+                const profileNavBtn = document.getElementById('profileNavBtn');
+                if (profileNavBtn) {
+                    profileNavBtn.innerHTML = `<img src="${savedImg}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                }
+            }
+
+            // ฟังข้อมูลบทความผู้ใช้แบบเรียลไทม์จาก Firebase Realtime Database
+            const customArticlesRef = ref(db, 'knowledgeCustomArticles');
+            onValue(customArticlesRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    savedCustomArticles = Object.keys(data).map(key => ({
+                        firebaseKey: key,
+                        ...data[key]
+                    }));
+                    savedCustomArticles.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                } else {
+                    savedCustomArticles = [];
+                }
+
+                systemArticles = JSON.parse(localStorage.getItem('babyGoSystemArticles')) || initialDetailedArticles;
+
+                renderArticlesList(showingMyArticlesOnly);
+            });
+        });
+
+        window.updateCategoryCounts = function() {
             let counts = {
                 all: 0,
                 'ความรู้ผู้ใช้งาน': 0,
@@ -1123,7 +1141,8 @@
             document.getElementById('myArticlesCountBadge').innerText = myArticles.length;
         }
 
-        function renderArticlesList(isMyArticlesOnly = false) {
+        window.renderArticlesList = function(isMyArticlesOnly = false) {
+            showingMyArticlesOnly = isMyArticlesOnly;
             let listHtml = '';
             articlesData = {};
 
@@ -1135,14 +1154,14 @@
                     return;
                 }
                 myArticles.forEach((article) => {
-                    articlesData[article.id] = article;
+                    articlesData[article.firebaseKey] = article;
                     listHtml += `
                         <div class="knowledge-card animated-fade" data-category="ความรู้ผู้ใช้งาน" style="border-color: #8b5cf6; background: #faf5ff;">
                             <div style="position: absolute; top: 18px; right: 18px; z-index: 20;" class="owner-actions">
-                                <button class="btn-action-sm btn-edit-sm" onclick="playClickSound(); openEditForm('${article.id}', 'custom')">แก้ไข</button>
-                                <button class="btn-action-sm btn-delete-sm" onclick="playClickSound(); deleteCustomArticle(event, '${article.id}')">ลบ</button>
+                                <button class="btn-action-sm btn-edit-sm" onclick="playClickSound(); openEditForm('${article.firebaseKey}', 'custom')">แก้ไข</button>
+                                <button class="btn-action-sm btn-delete-sm" onclick="playClickSound(); deleteCustomArticle(event, '${article.firebaseKey}')">ลบ</button>
                             </div>
-                            <div onclick="playClickSound(); openArticle('${article.id}')" style="cursor: pointer; padding-right: 120px;">
+                            <div onclick="playClickSound(); openArticle('${article.firebaseKey}')" style="cursor: pointer; padding-right: 120px;">
                                 <span class="knowledge-keyword-tag" style="background: #ede9fe; color: #7c3aed; border-color: #ddd6fe;">${article.tag} [บทความของฉัน]</span>
                                 <div class="knowledge-title">💡 ${article.title}</div>
                                 <div class="knowledge-desc">${article.desc}</div>
@@ -1155,21 +1174,15 @@
                 });
             } else {
                 savedCustomArticles.forEach((article) => {
-                    articlesData[article.id] = article;
+                    articlesData[article.firebaseKey] = article;
                     let isOwner = (article.userEmail === currentEmail);
                     
                     let actionButtonsHtml = '';
-                    if (isOwner) {
+                    if (isOwner || isAdmin) {
                         actionButtonsHtml = `
                             <div style="position: absolute; top: 18px; right: 18px; z-index: 20;" class="owner-actions">
-                                <button class="btn-action-sm btn-edit-sm" onclick="playClickSound(); openEditForm('${article.id}', 'custom')">แก้ไข</button>
-                                <button class="btn-action-sm btn-delete-sm" onclick="playClickSound(); deleteCustomArticle(event, '${article.id}')">ลบ</button>
-                            </div>
-                        `;
-                    } else if (isAdmin) {
-                        actionButtonsHtml = `
-                            <div style="position: absolute; top: 18px; right: 18px; z-index: 20;" class="owner-actions">
-                                <button class="btn-action-sm btn-delete-sm" onclick="playClickSound(); deleteCustomArticle(event, '${article.id}')">ลบ</button>
+                                ${isOwner ? `<button class="btn-action-sm btn-edit-sm" onclick="playClickSound(); openEditForm('${article.firebaseKey}', 'custom')">แก้ไข</button>` : ''}
+                                <button class="btn-action-sm btn-delete-sm" onclick="playClickSound(); deleteCustomArticle(event, '${article.firebaseKey}')">ลบ</button>
                             </div>
                         `;
                     }
@@ -1179,13 +1192,13 @@
                     listHtml += `
                         <div class="knowledge-card animated-fade" data-category="ความรู้ผู้ใช้งาน" style="border-color: #10b981; background: #fdf4ff; position: relative;">
                             ${actionButtonsHtml}
-                            <div onclick="playClickSound(); openArticle('${article.id}')" style="cursor: pointer; ${rightPadding}">
+                            <div onclick="playClickSound(); openArticle('${article.firebaseKey}')" style="cursor: pointer; ${rightPadding}">
                                 <span class="knowledge-keyword-tag" style="background: #d1fae5; color: #047857; border-color: #a7f3d0;">${article.tag} [หมวด: ความรู้ผู้ใช้งาน]</span>
                                 <div class="knowledge-title">💡 ${article.title} ${isAdmin && !isOwner ? '<span style="color: #d946ef; font-size: 11px; margin-left: 5px;">[Admin Mode]</span>' : ''}</div>
                                 <div class="knowledge-desc">${article.desc}</div>
                                 <div class="knowledge-footer">
                                     <span style="color: #059669; font-weight: 600;">เขียนโดย ${article.author}</span>
-                                    <span class="knowledge-date">บทความผู้ใช้</span>
+                                    <span class="knowledge-date">บทความผู้ใช้ออนไลน์</span>
                                 </div>
                             </div>
                         </div>
@@ -1222,7 +1235,7 @@
                                 <div class="knowledge-desc">${article.desc}</div>
                                 <div class="knowledge-footer">
                                     <span style="color: #0284c7; font-weight: 600;">เขียนโดย แอดมิน Baby Go</span>
-                                    <span class="knowledge-date">บทความที่ ${index + 1}</span>
+                                    <span class="knowledge-date">คู่มือความรู้</span>
                                 </div>
                             </div>
                         </div>
@@ -1232,9 +1245,10 @@
 
             document.getElementById('knowledgeListContainer').innerHTML = listHtml;
             updateCategoryCounts();
+            applySearchAndFilter();
         }
 
-        function toggleClearButton() {
+        window.toggleClearButton = function() {
             const input = document.getElementById('knowledgeSearchInput');
             const clearBtn = document.getElementById('clearSearchBtn');
             if (input.value.trim() !== '') {
@@ -1244,14 +1258,14 @@
             }
         }
 
-        function clearSearchInput() {
+        window.clearSearchInput = function() {
             const input = document.getElementById('knowledgeSearchInput');
             input.value = '';
             toggleClearButton();
             filterKnowledge();
         }
 
-        function toggleAddForm() {
+        window.toggleAddForm = function() {
             const modal = document.getElementById('addArticleModal');
             document.getElementById('editArticleModal').style.display = 'none';
             if (modal.style.display === 'block') {
@@ -1262,7 +1276,7 @@
             }
         }
 
-        function toggleEditForm(show) {
+        window.toggleEditForm = function(show) {
             const modal = document.getElementById('editArticleModal');
             modal.style.display = show ? 'block' : 'none';
             if (show) {
@@ -1271,7 +1285,7 @@
             }
         }
 
-        function saveNewArticle() {
+        window.saveNewArticle = function() {
             const title = document.getElementById('newTitle').value.trim();
             const tag = document.getElementById('newTag').value.trim() || '#ความรู้ผู้ใช้งาน';
             const rawBody = document.getElementById('newBody').value.trim();
@@ -1283,45 +1297,45 @@
 
             const formattedBody = `<p><strong>เรื่อง:</strong> ${title}</p><p>${rawBody.replace(/\n/g, '<br>')}</p>`;
             
+            const newRef = push(ref(db, 'knowledgeCustomArticles'));
             const newObj = {
-                id: "custom_" + Date.now(),
                 cat: "ความรู้ผู้ใช้งาน",
                 tag: tag,
                 title: title,
                 desc: rawBody.substring(0, 90) + '...',
                 author: currentUsername,
                 userEmail: currentEmail,
-                body: formattedBody
+                body: formattedBody,
+                timestamp: Date.now()
             };
 
-            savedCustomArticles.unshift(newObj);
-            localStorage.setItem('babyGoCustomArticles', JSON.stringify(savedCustomArticles));
-
-            document.getElementById('newTitle').value = '';
-            document.getElementById('newTag').value = '';
-            document.getElementById('newBody').value = '';
-            document.getElementById('addArticleModal').style.display = 'none';
-
-            renderArticlesList(false);
-            alert('เพิ่มบทความความรู้ผู้ใช้งานสำเร็จเรียบร้อยแล้ว!');
+            set(newRef, newObj).then(() => {
+                document.getElementById('newTitle').value = '';
+                document.getElementById('newTag').value = '';
+                document.getElementById('newBody').value = '';
+                document.getElementById('addArticleModal').style.display = 'none';
+                alert('เผยแพร่บทความลงคลาวด์ให้ทุกคนเห็นเรียบร้อยแล้ว!');
+            }).catch((err) => {
+                alert('เกิดข้อผิดพลาด: ' + err.message);
+            });
         }
 
-        function openEditForm(id, type) {
+        window.openEditForm = function(firebaseKeyOrIndex, type) {
             document.getElementById('editArticleType').value = type;
-            document.getElementById('editArticleId').value = id;
+            document.getElementById('editArticleFirebaseKey').value = firebaseKeyOrIndex;
 
             let targetTitle = '';
             let targetTag = '';
             let targetBodyHtml = '';
 
             if (type === 'custom') {
-                const article = savedCustomArticles.find(art => art.id === id);
+                const article = savedCustomArticles.find(art => art.firebaseKey === firebaseKeyOrIndex);
                 if (!article) return;
                 targetTitle = article.title;
                 targetTag = article.tag;
                 targetBodyHtml = article.body;
             } else {
-                const article = systemArticles[id];
+                const article = systemArticles[firebaseKeyOrIndex];
                 if (!article) return;
                 targetTitle = article.title;
                 targetTag = article.tag;
@@ -1345,9 +1359,9 @@
             toggleEditForm(true);
         }
 
-        function updateArticleData() {
+        window.updateArticleData = function() {
             const type = document.getElementById('editArticleType').value;
-            const id = document.getElementById('editArticleId').value;
+            const keyOrIndex = document.getElementById('editArticleFirebaseKey').value;
             const title = document.getElementById('editTitle').value.trim();
             const tag = document.getElementById('editTag').value.trim() || '#ความรู้';
             const rawBody = document.getElementById('editBody').value.trim();
@@ -1360,34 +1374,40 @@
             const formattedBody = `<p><strong>เรื่อง:</strong> ${title}</p><p>${rawBody.replace(/\n/g, '<br>')}</p>`;
 
             if (type === 'custom') {
-                let article = savedCustomArticles.find(art => art.id === id);
+                const article = savedCustomArticles.find(art => art.firebaseKey === keyOrIndex);
                 if (!article) return;
-                article.title = title;
-                article.tag = tag;
-                article.desc = rawBody.substring(0, 90) + '...';
-                article.body = formattedBody;
-                localStorage.setItem('babyGoCustomArticles', JSON.stringify(savedCustomArticles));
+                if (article.userEmail !== currentEmail && !isAdmin) {
+                    alert('คุณไม่มีสิทธิ์แก้ไขบทความนี้ครับ!');
+                    return;
+                }
+
+                set(ref(db, `knowledgeCustomArticles/${keyOrIndex}/title`), title);
+                set(ref(db, `knowledgeCustomArticles/${keyOrIndex}/tag`), tag);
+                set(ref(db, `knowledgeCustomArticles/${keyOrIndex}/desc`), rawBody.substring(0, 90) + '...');
+                set(ref(db, `knowledgeCustomArticles/${keyOrIndex}/body`), formattedBody).then(() => {
+                    toggleEditForm(false);
+                    alert('แก้ไขบทความเรียบร้อยแล้ว!');
+                });
             } else {
                 if (!isAdmin) {
                     alert('เฉพาะแอดมินเท่านั้นที่แก้ไขบทความระบบได้!');
                     return;
                 }
-                let index = parseInt(id);
+                let index = parseInt(keyOrIndex);
                 systemArticles[index].title = title;
                 systemArticles[index].tag = tag;
                 systemArticles[index].desc = rawBody.substring(0, 90) + '...';
                 systemArticles[index].body = formattedBody;
                 localStorage.setItem('babyGoSystemArticles', JSON.stringify(systemArticles));
+                toggleEditForm(false);
+                renderArticlesList(showingMyArticlesOnly);
+                alert('แก้ไขบทความระบบเรียบร้อยแล้ว!');
             }
-
-            toggleEditForm(false);
-            renderArticlesList(false);
-            alert('แก้ไขบทความเรียบร้อยแล้วครับ!');
         }
 
-        function deleteCustomArticle(event, articleId) {
+        window.deleteCustomArticle = function(event, firebaseKey) {
             event.stopPropagation();
-            const article = savedCustomArticles.find(art => art.id === articleId);
+            const article = savedCustomArticles.find(art => art.firebaseKey === firebaseKey);
             if (!article) return;
 
             const isOwner = (article.userEmail === currentEmail);
@@ -1396,45 +1416,41 @@
                 return;
             }
 
-            if (confirm('คุณต้องการลบบทความนี้ใช่หรือไม่?')) {
-                savedCustomArticles = savedCustomArticles.filter(art => art.id !== articleId);
-                localStorage.setItem('babyGoCustomArticles', JSON.stringify(savedCustomArticles));
-                renderArticlesList(false);
-                alert('ลบบทความเรียบร้อยแล้วครับ!');
+            if (confirm(isAdmin && !isOwner ? '[Admin Mode] คุณต้องการลบบทความนี้ในฐานะแอดมินใช่หรือไม่?' : 'คุณต้องการลบบทความนี้ใช่หรือไม่?')) {
+                remove(ref(db, `knowledgeCustomArticles/${firebaseKey}`)).then(() => {
+                    alert('ลบบทความเรียบร้อยแล้วครับ!');
+                });
             }
         }
 
-        function deleteSystemArticle(event, index) {
+        window.deleteSystemArticle = function(event, index) {
             event.stopPropagation();
             if (!isAdmin) {
                 alert('เฉพาะแอดมินเท่านั้นที่สามารถลบบทความระบบได้!');
                 return;
             }
 
-            if (confirm('[Admin Mode] คุณต้องการลบบทความของแอดมินนี้ใช่หรือไม่?')) {
+            if (confirm('[Admin Mode] คุณต้องการลบบทความคู่มือระบบนี้ใช่หรือไม่?')) {
                 systemArticles.splice(index, 1);
                 localStorage.setItem('babyGoSystemArticles', JSON.stringify(systemArticles));
-                renderArticlesList(false);
+                renderArticlesList(showingMyArticlesOnly);
                 alert('ลบบทความเรียบร้อยแล้วครับ!');
             }
         }
 
-        let currentActiveCategory = 'all';
-
-        function filterByCategory(categoryName, btnElem) {
+        window.filterByCategory = function(categoryName, btnElem) {
             currentActiveCategory = categoryName;
             document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
             if (btnElem) btnElem.classList.add('active');
-            renderArticlesList(false);
             applySearchAndFilter();
         }
 
-        function filterMyArticles() {
+        window.filterMyArticles = function() {
             document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
             renderArticlesList(true);
         }
 
-        function openArticle(articleId) {
+        window.openArticle = function(articleId) {
             const article = articlesData[articleId];
             if (!article) return;
 
@@ -1446,7 +1462,7 @@
                         <h2>${article.title}</h2>
                         <div class="article-meta">
                             <span>เขียนโดย ${article.author || 'แอดมิน Baby Go'}</span>
-                            <span>${article.date || 'อัปเดตล่าสุด'}</span>
+                            <span>${article.date || 'อัปเดตเรียลไทม์'}</span>
                         </div>
                     </div>
                     <div class="article-body">
@@ -1460,23 +1476,23 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function goBackToKnowledgeList() {
+        window.goBackToKnowledgeList = function() {
             document.getElementById('articleDetailView').style.display = 'none';
             document.getElementById('mainKnowledgeView').style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function filterKnowledge() {
+        window.filterKnowledge = function() {
             applySearchAndFilter();
         }
 
-        function handleSearchKeyPress(event) {
+        window.handleSearchKeyPress = function(event) {
             if (event.key === 'Enter') {
                 applySearchAndFilter();
             }
         }
 
-        function applySearchAndFilter() {
+        window.applySearchAndFilter = function() {
             const keyword = document.getElementById('knowledgeSearchInput').value.toLowerCase().trim();
             const cards = document.querySelectorAll('.knowledge-card');
             let visibleCount = 0;
@@ -1499,27 +1515,47 @@
             const noResult = document.getElementById('noResultText');
             noResult.style.display = (visibleCount === 0) ? 'block' : 'none';
         }
+    </script>
 
-        window.addEventListener('DOMContentLoaded', () => {
-            renderArticlesList(false);
-            toggleClearButton();
-            const currentEmail = getCurrentEmail();
-            if (currentEmail) {
-                const safeKey = currentEmail.replace(/[@.]/g, '_');
-                const savedImg = localStorage.getItem('userProfileImg_' + safeKey);
-                if (savedImg) {
-                    const profileIcon = document.querySelector('a[href="profile.html"]');
-                    if(profileIcon) {
-                        profileIcon.innerHTML = `<img src="${savedImg}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-                    }
+    <script>
+        let audioCtx = null;
+        function playClickSound() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
                 }
 
-                if (currentEmail.toLowerCase() === ADMIN_EMAIL) {
-                    const adminLink = document.getElementById('adminMenuLink');
-                    if (adminLink) adminLink.style.display = 'block';
-                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.06);
+                
+                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.06);
+            } catch (err) {
+                console.log("Audio not supported or blocked", err);
             }
-        });
+        }
+
+        const menuToggle = document.getElementById('menuToggle');
+        const closeMenu = document.getElementById('closeMenu');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        function toggleMenu() { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); }
+        menuToggle.addEventListener('click', toggleMenu);
+        closeMenu.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
     </script>
 </body>
 </html>
