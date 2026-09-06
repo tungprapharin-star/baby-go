@@ -156,7 +156,6 @@
             </div>
         </div>
         <div class="nav-right">
-            <!-- แก้ไขให้ปุ่มระฆังลิงก์ไปหน้า notifications.html เรียบร้อยแล้ว -->
             <a href="notifications.html" class="icon-btn" title="ศูนย์แจ้งเตือน" onclick="playClickSound()">
                 &#128276;
                 <span class="badge-dot" id="notifBadge"></span>
@@ -271,7 +270,27 @@
         menuToggle.addEventListener('click', toggleMenu);
         closeMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
+    </script>
 
+    <!-- Firebase SDK สำหรับซิงค์ข้อความติดต่อแอดมินแบบเรียลไทม์ -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, push, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2QNZSSDXnIuHTFVFQn8gzx7JBWTRn8i0",
+            authDomain: "babygo-database-c51bb.firebaseapp.com",
+            projectId: "babygo-database-c51bb",
+            storageBucket: "babygo-database-c51bb.firebasestorage.app",
+            messagingSenderId: "288446121324",
+            appId: "1:288446121324:web:d565a8b27893e761a8df49",
+            databaseURL: "https://babygo-database-c51bb-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
         const ADMIN_EMAIL = 'babygo.admin@gmail.com';
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -301,22 +320,34 @@
                     if (adminLink) adminLink.style.display = 'block';
                     const adminSec = document.getElementById('adminSection');
                     if (adminSec) adminSec.style.display = 'block';
-                    loadAdminMessages();
+                    
+                    const adminMessagesRef = ref(db, 'babyGoAdminMessages');
+                    onValue(adminMessagesRef, (snapshot) => {
+                        const data = snapshot.val();
+                        let messagesList = [];
+                        if (data) {
+                            messagesList = Object.keys(data).map(key => ({
+                                firebaseKey: key,
+                                ...data[key]
+                            }));
+                            messagesList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                        }
+                        loadAdminMessages(messagesList);
+                    });
                 }
             }
         });
 
-        function loadAdminMessages() {
+        window.loadAdminMessages = function(adminMessages) {
             const container = document.getElementById('adminMessagesContainer');
-            let adminMessages = JSON.parse(localStorage.getItem('babyGoAdminMessages')) || [];
 
-            if (adminMessages.length === 0) {
+            if (!adminMessages || adminMessages.length === 0) {
                 container.innerHTML = `<div style="color: #94a3b8; text-align: center; padding: 20px;">ยังไม่มีข้อความติดต่อจากผู้ใช้</div>`;
                 return;
             }
 
             let html = '';
-            adminMessages.forEach((msg, index) => {
+            adminMessages.forEach((msg) => {
                 let replyHistoryHtml = '';
                 let repliesList = [];
                 if (Array.isArray(msg.replies)) {
@@ -331,7 +362,7 @@
                         replyHistoryHtml += `
                             <div class="admin-reply-history">
                                 <div><strong>💬 ข้อความที่เคยตอบกลับ:</strong> ${rep}</div>
-                                <button class="btn-del-reply" onclick="playClickSound(); deleteSingleReply(${index}, ${repIndex})">ลบ</button>
+                                <button class="btn-del-reply" onclick="playClickSound(); deleteSingleReply('${msg.firebaseKey}', ${repIndex}, ${JSON.stringify(repliesList).replace(/"/g, '&quot;')})">ลบ</button>
                             </div>
                         `;
                     });
@@ -340,7 +371,7 @@
 
                 html += `
                     <div class="msg-item animated-fade">
-                        <button class="btn-del-msg" onclick="playClickSound(); deleteAdminMessage(${index})">ลบข้อความ</button>
+                        <button class="btn-del-msg" onclick="playClickSound(); deleteAdminMessage('${msg.firebaseKey}')">ลบข้อความ</button>
                         <div class="msg-email">✉️ จากอีเมล: ${msg.email}</div>
                         <div class="msg-time">🕒 เวลาส่ง: ${msg.time}</div>
                         <div class="msg-text">💬 ข้อความ: ${msg.message}</div>
@@ -348,8 +379,8 @@
                         ${replyHistoryHtml}
 
                         <div class="admin-reply-box">
-                            <input type="text" id="replyInput_${index}" class="admin-reply-input" placeholder="พิมพ์ข้อความตอบกลับใหม่...">
-                            <button class="btn-reply-send" onclick="playClickSound(); sendAdminReply('${msg.email}', ${index})">ตอบกลับ</button>
+                            <input type="text" id="replyInput_${msg.firebaseKey}" class="admin-reply-input" placeholder="พิมพ์ข้อความตอบกลับใหม่...">
+                            <button class="btn-reply-send" onclick="playClickSound(); sendAdminReply('${msg.email}', '${msg.firebaseKey}')">ตอบกลับ</button>
                         </div>
                     </div>
                 `;
@@ -357,95 +388,87 @@
             container.innerHTML = html;
         }
 
-        function sendAdminReply(userEmail, index) {
-            const replyInput = document.getElementById(`replyInput_${index}`);
+        window.sendAdminReply = function(userEmail, firebaseKey) {
+            const replyInput = document.getElementById(`replyInput_${firebaseKey}`);
             const replyText = replyInput.value.trim();
             if (!replyText) {
                 alert('กรุณากรอกข้อความตอบกลับก่อนครับ!');
                 return;
             }
 
-            let adminMessages = JSON.parse(localStorage.getItem('babyGoAdminMessages')) || [];
-            if (adminMessages[index]) {
-                if (!Array.isArray(adminMessages[index].replies)) {
-                    adminMessages[index].replies = adminMessages[index].reply ? [adminMessages[index].reply] : [];
-                }
-                adminMessages[index].replies.push(replyText);
-                localStorage.setItem('babyGoAdminMessages', JSON.stringify(adminMessages));
-            }
+            const msgRef = ref(db, `babyGoAdminMessages/${firebaseKey}`);
+            get(msgRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    let msgData = snapshot.val();
+                    let replies = Array.isArray(msgData.replies) ? msgData.replies : [];
+                    replies.push(replyText);
 
-            const targetSafeKey = userEmail.replace(/[@.]/g, '_');
-            let notifs = JSON.parse(localStorage.getItem('userNotifications_' + targetSafeKey)) || [];
-            
-            notifs.unshift({
-                id: Date.now(),
-                icon: "💬",
-                title: "แอดมินตอบกลับข้อความของคุณแล้ว!",
-                message: `แอดมิน: "${replyText}"`,
-                date: new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }),
-                read: false
+                    set(ref(db, `babyGoAdminMessages/${firebaseKey}/replies`), replies).then(() => {
+                        const targetSafeKey = userEmail.replace(/[@.]/g, '_');
+                        let notifs = JSON.parse(localStorage.getItem('userNotifications_' + targetSafeKey)) || [];
+                        
+                        notifs.unshift({
+                            id: Date.now(),
+                            icon: "💬",
+                            title: "แอดมินตอบกลับข้อความของคุณแล้ว!",
+                            message: `แอดมิน: "${replyText}"`,
+                            date: new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }),
+                            read: false
+                        });
+
+                        localStorage.setItem('userNotifications_' + targetSafeKey, JSON.stringify(notifs));
+                        localStorage.setItem('babyGoHasNewNotification_' + targetSafeKey, 'true');
+
+                        alert(`ส่งข้อความตอบกลับไปยังอีเมล ${userEmail} สำเร็จแล้ว!`);
+                        replyInput.value = '';
+                    });
+                }
             });
-
-            localStorage.setItem('userNotifications_' + targetSafeKey, JSON.stringify(notifs));
-            localStorage.setItem('babyGoHasNewNotification_' + targetSafeKey, 'true');
-
-            alert(`ส่งข้อความตอบกลับไปยังอีเมล ${userEmail} สำเร็จแล้ว!`);
-            replyInput.value = '';
-            loadAdminMessages();
         }
 
-        function deleteSingleReply(msgIndex, repIndex) {
+        window.deleteSingleReply = function(firebaseKey, repIndex, currentReplies) {
             if (confirm('คุณต้องการลบข้อความตอบกลับนี้ใช่หรือไม่?')) {
-                let adminMessages = JSON.parse(localStorage.getItem('babyGoAdminMessages')) || [];
-                if (adminMessages[msgIndex] && Array.isArray(adminMessages[msgIndex].replies)) {
-                    adminMessages[msgIndex].replies.splice(repIndex, 1);
-                    localStorage.setItem('babyGoAdminMessages', JSON.stringify(adminMessages));
-                    loadAdminMessages();
-                }
+                currentReplies.splice(repIndex, 1);
+                set(ref(db, `babyGoAdminMessages/${firebaseKey}/replies`), currentReplies);
             }
         }
 
-        function deleteAdminMessage(index) {
+        window.deleteAdminMessage = function(firebaseKey) {
             if (confirm('คุณต้องการลบข้อความนี้ทั้งหมดใช่หรือไม่?')) {
-                let adminMessages = JSON.parse(localStorage.getItem('babyGoAdminMessages')) || [];
-                adminMessages.splice(index, 1);
-                localStorage.setItem('babyGoAdminMessages', JSON.stringify(adminMessages));
-                loadAdminMessages();
+                remove(ref(db, `babyGoAdminMessages/${firebaseKey}`)).then(() => {
+                    alert('ลบข้อความเรียบร้อยแล้ว!');
+                });
             }
         }
 
-        function handleContactSubmit(event) {
+        window.handleContactSubmit = function(event) {
             event.preventDefault();
             const email = document.getElementById('userEmail').value.trim();
             const message = document.getElementById('messageContent').value.trim();
 
+            const newMsgRef = push(ref(db, 'babyGoAdminMessages'));
             const newMessage = {
-                id: 'msg_' + Date.now(),
                 email: email,
                 message: message,
                 time: new Date().toLocaleString('th-TH'),
+                timestamp: Date.now(),
                 replies: []
             };
-
-            let adminMessages = JSON.parse(localStorage.getItem('babyGoAdminMessages')) || [];
-            adminMessages.unshift(newMessage);
-            localStorage.setItem('babyGoAdminMessages', JSON.stringify(adminMessages));
 
             const btn = document.getElementById('submitBtn');
             btn.innerText = 'กำลังส่งข้อความ...';
             btn.disabled = true;
 
-            setTimeout(() => {
+            set(newMsgRef, newMessage).then(() => {
                 alert('ส่งข้อความสำเร็จแล้วค่ะ ระบบได้บันทึกข้อมูลส่งถึงแอดมินเรียบร้อย!');
                 document.getElementById('contactForm').reset();
                 btn.innerText = 'ส่งข้อความ';
                 btn.disabled = false;
-                
-                const currentEmail = localStorage.getItem('userEmail');
-                if (currentEmail && currentEmail.toLowerCase() === ADMIN_EMAIL) {
-                    loadAdminMessages();
-                }
-            }, 500);
+            }).catch((err) => {
+                alert('เกิดข้อผิดพลาด: ' + err.message);
+                btn.innerText = 'ส่งข้อความ';
+                btn.disabled = false;
+            });
         }
     </script>
 </body>
