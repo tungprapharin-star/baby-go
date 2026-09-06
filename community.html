@@ -308,7 +308,6 @@
                     // เรียงโพสต์ใหม่ไว้บนสุด
                     allPostsData.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
                 } else {
-                    // ถ้ายังไม่มีข้อมูล ให้ใส่โพสต์ตั้งต้น
                     const defaultPost = {
                         id: "post_1",
                         author: "คุณแม่น้องไทเกอร์",
@@ -333,6 +332,23 @@
                 }
             });
         });
+
+        // ฟังก์ชันสร้างการแจ้งเตือนส่งไปยัง LocalStorage สำหรับหน้า notifications.html
+        function createNotification(toUserEmail, messageText, postId) {
+            if (!toUserEmail || toUserEmail === currentEmail) return; // ไม่แจ้งเตือนตัวเอง
+            
+            let notifications = JSON.parse(localStorage.getItem('babygo_notifications')) || [];
+            const newNotif = {
+                id: Date.now(),
+                toUser: toUserEmail,
+                message: messageText,
+                postId: postId,
+                time: 'เมื่อสักครู่นี้',
+                read: false
+            };
+            notifications.unshift(newNotif);
+            localStorage.setItem('babygo_notifications', JSON.stringify(notifications));
+        }
 
         window.updateMyPostsBadge = function() {
             const myCount = allPostsData.filter(p => p.userEmail === currentEmail && !p.isAnonymous).length;
@@ -411,6 +427,8 @@
                 let newIsLiked = !post.isLiked;
                 if (newIsLiked) {
                     newLikes += 1;
+                    // ส่งแจ้งเตือนไปยังเจ้าของกระทู้เมื่อมีคนกดถูกใจ
+                    createNotification(post.userEmail, `${currentUsername} ได้กดถูกใจกระทู้ของคุณ: "${post.title}"`, post.firebaseKey);
                 } else {
                     newLikes = Math.max(0, newLikes - 1);
                 }
@@ -586,6 +604,8 @@
                 let newIsLiked = !post.isLiked;
                 if (newIsLiked) {
                     newLikes += 1;
+                    // ส่งแจ้งเตือนเมื่อกดถูกใจในหน้ารายละเอียดกระทู้
+                    createNotification(post.userEmail, `${currentUsername} ได้กดถูกใจกระทู้ของคุณ: "${post.title}"`, post.firebaseKey);
                 } else {
                     newLikes = Math.max(0, newLikes - 1);
                 }
@@ -611,6 +631,10 @@
                 });
 
                 set(ref(db, `communityPosts/${currentOpenPostId}/comments`), comments);
+                
+                // ส่งแจ้งเตือนไปยังเจ้าของกระทู้เมื่อมีคนแสดงความคิดเห็น
+                createNotification(post.userEmail, `${currentUsername} ได้แสดงความคิดเห็นในกระทู้ของคุณ: "${post.title}"`, post.firebaseKey);
+
                 document.getElementById('newCommentInput').value = '';
             }
         }
