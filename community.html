@@ -314,8 +314,9 @@
             comments: []
         };
 
+        // ใช้ key กลางร่วมกัน เพื่อให้ทุกคนเห็นโพสต์ทั้งหมดเหมือนกัน
         let savedPosts = JSON.parse(localStorage.getItem('babyGoCommunityPosts'));
-        if (!savedPosts || !Array.isArray(savedPosts) || savedPosts.length === 0 || savedPosts.length > 50) {
+        if (!savedPosts || !Array.isArray(savedPosts) || savedPosts.length === 0) {
             savedPosts = [singleDefaultPost];
             localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
         }
@@ -371,19 +372,21 @@
                 let authorDisplay = post.isAnonymous ? `<span class="anonymous-badge">🕵️‍♀️ คุณแม่นิรนาม</span>` : `👤 ${post.author}`;
                 
                 let isOwner = (post.userEmail === currentEmail && !post.isAnonymous);
-                let canManage = isOwner || isAdmin;
+                // เงื่อนไขสิทธิ์: เจ้าของโพสต์ลบได้ หรือ แอดมินหลักลบได้ทุกโพสต์
+                let canDelete = isOwner || isAdmin;
+                let canEdit = isOwner;
                 
-                let ownerButtonsHtml = canManage ? `
+                let ownerButtonsHtml = (canEdit || canDelete) ? `
                     <div class="owner-actions">
-                        ${isOwner ? `<button class="btn-edit-sm" onclick="playClickSound(); editPost('${post.id}')">แก้ไข</button>` : ''}
-                        <button class="btn-delete-sm" onclick="playClickSound(); deletePost(event, '${post.id}')">ลบ</button>
+                        ${canEdit ? `<button class="btn-edit-sm" onclick="playClickSound(); editPost('${post.id}')">แก้ไข</button>` : ''}
+                        ${canDelete ? `<button class="btn-delete-sm" onclick="playClickSound(); deletePost(event, '${post.id}')">ลบ</button>` : ''}
                     </div>
                 ` : '';
 
                 html += `
                     <div class="post-card animated-fade">
                         <div class="post-header-info">
-                            <div class="post-author">${authorDisplay} ${isAdmin && !isOwner ? '<span style="color: #d946ef; font-size: 11px; margin-left: 5px;">[Admin Mode]</span>' : ''}</div>
+                            <div class="post-author">${authorDisplay} ${isAdmin ? '<span style="color: #d946ef; font-size: 11px; margin-left: 5px;">[Admin Mode]</span>' : ''}</div>
                             <div class="post-time">${post.time}</div>
                         </div>
                         <div class="post-title" onclick="playClickSound(); openPostDetail('${post.id}')">${post.title}</div>
@@ -404,7 +407,6 @@
             });
             document.getElementById('postListContainer').innerHTML = html;
             updateMyPostsBadge();
-            localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
         }
 
         function toggleLikeFromFeed(event, postId) {
@@ -452,11 +454,14 @@
                 return;
             }
 
+            // โหลดข้อมูลล่าสุดจาก localStorage เพื่อป้องกันข้อมูลตีกัน
+            savedPosts = JSON.parse(localStorage.getItem('babyGoCommunityPosts')) || [];
+
             if (editId) {
                 const post = savedPosts.find(p => p.id === editId);
                 if (post) {
                     if (post.userEmail !== currentEmail && !isAdmin) {
-                        alert('คุณไม่มีสิทธิ์แก้ไขกระทู้ของผู้อื่นครับ!');
+                        alert('คุณไม่มีสิทธิ์แก้ไขกระทู้นี้ครับ!');
                         return;
                     }
                     post.title = title;
@@ -491,7 +496,7 @@
             if (!post) return;
 
             if (post.userEmail !== currentEmail && !isAdmin) {
-                alert('คุณไม่มีสิทธิ์แก้ไขกระทู้ของผู้อื่นครับ!');
+                alert('คุณไม่มีสิทธิ์แก้ไขกระทู้นี้ครับ!');
                 return;
             }
 
@@ -511,12 +516,13 @@
             const post = savedPosts.find(p => p.id === postId);
             if (!post) return;
 
+            // ให้สิทธิ์เฉพาะเจ้าของโพสต์ หรือ แอดมินหลัก เท่านั้นที่ลบได้
             if (post.userEmail !== currentEmail && !isAdmin) {
-                alert('คุณไม่มีสิทธิ์ลบกระทู้ของผู้อื่นครับ!');
+                alert('เฉพาะแอดมินหรือเจ้าของโพสต์เท่านั้นที่มีสิทธิ์ลบครับ!');
                 return;
             }
 
-            if (confirm('คุณต้องการลบกระทู้นี้ใช่หรือไม่?')) {
+            if (confirm(isAdmin && post.userEmail !== currentEmail ? '[Admin Mode] คุณต้องการลบโพสต์นี้ในฐานะแอดมินใช่หรือไม่?' : 'คุณต้องการลบกระทู้นี้ใช่หรือไม่?')) {
                 savedPosts = savedPosts.filter(p => p.id !== postId);
                 localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
                 renderPosts(showingMyPostsOnly);
@@ -614,6 +620,8 @@
                 return;
             }
 
+            // โหลดข้อมูลล่าสุดก่อนบันทึกคอมเมนต์
+            savedPosts = JSON.parse(localStorage.getItem('babyGoCommunityPosts')) || [];
             const post = savedPosts.find(p => p.id === currentOpenPostId);
             if (post) {
                 if (!post.comments) post.comments = [];
@@ -632,6 +640,8 @@
         }
 
         function goBackToFeed() {
+            // โหลดข้อมูลโพสต์ล่าสุดทุกครั้งที่กดกลับหน้าฟีด
+            savedPosts = JSON.parse(localStorage.getItem('babyGoCommunityPosts')) || [];
             document.getElementById('postDetailView').style.display = 'none';
             document.getElementById('mainCommunityView').style.display = 'block';
             renderPosts(showingMyPostsOnly);
@@ -639,7 +649,10 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            // โหลดข้อมูลล่าสุดตอนเปิดหน้าเว็บ
+            savedPosts = JSON.parse(localStorage.getItem('babyGoCommunityPosts')) || [singleDefaultPost];
             renderPosts(false);
+
             const savedImg = localStorage.getItem('userProfileImg_' + getCurrentSafeKey());
             if (savedImg) {
                 const profileNavBtn = document.getElementById('profileNavBtn');
