@@ -7,103 +7,111 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
-        body { background-color: #f0f9ff; color: #333333; font-size: 15px; overflow-x: hidden; }
+        body { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%); color: #333333; font-size: 15px; min-height: 100vh; overflow-x: hidden; }
         
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .animated-fade { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animated-fade { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* Navbar โทนฟ้าสะอาดตา */
+        /* Navbar พรีเมียม */
         .navbar {
-            background-color: #ffffff;
-            padding: 15px 25px;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 25px;
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid #bae6fd;
+            border-bottom: 1px solid rgba(186, 230, 253, 0.6);
             position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.08);
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.05);
         }
-        .nav-left { display: flex; align-items: center; gap: 20px; }
-        .menu-btn { font-size: 28px; cursor: pointer; color: #0284c7; background: none; border: none; transition: transform 0.2s; }
-        .menu-btn:hover { transform: scale(1.1); }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .menu-btn { font-size: 26px; cursor: pointer; color: #0284c7; background: #e0f2fe; border: none; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .menu-btn:hover { background: #bae6fd; transform: scale(1.1) rotate(90deg); }
         
-        .logo-container { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-        .logo-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #0ea5e9; }
-        .logo-text { font-size: 20px; font-weight: 600; color: #0284c7; }
+        /* ปรับโลโก้ใหม่ให้ขนาดใหญ่เท่าหน้าแรกและไม่มีลิงก์คลิก */
+        .logo-container { display: flex; align-items: center; }
+        .main-logo-img { height: 60px !important; width: auto !important; object-fit: contain !important; display: block; }
 
-        .nav-right { display: flex; align-items: center; gap: 15px; }
-        .icon-btn { font-size: 26px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; transition: transform 0.2s; }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .icon-btn { font-size: 22px; cursor: pointer; background: #f0f9ff; border: 1px solid #bae6fd; width: 42px; height: 42px; border-radius: 12px; color: #0ea5e9; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .icon-btn:hover { background: #e0f2fe; transform: scale(1.1); }
 
-        /* Sidebar โทนฟ้าพาสเทล */
+        /* Sidebar ดีไซน์ตามมาตรฐาน */
         .sidebar {
             position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
-            background-color: #f0f9ff; 
-            box-shadow: 4px 0 25px rgba(0,0,0,0.1);
-            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 30px;
+            background-color: #ffffff; 
+            box-shadow: 6px 0 30px rgba(0,0,0,0.1);
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 25px 20px;
             overflow-y: auto;
         }
         .sidebar.active { left: 0; }
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .sidebar-header h3 { color: #0284c7; }
-        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0284c7; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f0f9ff; padding-bottom: 15px; }
+        .sidebar-header h3 { color: #0284c7; font-weight: 700; font-size: 22px; }
+        .close-btn { background: #f0f9ff; border: none; width: 38px; height: 38px; border-radius: 50%; font-size: 18px; cursor: pointer; color: #0284c7; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .close-btn:hover { background: #e0f2fe; transform: scale(1.1); }
         
-        .sidebar-menu { list-style: none; }
+        .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 6px; }
         .sidebar-menu li a { 
-            display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; 
-            border-bottom: 1px solid #bae6fd; transition: all 0.2s; 
+            display: flex; align-items: center; gap: 15px; padding: 12px 16px; color: #334155; text-decoration: none; font-weight: 400; border-radius: 14px; transition: all 0.2s ease; 
         }
-        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; padding-left: 5px; }
+        .sidebar-menu li a:hover { background: #f0f9ff; color: #0284c7; transform: translateX(4px); }
+        .sidebar-menu li a.active { background: #f0f9ff; color: #0284c7; font-weight: 600; }
+        .sidebar-menu li a .menu-icon { font-size: 20px; width: 28px; text-align: center; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: none; z-index: 150; backdrop-filter: blur(2px); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: none; z-index: 150; backdrop-filter: blur(4px); transition: opacity 0.3s; }
         .overlay.active { display: block; }
 
         /* Container เนื้อหาหลัก */
         .container { max-width: 900px; margin: 30px auto 60px auto; padding: 0 20px; }
         
         .header-section { margin-bottom: 30px; text-align: center; }
-        .header-section h2 { font-size: 28px; font-weight: 700; color: #0369a1; }
-        .header-section p { font-size: 15px; color: #475569; margin-top: 8px; }
+        .header-section h2 { 
+            font-size: 28px; font-weight: 700; color: #0284c7; 
+            background: linear-gradient(135deg, #0284c7, #0ea5e9); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        }
+        .header-section p { font-size: 15px; color: #64748b; margin-top: 5px; }
 
-        /* หน้าหลัก: เรียง 4 ข้อแนวตั้ง 1 คอลัมน์ */
+        /* หน้าหลัก: การ์ดเลือกช่วงวัย */
         #mainCategoryView { display: block; }
-        .age-group-list { display: flex; flex-direction: column; gap: 16px; }
+        .age-group-list { display: flex; flex-direction: column; gap: 18px; }
         
         .age-card { 
-            background: linear-gradient(135deg, #ffffff, #f0f9ff); 
-            border-radius: 18px; 
-            border: 2px solid #bae6fd;
+            background: #ffffff; 
+            border-radius: 20px; 
+            border: 1px solid rgba(186, 230, 253, 0.8);
             padding: 22px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.06);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .age-card:hover { 
             border-color: #0284c7; 
-            transform: translateX(6px);
-            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.15);
-            background: linear-gradient(135deg, #ffffff, #e0f2fe);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(14, 165, 233, 0.15);
+            background: #ffffff;
         }
         
-        .age-card-left { display: flex; align-items: center; gap: 18px; }
+        .age-card-left { display: flex; align-items: center; gap: 20px; }
         .age-icon-box {
-            width: 55px; height: 55px; background: #e0f2fe; border: 2px solid #7dd3fc; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.1);
+            width: 60px; height: 60px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0;
         }
         .age-title-box { display: flex; flex-direction: column; gap: 4px; }
-        .age-title { font-weight: 700; color: #0369a1; font-size: 18px; }
-        .age-desc { font-size: 13px; color: #64748b; font-weight: 400; line-height: 1.4; }
+        .age-title { font-weight: 700; color: #0369a1; font-size: 17px; }
+        .age-desc { font-size: 13px; color: #475569; font-weight: 400; line-height: 1.4; }
+        
         .arrow-badge { 
-            width: 36px; height: 36px; background: #0ea5e9; color: white; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold;
-            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.25); transition: transform 0.2s;
+            width: 38px; height: 38px; background: #e0f2fe; color: #0284c7; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold;
+            border: 1px solid #bae6fd; transition: all 0.2s;
         }
-        .age-card:hover .arrow-badge { transform: scale(1.1); background: #0284c7; }
+        .age-card:hover .arrow-badge { transform: scale(1.1); background: #0284c7; color: #ffffff; border-color: #0284c7; }
 
         /* หน้าเนื้อหาเจาะลึก */
         #detailView { display: none; }
@@ -112,51 +120,58 @@
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
         }
         .btn-back {
-            background-color: #ffffff; color: #0284c7; border: 2px solid #bae6fd;
-            padding: 10px 20px; border-radius: 12px; font-size: 15px; font-weight: 600;
+            background-color: #ffffff; color: #0284c7; border: 1px solid #bae6fd;
+            padding: 10px 20px; border-radius: 14px; font-size: 14px; font-weight: 600;
             cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
-            transition: 0.2s; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+            transition: all 0.2s; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.06);
         }
-        .btn-back:hover { background-color: #f0f9ff; border-color: #0284c7; transform: translateX(-3px); }
+        .btn-back:hover { background-color: #e0f2fe; border-color: #0284c7; transform: translateX(-3px); }
 
-        /* ปุ่มแท็บหมวดหมู่ด้านใน */
-        .filter-btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 25px; }
+        .filter-btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; }
         .filter-tab {
-            background: #ffffff; border: 2px solid #bae6fd; padding: 10px 16px; border-radius: 12px;
-            font-size: 13px; font-weight: 600; color: #0369a1; cursor: pointer; transition: 0.2s;
+            background: #ffffff; border: 1px solid #bae6fd; padding: 10px 18px; border-radius: 14px;
+            font-size: 13px; font-weight: 600; color: #0369a1; cursor: pointer; transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.04);
         }
-        .filter-tab:hover { background: #e0f2fe; }
-        .filter-tab.active { background: #0ea5e9; color: #ffffff; border-color: #0284c7; }
+        .filter-tab:hover { background: #e0f2fe; transform: translateY(-2px); }
+        .filter-tab.active { background: linear-gradient(135deg, #0284c7, #0ea5e9); color: #ffffff; border-color: #0284c7; box-shadow: 0 6px 20px rgba(2, 132, 199, 0.25); }
 
         .detail-card {
-            background: #ffffff; border-radius: 24px; border: 2px solid #bae6fd;
+            background: #ffffff; border-radius: 24px; border: 1px solid rgba(186, 230, 253, 0.8);
             padding: 35px; margin-bottom: 30px; box-shadow: 0 10px 35px rgba(14, 165, 233, 0.08);
+            animation: fadeIn 0.4s ease;
         }
         .detail-title-header {
-            border-bottom: 3px solid #f0f9ff; padding-bottom: 20px; margin-bottom: 30px;
-            display: flex; align-items: center; gap: 15px;
+            border-bottom: 2px solid #f0f9ff; padding-bottom: 20px; margin-bottom: 30px;
+            display: flex; align-items: center; gap: 18px;
         }
-        .detail-header-icon { font-size: 38px; }
-        .detail-title-header h3 { font-size: 24px; color: #0369a1; font-weight: 700; }
+        .detail-header-icon {
+            font-size: 32px; background: #f0f9ff; width: 65px; height: 65px;
+            border-radius: 18px; display: flex; align-items: center; justify-content: center;
+            border: 1px solid #bae6fd; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.06);
+        }
+        .detail-title-header h3 { font-size: 22px; color: #0284c7; font-weight: 700; }
         
         .dev-section-box { margin-bottom: 35px; }
         .dev-section-box:last-child { margin-bottom: 0; }
         
         .dev-box-title {
             font-size: 16px; font-weight: 700; color: #0369a1; margin-bottom: 15px;
-            border-left: 5px solid #0ea5e9; padding-left: 14px; background-color: #f0f9ff; 
-            padding-top: 10px; padding-bottom: 10px; border-radius: 0 10px 10px 0;
+            border-left: 4px solid #0ea5e9; padding-left: 14px; background-color: #f0f9ff; 
+            padding-top: 12px; padding-bottom: 12px; border-radius: 0 12px 12px 0;
             display: flex; align-items: center; gap: 10px;
+            border-top: 1px solid rgba(186, 230, 253, 0.5);
+            border-right: 1px solid rgba(186, 230, 253, 0.5);
         }
         
         .dev-grid-list { display: grid; grid-template-columns: 1fr; gap: 12px; }
         .dev-item-card {
-            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 18px;
-            font-size: 14px; color: #334155; line-height: 1.6; display: flex; align-items: flex-start; gap: 12px;
-            transition: all 0.2s;
+            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px 20px;
+            font-size: 14px; color: #475569; line-height: 1.6; display: flex; align-items: flex-start; gap: 14px;
+            transition: all 0.2s; box-shadow: 0 2px 10px rgba(0,0,0,0.01);
         }
-        .dev-item-card:hover { border-color: #7dd3fc; background: #f0f9ff; transform: translateX(4px); }
-        .dev-dot { color: #0ea5e9; font-size: 18px; line-height: 1; margin-top: 2px; }
+        .dev-item-card:hover { border-color: #0ea5e9; background: #f8fafc; transform: translateX(4px); box-shadow: 0 6px 20px rgba(14, 165, 233, 0.08); }
+        .dev-dot { color: #0ea5e9; font-size: 16px; line-height: 1; margin-top: 3px; font-weight: bold; }
 
         @media (max-width: 768px) {
             .container { padding: 0 15px; }
@@ -168,35 +183,42 @@
 
     <div class="navbar">
         <div class="nav-left">
-            <button class="menu-btn" id="menuToggle">&#9776;</button>
+            <button class="menu-btn" id="menuToggle" onclick="playClickSound()">&#9776;</button>
             <div class="logo-container">
-                <img id="navProfileImg" src="logo.jpg.jpg" alt="Logo" class="logo-img">
-                <span class="logo-text">Baby Go</span>
+                <img src="logo-ai.png" alt="Baby Go AI Logo" class="main-logo-img">
             </div>
         </div>
         <div class="nav-right">
-            <a href="notifications.html" class="icon-btn" title="ศูนย์แจ้งเตือน">&#128276;</a>
-            <a href="profile.html" class="icon-btn" title="โปรไฟล์">&#128100;</a>
+            <a href="notifications.html" class="icon-btn" title="ศูนย์แจ้งเตือน" onclick="playClickSound()">&#128276;</a>
+            <a href="profile.html" class="icon-btn" title="โปรไฟล์" onclick="playClickSound()">&#128100;</a>
         </div>
     </div>
 
-    <div class="overlay" id="overlay"></div>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
     
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3>เมนู</h3>
-            <button class="close-btn" id="closeMenu">&#10005;</button>
+            <h3>เมนูหลัก</h3>
+            <button class="close-btn" id="closeMenu" onclick="playClickSound()">&#10005;</button>
         </div>
         <ul class="sidebar-menu">
-            <li><a href="content.html">หน้าแรก</a></li>
-            <li><a href="development.html" style="color: #0284c7; font-weight: 600;">พัฒนาการเด็ก</a></li>
-            <li><a href="vaccine.html">วัคซีน</a></li>
-            <li><a href="nutrition.html">โภชนาการ</a></li>
-            <li><a href="knowledge.html">ความรู้</a></li>
-            <li><a href="ai_assistant.html">AI วิเคราะห์</a></li>
-            <li><a href="community.html">ชุมชน</a></li>
-            <li><a href="contact.html">ติดต่อเรา</a></li>
-            <li><a href="login.html" style="color: #ef4444; font-weight: 600; border-bottom: none;">ออกจากระบบ</a></li>
+            <li><a href="content.html" onclick="playClickSound()"><span class="menu-icon">🏠</span> หน้าแรก</a></li>
+            <li><a href="development.html" class="active" onclick="playClickSound()"><span class="menu-icon">📈</span> พัฒนาการเด็ก</a></li>
+            <li><a href="vaccine.html" onclick="playClickSound()"><span class="menu-icon">💉</span> วัคซีน</a></li>
+            <li><a href="nutrition.html" onclick="playClickSound()"><span class="menu-icon">🍲</span> โภชนาการ</a></li>
+            <li><a href="knowledge.html" onclick="playClickSound()"><span class="menu-icon">📚</span> ความรู้</a></li>
+            <li><a href="ai_assistant.html" onclick="playClickSound()"><span class="menu-icon">🤖</span> AI วิเคราะห์</a></li>
+            <li><a href="community.html" onclick="playClickSound()"><span class="menu-icon">💬</span> ชุมชน</a></li>
+            <li><a href="contact.html" onclick="playClickSound()"><span class="menu-icon">📞</span> ติดต่อเรา</a></li>
+            
+            <!-- เพิ่มปุ่มหลังบ้านแอดมินพิเศษ แสดงเฉพาะ babygo.admin@gmail.com เท่านั้น -->
+            <li id="adminMenuLink" style="display: none;">
+                <a href="admin.html" onclick="playClickSound()" style="background: #fdf4ff; color: #d946ef; font-weight: 700;">
+                    <span class="menu-icon">⚙️</span> หลังบ้านแอดมิน
+                </a>
+            </li>
+
+            <li><a href="login.html" onclick="localStorage.removeItem('userEmail'); playClickSound();" style="color: #ef4444;"><span class="menu-icon">🚪</span> ออกจากระบบ</a></li>
         </ul>
     </div>
 
@@ -210,7 +232,7 @@
             </div>
 
             <div class="age-group-list">
-                <div class="age-card" onclick="openAgeDetail('0-1')">
+                <div class="age-card" onclick="playClickSound(); openAgeDetail('0-1')">
                     <div class="age-card-left">
                         <div class="age-icon-box">&#128118;</div>
                         <div class="age-title-box">
@@ -221,7 +243,7 @@
                     <div class="arrow-badge">&rsaquo;</div>
                 </div>
 
-                <div class="age-card" onclick="openAgeDetail('1-3')">
+                <div class="age-card" onclick="playClickSound(); openAgeDetail('1-3')">
                     <div class="age-card-left">
                         <div class="age-icon-box">&#128102;</div>
                         <div class="age-title-box">
@@ -232,7 +254,7 @@
                     <div class="arrow-badge">&rsaquo;</div>
                 </div>
 
-                <div class="age-card" onclick="openAgeDetail('3-6')">
+                <div class="age-card" onclick="playClickSound(); openAgeDetail('3-6')">
                     <div class="age-card-left">
                         <div class="age-icon-box">&#127891;</div>
                         <div class="age-title-box">
@@ -243,7 +265,7 @@
                     <div class="arrow-badge">&rsaquo;</div>
                 </div>
 
-                <div class="age-card" onclick="openAgeDetail('6-up')">
+                <div class="age-card" onclick="playClickSound(); openAgeDetail('6-up')">
                     <div class="age-card-left">
                         <div class="age-icon-box">&#128218;</div>
                         <div class="age-title-box">
@@ -259,7 +281,7 @@
         <!-- หน้าเนื้อหาเจาะลึกพร้อมปุ่มเลือกหมวดหมู่ -->
         <div id="detailView">
             <div class="top-action-bar">
-                <button class="btn-back" onclick="goBackToMain()">&#8249; ย้อนกลับหน้าหลัก</button>
+                <button class="btn-back" onclick="playClickSound(); goBackToMain()">&#8249; ย้อนกลับหน้าหลัก</button>
             </div>
             
             <div class="filter-btn-group">
@@ -276,6 +298,37 @@
     </div>
 
     <script>
+        let audioCtx = null;
+
+        function playClickSound() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.06);
+                
+                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.06);
+            } catch (err) {
+                console.log("Audio not supported or blocked", err);
+            }
+        }
+
         const developmentData = {
             "0-1": {
                 title: "ช่วงวัยเด็กทารก (แรกเกิด - 1 ปี / Infancy)",
@@ -502,7 +555,7 @@
 
             const container = document.getElementById('detailContentContainer');
             container.innerHTML = `
-                <div class="detail-card">
+                <div class="detail-card animated-fade">
                     <div class="detail-title-header">
                         <div class="detail-header-icon">${data.icon}</div>
                         <h3>${data.title}</h3>
@@ -513,6 +566,7 @@
         }
 
         function setCategoryFilter(type, btnElem) {
+            playClickSound();
             currentFilterType = type;
             document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
             btnElem.classList.add('active');
@@ -529,15 +583,35 @@
         const closeMenu = document.getElementById('closeMenu');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
-        function toggleMenu() { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); }
+        
+        function toggleMenu() { 
+            sidebar.classList.toggle('active'); 
+            overlay.classList.toggle('active'); 
+        }
+        
         menuToggle.addEventListener('click', toggleMenu);
         closeMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
+        const ADMIN_EMAIL = 'babygo.admin@gmail.com';
+
+        // ตรวจสอบสิทธิ์แอดมินเพื่อแสดงปุ่มหลังบ้าน และโหลดรูปโปรไฟล์
         window.addEventListener('DOMContentLoaded', () => {
-            const savedImg = localStorage.getItem('userProfileImg');
-            if (savedImg) {
-                document.getElementById('navProfileImg').src = savedImg;
+            const currentEmail = localStorage.getItem('userEmail');
+            if (currentEmail) {
+                const safeKey = currentEmail.replace(/[@.]/g, '_');
+                const savedImg = localStorage.getItem('userProfileImg_' + safeKey);
+                if (savedImg) {
+                    const profileIcon = document.querySelector('a[href="profile.html"]');
+                    if(profileIcon) {
+                        profileIcon.innerHTML = `<img src="${savedImg}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                    }
+                }
+
+                if (currentEmail.toLowerCase() === ADMIN_EMAIL) {
+                    const adminLink = document.getElementById('adminMenuLink');
+                    if (adminLink) adminLink.style.display = 'block';
+                }
             }
         });
     </script>

@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
-        body { background-color: #f0f9ff; color: #333333; font-size: 15px; overflow-x: hidden; }
+        body { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%); color: #333333; font-size: 15px; min-height: 100vh; overflow-x: hidden; }
         
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(15px); }
@@ -16,77 +16,86 @@
         .animated-fade { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         .navbar {
-            background-color: #ffffff;
-            padding: 15px 25px;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 25px;
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid #bae6fd;
+            border-bottom: 1px solid rgba(186, 230, 253, 0.6);
             position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.08);
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.05);
         }
-        .nav-left { display: flex; align-items: center; gap: 20px; }
-        .menu-btn { font-size: 28px; cursor: pointer; color: #0284c7; background: none; border: none; transition: transform 0.2s; }
-        .menu-btn:hover { transform: scale(1.1); }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .menu-btn { font-size: 26px; cursor: pointer; color: #0284c7; background: #e0f2fe; border: none; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .menu-btn:hover { background: #bae6fd; transform: scale(1.1) rotate(90deg); }
         
-        .logo-container { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-        .logo-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #0ea5e9; }
-        .logo-text { font-size: 20px; font-weight: 600; color: #0284c7; }
+        .logo-container { display: flex; align-items: center; }
+        .main-logo-img { height: 60px !important; width: auto !important; object-fit: contain !important; display: block; }
 
-        .nav-right { display: flex; align-items: center; gap: 15px; }
-        .icon-btn { font-size: 26px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; transition: transform 0.2s; }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .icon-btn { font-size: 22px; cursor: pointer; background: #f0f9ff; border: 1px solid #bae6fd; width: 42px; height: 42px; border-radius: 12px; color: #0ea5e9; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: all 0.2s; position: relative; overflow: hidden; }
+        .icon-btn:hover { background: #e0f2fe; transform: scale(1.1); }
 
         .sidebar {
             position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
-            background-color: #f0f9ff; 
-            box-shadow: 4px 0 25px rgba(0,0,0,0.1);
-            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 30px;
+            background-color: #ffffff; 
+            box-shadow: 6px 0 30px rgba(0,0,0,0.1);
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 25px 20px;
             overflow-y: auto;
         }
         .sidebar.active { left: 0; }
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .sidebar-header h3 { color: #0284c7; }
-        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0284c7; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f0f9ff; padding-bottom: 15px; }
+        .sidebar-header h3 { color: #0284c7; font-weight: 700; font-size: 22px; }
+        .close-btn { background: #f0f9ff; border: none; width: 38px; height: 38px; border-radius: 50%; font-size: 18px; cursor: pointer; color: #0284c7; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .close-btn:hover { background: #e0f2fe; transform: scale(1.1); }
         
-        .sidebar-menu { list-style: none; }
+        .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 6px; }
         .sidebar-menu li a { 
-            display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; 
-            border-bottom: 1px solid #bae6fd; transition: all 0.2s; 
+            display: flex; align-items: center; gap: 15px; padding: 12px 16px; color: #334155; text-decoration: none; font-weight: 400; border-radius: 14px; transition: all 0.2s ease; 
         }
-        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; padding-left: 5px; }
+        .sidebar-menu li a:hover { background: #f0f9ff; color: #0284c7; transform: translateX(4px); }
+        .sidebar-menu li a.active { background: #f0f9ff; color: #0284c7; font-weight: 600; }
+        .sidebar-menu li a .menu-icon { font-size: 20px; width: 28px; text-align: center; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: none; z-index: 150; backdrop-filter: blur(2px); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: none; z-index: 150; backdrop-filter: blur(4px); transition: opacity 0.3s; }
         .overlay.active { display: block; }
 
         .container { max-width: 650px; margin: 30px auto 60px auto; padding: 0 20px; }
         
-        .header-section { margin-bottom: 25px; text-align: center; }
-        .header-section h2 { font-size: 28px; font-weight: 700; color: #0369a1; }
-        .header-section p { font-size: 15px; color: #475569; margin-top: 8px; }
+        .header-section { margin-bottom: 30px; text-align: center; }
+        .header-section h2 { 
+            font-size: 28px; font-weight: 700; color: #0284c7; 
+            background: linear-gradient(135deg, #0284c7, #0ea5e9); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        }
+        .header-section p { font-size: 15px; color: #64748b; margin-top: 5px; }
 
-        .top-action-bar { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+        .top-action-bar { display: flex; gap: 12px; margin-bottom: 25px; flex-wrap: wrap; }
         .action-btn {
             background-color: #0ea5e9; color: white; border: none; padding: 12px 20px;
             border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer;
-            transition: 0.2s; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2); flex: 1; min-width: 150px;
+            transition: 0.2s; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2); flex: 1; min-width: 150px;
             display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-family: 'Prompt', sans-serif;
         }
         .action-btn:hover { background-color: #0284c7; transform: translateY(-2px); }
-        .btn-my-posts { background-color: #8b5cf6; }
+        .btn-my-posts { background-color: #8b5cf6; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2); }
         .btn-my-posts:hover { background-color: #7c3aed; }
-        .btn-back-all { background-color: #64748b; display: none; }
+        .btn-back-all { background-color: #64748b; display: none; box-shadow: 0 4px 15px rgba(100, 116, 139, 0.2); }
         .btn-back-all:hover { background-color: #475569; }
 
         #postModal {
-            background: #ffffff; border: 2px solid #bae6fd; border-radius: 20px;
-            padding: 30px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(14, 165, 233, 0.08);
-            display: none;
+            background: #ffffff; border: 1.5px solid rgba(186, 230, 253, 0.8); border-radius: 24px;
+            padding: 30px; margin-bottom: 25px; box-shadow: 0 10px 35px rgba(14, 165, 233, 0.08);
+            display: none; animation: fadeIn 0.4s ease;
         }
         .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; font-weight: 600; color: #0369a1; margin-bottom: 6px; font-size: 14px; }
+        .form-group label { display: block; font-weight: 700; color: #0369a1; margin-bottom: 6px; font-size: 14px; }
         .form-control {
-            width: 100%; padding: 12px 16px; border: 2px solid #bae6fd; border-radius: 12px;
+            width: 100%; padding: 12px 16px; border: 1.5px solid #bae6fd; border-radius: 14px;
             font-size: 14px; outline: none; font-family: 'Prompt', sans-serif; color: #334155; background: #f8fafc;
+            transition: all 0.2s;
         }
-        .form-control:focus { border-color: #0284c7; background: #ffffff; }
+        .form-control:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
         textarea.form-control { resize: vertical; min-height: 120px; }
 
         .checkbox-container {
@@ -97,86 +106,92 @@
 
         .post-list { display: flex; flex-direction: column; gap: 16px; }
         .post-card { 
-            background-color: #ffffff; padding: 22px 25px; border-radius: 18px; border: 2px solid #bae6fd;
-            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.05); transition: all 0.3s; position: relative;
+            background-color: #ffffff; padding: 22px 25px; border-radius: 20px; border: 1.5px solid rgba(186, 230, 253, 0.8);
+            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.05); transition: all 0.3s; position: relative;
         }
-        .post-card:hover { border-color: #0284c7; box-shadow: 0 10px 25px rgba(14, 165, 233, 0.12); }
+        .post-card:hover { border-color: #0284c7; box-shadow: 0 12px 30px rgba(14, 165, 233, 0.12); transform: translateY(-2px); }
         
-        .post-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .post-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .post-author { font-size: 13px; font-weight: 600; color: #0284c7; display: flex; align-items: center; gap: 6px; }
-        .anonymous-badge { background: #e2e8f0; color: #475569; font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 500; }
-        .post-time { font-size: 12px; color: #94a3b8; }
+        .anonymous-badge { background: #f1f5f9; color: #475569; font-size: 11px; padding: 3px 10px; border-radius: 8px; font-weight: 600; border: 1px solid #e2e8f0; }
+        .post-time { font-size: 12px; color: #94a3b8; font-weight: 500; }
 
         .post-title { font-weight: 700; color: #0369a1; font-size: 18px; margin-bottom: 8px; cursor: pointer; }
         .post-title:hover { color: #0284c7; text-decoration: underline; }
         .post-desc { font-size: 14px; color: #475569; margin-bottom: 15px; line-height: 1.6; }
         
-        .post-footer { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #64748b; border-top: 2px solid #f0f9ff; padding-top: 12px; }
+        .post-footer { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #64748b; border-top: 1px solid #f0f9ff; padding-top: 12px; }
         
         .interaction-group { display: flex; gap: 15px; align-items: center; }
-        .interaction-btn { background: none; border: none; cursor: pointer; font-size: 13px; color: #64748b; display: inline-flex; align-items: center; gap: 5px; font-weight: 500; transition: 0.2s; }
+        .interaction-btn { background: none; border: none; cursor: pointer; font-size: 13px; color: #64748b; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; transition: 0.2s; }
         .interaction-btn:hover { color: #0ea5e9; }
-        .interaction-btn.liked { color: #ef4444; font-weight: 600; }
+        .interaction-btn.liked { color: #ef4444; font-weight: 700; }
 
         .owner-actions { display: flex; gap: 8px; }
-        .btn-edit-sm { background-color: #e0f2fe; color: #0284c7; border: none; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
-        .btn-edit-sm:hover { background-color: #0ea5e9; color: #fff; }
-        .btn-delete-sm { background-color: #fee2e2; color: #ef4444; border: none; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .btn-edit-sm { background-color: #e0f2fe; color: #0284c7; border: none; padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-edit-sm:hover { background-color: #0284c7; color: #fff; }
+        .btn-delete-sm { background-color: #fee2e2; color: #ef4444; border: none; padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .btn-delete-sm:hover { background-color: #ef4444; color: #fff; }
 
         #postDetailView { display: none; }
         .btn-back {
-            background-color: #ffffff; color: #0284c7; border: 2px solid #bae6fd;
-            padding: 10px 20px; border-radius: 12px; font-size: 15px; font-weight: 600;
+            background-color: #ffffff; color: #0284c7; border: 1.5px solid #bae6fd;
+            padding: 10px 20px; border-radius: 14px; font-size: 14px; font-weight: 600;
             cursor: pointer; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 25px;
-            transition: 0.2s; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+            transition: 0.2s; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.06);
         }
-        .btn-back:hover { background-color: #f0f9ff; border-color: #0284c7; transform: translateX(-3px); }
+        .btn-back:hover { background-color: #e0f2fe; border-color: #0284c7; transform: translateX(-3px); }
 
         .detail-card {
-            background: #ffffff; border-radius: 20px; border: 2px solid #bae6fd;
-            padding: 30px; box-shadow: 0 10px 30px rgba(14, 165, 233, 0.08); margin-bottom: 25px;
+            background: #ffffff; border-radius: 24px; border: 1.5px solid rgba(186, 230, 253, 0.8);
+            padding: 30px; box-shadow: 0 10px 35px rgba(14, 165, 233, 0.08); margin-bottom: 25px;
         }
         .comment-section { margin-top: 25px; }
-        .comment-section h4 { color: #0369a1; font-size: 16px; margin-bottom: 15px; }
+        .comment-section h4 { color: #0369a1; font-size: 16px; margin-bottom: 15px; font-weight: 700; }
         .comment-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-        .comment-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 12px; font-size: 14px; color: #334155; }
-        .comment-author { font-weight: 600; color: #0284c7; font-size: 12px; margin-bottom: 4px; }
+        .comment-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px 16px; border-radius: 14px; font-size: 14px; color: #334155; }
+        .comment-author { font-weight: 700; color: #0284c7; font-size: 12px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
     <div class="navbar">
         <div class="nav-left">
-            <button class="menu-btn" id="menuToggle">&#9776;</button>
+            <button class="menu-btn" id="menuToggle" onclick="playClickSound()">&#9776;</button>
             <div class="logo-container">
-                <img id="navProfileImg" src="logo.jpg.jpg" alt="Logo" class="logo-img">
-                <span class="logo-text">Baby Go</span>
+                <img src="logo-ai.png" alt="Baby Go AI Logo" class="main-logo-img">
             </div>
         </div>
         <div class="nav-right">
-            <a href="notifications.html" class="icon-btn" title="แจ้งเตือน">&#128276;</a>
-            <a href="profile.html" class="icon-btn" title="โปรไฟล์">&#128100;</a>
+            <a href="notifications.html" class="icon-btn" title="แจ้งเตือน" onclick="playClickSound()">&#128276;</a>
+            <a href="profile.html" class="icon-btn" id="profileNavBtn" title="โปรไฟล์" onclick="playClickSound()">&#128100;</a>
         </div>
     </div>
 
-    <div class="overlay" id="overlay"></div>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
     
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3>เมนู</h3>
-            <button class="close-btn" id="closeMenu">&#10005;</button>
+            <h3>เมนูหลัก</h3>
+            <button class="close-btn" id="closeMenu" onclick="playClickSound()">&#10005;</button>
         </div>
         <ul class="sidebar-menu">
-            <li><a href="content.html">หน้าแรก</a></li>
-            <li><a href="development.html">พัฒนาการเด็ก</a></li>
-            <li><a href="vaccine.html">วัคซีน</a></li>
-            <li><a href="nutrition.html">โภชนาการ</a></li>
-            <li><a href="knowledge.html">ความรู้</a></li>
-            <li><a href="ai_assistant.html">AI วิเคราะห์</a></li>
-            <li><a href="community.html" style="color: #0284c7; font-weight: 600;">ชุมชน</a></li>
-            <li><a href="contact.html">ติดต่อเรา</a></li>
-            <li><a href="login.html" style="color: #ef4444; font-weight: 600; border-bottom: none;">ออกจากระบบ</a></li>
+            <li><a href="content.html" onclick="playClickSound()"><span class="menu-icon">🏠</span> หน้าแรก</a></li>
+            <li><a href="development.html" onclick="playClickSound()"><span class="menu-icon">📈</span> พัฒนาการเด็ก</a></li>
+            <li><a href="vaccine.html" onclick="playClickSound()"><span class="menu-icon">💉</span> วัคซีน</a></li>
+            <li><a href="nutrition.html" onclick="playClickSound()"><span class="menu-icon">🍲</span> โภชนาการ</a></li>
+            <li><a href="knowledge.html" onclick="playClickSound()"><span class="menu-icon">📚</span> ความรู้</a></li>
+            <li><a href="ai_assistant.html" onclick="playClickSound()"><span class="menu-icon">🤖</span> AI วิเคราะห์</a></li>
+            <li><a href="community.html" class="active" onclick="playClickSound()"><span class="menu-icon">💬</span> ชุมชน</a></li>
+            <li><a href="contact.html" onclick="playClickSound()"><span class="menu-icon">📞</span> ติดต่อเรา</a></li>
+            
+            <li id="adminMenuLink" style="display: none;">
+                <a href="admin.html" onclick="playClickSound()" style="background: #fdf4ff; color: #d946ef; font-weight: 700;">
+                    <span class="menu-icon">⚙️</span> หลังบ้านแอดมิน
+                </a>
+            </li>
+
+            <li><a href="login.html" onclick="localStorage.removeItem('userEmail'); playClickSound();" style="color: #ef4444;"><span class="menu-icon">🚪</span> ออกจากระบบ</a></li>
         </ul>
     </div>
 
@@ -189,13 +204,13 @@
             </div>
 
             <div class="top-action-bar">
-                <button class="action-btn" onclick="togglePostModal()">ตั้งกระทู้</button>
-                <button class="action-btn btn-my-posts" id="myPostsBtn" onclick="filterMyPosts()">📄 กระทู้ของฉัน (<span id="myPostsCountBadge">0</span>)</button>
-                <button class="action-btn btn-back-all" id="backAllBtn" onclick="showAllPosts()">← กลับไปกระทู้รวมทั้งหมด</button>
+                <button class="action-btn" onclick="playClickSound(); togglePostModal()">ตั้งกระทู้</button>
+                <button class="action-btn btn-my-posts" id="myPostsBtn" onclick="playClickSound(); filterMyPosts()">📄 กระทู้ของฉัน (<span id="myPostsCountBadge">0</span>)</button>
+                <button class="action-btn btn-back-all" id="backAllBtn" onclick="playClickSound(); showAllPosts()">← กลับไปกระทู้รวมทั้งหมด</button>
             </div>
 
             <div id="postModal">
-                <h3 id="modalTitleText" style="color: #0369a1; margin-bottom: 15px;">✍️ ตั้งกระทู้ใหม่ในชุมชน</h3>
+                <h3 id="modalTitleText" style="color: #0369a1; margin-bottom: 15px; font-weight: 700;">✍️ ตั้งกระทู้ใหม่ในชุมชน</h3>
                 <input type="hidden" id="editPostId" value="">
                 <div class="form-group">
                     <label>หัวข้อกระทู้ / คำถาม:</label>
@@ -212,8 +227,8 @@
                 </label>
 
                 <div style="display: flex; gap: 10px;">
-                    <button class="action-btn" style="background-color: #10b981; margin:0;" onclick="savePostData()">ยืนยันการโพสต์</button>
-                    <button class="action-btn" style="background-color: #94a3b8; margin:0;" onclick="togglePostModal()">ยกเลิก</button>
+                    <button class="action-btn" style="background-color: #10b981; margin:0;" onclick="playClickSound(); savePostData()">ยืนยันการโพสต์</button>
+                    <button class="action-btn" style="background-color: #94a3b8; margin:0;" onclick="playClickSound(); togglePostModal()">ยกเลิก</button>
                 </div>
             </div>
 
@@ -221,13 +236,44 @@
         </div>
 
         <div id="postDetailView">
-            <button class="btn-back" onclick="goBackToFeed()">&#8249; ย้อนกลับหน้าชุมชน</button>
+            <button class="btn-back" onclick="playClickSound(); goBackToFeed()">&#8249; ย้อนกลับหน้าชุมชน</button>
             <div id="postDetailContainer"></div>
         </div>
 
     </div>
 
     <script>
+        let audioCtx = null;
+
+        function playClickSound() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.06);
+                
+                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.06);
+            } catch (err) {
+                console.log("Audio not supported or blocked", err);
+            }
+        }
+
         const menuToggle = document.getElementById('menuToggle');
         const closeMenu = document.getElementById('closeMenu');
         const sidebar = document.getElementById('sidebar');
@@ -237,14 +283,31 @@
         closeMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        const currentUsername = localStorage.getItem('userName') || localStorage.getItem('userAccountName') || 'คุณแม่มือใหม่';
+        function getCurrentEmail() {
+            return localStorage.getItem('userEmail') || 'guest@babygo.com';
+        }
+
+        function getCurrentSafeKey() {
+            return getCurrentEmail().replace(/[@.]/g, '_');
+        }
+
+        function getCurrentUsername() {
+            const safeKey = getCurrentSafeKey();
+            return localStorage.getItem('userName_' + safeKey) || localStorage.getItem('userName') || 'คุณแม่มือใหม่';
+        }
+
+        const currentEmail = getCurrentEmail();
+        const currentUsername = getCurrentUsername();
+        const ADMIN_EMAIL = 'babygo.admin@gmail.com';
+        const isAdmin = (currentEmail.toLowerCase() === ADMIN_EMAIL);
 
         const singleDefaultPost = {
             id: "post_1",
             author: "คุณแม่น้องไทเกอร์",
+            userEmail: "default@babygo.com",
             isAnonymous: false,
             title: "แชร์ไอเดียเมนูลับทำให้น้องยอมกินผักค่ะ!",
-            desc: "พอลองเอาแครอทไปต้มแล้วปั่นผสมกับข้าวตุ๋น ปั้นเป็นก้อนเล็กๆ น้องหยิบกินเองสนุกมาก แม่ๆ บ้านไหนลองทำดูนะคะ ได้ผลดีมากเลยค่ะ",
+            desc: "พอลองเอาแครอทไปต้มแล้วปั้นผสมกับข้าวตุ๋น ปั้นเป็นก้อนเล็กๆ น้องหยิบกินเองสนุกมาก แม่ๆ บ้านไหนลองทำดูนะคะ ได้ผลดีมากเลยค่ะ",
             time: "3 ชั่วโมงที่แล้ว",
             likes: 0,
             isLiked: false,
@@ -260,8 +323,23 @@
         let showingMyPostsOnly = false;
 
         function updateMyPostsBadge() {
-            const myCount = savedPosts.filter(p => p.author === currentUsername && !p.isAnonymous).length;
+            const myCount = savedPosts.filter(p => p.userEmail === currentEmail && !p.isAnonymous).length;
             document.getElementById('myPostsCountBadge').innerText = myCount;
+        }
+
+        function addNotification(targetEmail, title, message) {
+            if (!targetEmail) return;
+            const targetSafeKey = targetEmail.replace(/[@.]/g, '_');
+            let notifs = JSON.parse(localStorage.getItem('userNotifications_' + targetSafeKey)) || [];
+            notifs.unshift({
+                id: Date.now(),
+                title: title,
+                message: message,
+                date: new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }),
+                read: false
+            });
+            localStorage.setItem('userNotifications_' + targetSafeKey, JSON.stringify(notifs));
+            localStorage.setItem('babyGoHasNewNotification_' + targetSafeKey, 'true');
         }
 
         function renderPosts(isMyList = false) {
@@ -280,7 +358,7 @@
             }
             
             let targetList = isMyList 
-                ? savedPosts.filter(p => p.author === currentUsername && !p.isAnonymous)
+                ? savedPosts.filter(p => p.userEmail === currentEmail && !p.isAnonymous)
                 : savedPosts;
 
             if (targetList.length === 0) {
@@ -291,29 +369,31 @@
 
             targetList.forEach((post) => {
                 let authorDisplay = post.isAnonymous ? `<span class="anonymous-badge">🕵️‍♀️ คุณแม่นิรนาม</span>` : `👤 ${post.author}`;
-                let isOwner = (post.author === currentUsername && !post.isAnonymous);
                 
-                let ownerButtonsHtml = isOwner ? `
+                let isOwner = (post.userEmail === currentEmail && !post.isAnonymous);
+                let canManage = isOwner || isAdmin;
+                
+                let ownerButtonsHtml = canManage ? `
                     <div class="owner-actions">
-                        <button class="btn-edit-sm" onclick="editPost('${post.id}')">แก้ไข</button>
-                        <button class="btn-delete-sm" onclick="deletePost(event, '${post.id}')">ลบ</button>
+                        ${isOwner ? `<button class="btn-edit-sm" onclick="playClickSound(); editPost('${post.id}')">แก้ไข</button>` : ''}
+                        <button class="btn-delete-sm" onclick="playClickSound(); deletePost(event, '${post.id}')">ลบ</button>
                     </div>
                 ` : '';
 
                 html += `
                     <div class="post-card animated-fade">
                         <div class="post-header-info">
-                            <div class="post-author">${authorDisplay}</div>
+                            <div class="post-author">${authorDisplay} ${isAdmin && !isOwner ? '<span style="color: #d946ef; font-size: 11px; margin-left: 5px;">[Admin Mode]</span>' : ''}</div>
                             <div class="post-time">${post.time}</div>
                         </div>
-                        <div class="post-title" onclick="openPostDetail('${post.id}')">${post.title}</div>
+                        <div class="post-title" onclick="playClickSound(); openPostDetail('${post.id}')">${post.title}</div>
                         <div class="post-desc">${post.desc}</div>
                         <div class="post-footer">
                             <div class="interaction-group">
-                                <button class="interaction-btn ${post.isLiked ? 'liked' : ''}" onclick="toggleLikeFromFeed(event, '${post.id}')">
+                                <button class="interaction-btn ${post.isLiked ? 'liked' : ''}" onclick="playClickSound(); toggleLikeFromFeed(event, '${post.id}')">
                                     ${post.isLiked ? '❤️' : '🤍'} ${post.likes || 0} ถูกใจ
                                 </button>
-                                <button class="interaction-btn" onclick="openPostDetail('${post.id}')">
+                                <button class="interaction-btn" onclick="playClickSound(); openPostDetail('${post.id}')">
                                     💬 ${post.comments ? post.comments.length : 0} ความคิดเห็น
                                 </button>
                             </div>
@@ -337,6 +417,9 @@
                 } else {
                     post.likes = (post.likes || 0) + 1;
                     post.isLiked = true;
+                    if (post.userEmail && post.userEmail !== currentEmail) {
+                        addNotification(post.userEmail, "มีคนถูกใจกระทู้ของคุณ!", `มีแม่ๆ ในชุมชนกดถูกใจกระทู้ "${post.title}" ของคุณ (${post.likes} ถูกใจ)`);
+                    }
                 }
                 localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
                 renderPosts(showingMyPostsOnly);
@@ -372,6 +455,10 @@
             if (editId) {
                 const post = savedPosts.find(p => p.id === editId);
                 if (post) {
+                    if (post.userEmail !== currentEmail && !isAdmin) {
+                        alert('คุณไม่มีสิทธิ์แก้ไขกระทู้ของผู้อื่นครับ!');
+                        return;
+                    }
                     post.title = title;
                     post.desc = desc;
                     post.isAnonymous = isAnonymous;
@@ -381,6 +468,7 @@
                 const newPost = {
                     id: "post_" + Date.now(),
                     author: currentUsername,
+                    userEmail: currentEmail,
                     isAnonymous: isAnonymous,
                     title: title,
                     desc: desc,
@@ -402,6 +490,11 @@
             const post = savedPosts.find(p => p.id === postId);
             if (!post) return;
 
+            if (post.userEmail !== currentEmail && !isAdmin) {
+                alert('คุณไม่มีสิทธิ์แก้ไขกระทู้ของผู้อื่นครับ!');
+                return;
+            }
+
             document.getElementById('modalTitleText').innerText = '✏️ แก้ไขกระทู้ของคุณ';
             document.getElementById('editPostId').value = post.id;
             document.getElementById('postTitleInput').value = post.title;
@@ -415,6 +508,14 @@
 
         function deletePost(event, postId) {
             event.stopPropagation();
+            const post = savedPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            if (post.userEmail !== currentEmail && !isAdmin) {
+                alert('คุณไม่มีสิทธิ์ลบกระทู้ของผู้อื่นครับ!');
+                return;
+            }
+
             if (confirm('คุณต้องการลบกระทู้นี้ใช่หรือไม่?')) {
                 savedPosts = savedPosts.filter(p => p.id !== postId);
                 localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
@@ -463,8 +564,8 @@
                     <h2 style="color: #0369a1; font-size: 22px; margin-bottom: 12px; font-weight: 700;">${post.title}</h2>
                     <p style="color: #475569; font-size: 15px; line-height: 1.8; margin-bottom: 20px;">${post.desc}</p>
                     
-                    <div style="display: flex; gap: 15px; border-top: 2px solid #f0f9ff; padding-top: 15px;">
-                        <button class="interaction-btn ${post.isLiked ? 'liked' : ''}" onclick="toggleLikeDetail('${post.id}')" style="font-size: 14px;">
+                    <div style="display: flex; gap: 15px; border-top: 1px solid #f0f9ff; padding-top: 15px;">
+                        <button class="interaction-btn ${post.isLiked ? 'liked' : ''}" onclick="playClickSound(); toggleLikeDetail('${post.id}')" style="font-size: 14px;">
                             ${post.isLiked ? '❤️' : '🤍'} ${post.likes || 0} ถูกใจ
                         </button>
                     </div>
@@ -478,7 +579,7 @@
                         <div class="form-group" style="margin-top: 20px;">
                             <textarea id="newCommentInput" class="form-control" placeholder="แสดงความคิดเห็นหรือให้คำแนะนำคุณแม่..."></textarea>
                         </div>
-                        <button class="action-btn" style="margin: 0; padding: 10px;" onclick="submitComment()">ส่งความคิดเห็น</button>
+                        <button class="action-btn" style="margin: 0; padding: 12px;" onclick="playClickSound(); submitComment()">ส่งความคิดเห็น</button>
                     </div>
                 </div>
             `;
@@ -497,6 +598,9 @@
                 } else {
                     post.likes = (post.likes || 0) + 1;
                     post.isLiked = true;
+                    if (post.userEmail && post.userEmail !== currentEmail) {
+                        addNotification(post.userEmail, "มีคนถูกใจกระทู้ของคุณ!", `มีแม่ๆ ในชุมชนกดถูกใจกระทู้ "${post.title}" ของคุณ (${post.likes} ถูกใจ)`);
+                    }
                 }
                 localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
                 openPostDetail(postId);
@@ -518,6 +622,11 @@
                     text: commentText
                 });
                 localStorage.setItem('babyGoCommunityPosts', JSON.stringify(savedPosts));
+                
+                if (post.userEmail && post.userEmail !== currentEmail) {
+                    addNotification(post.userEmail, "มีความคิดเห็นใหม่ในกระทู้ของคุณ", `${currentUsername} แสดงความคิดเห็นในกระทู้ "${post.title}": "${commentText}"`);
+                }
+
                 openPostDetail(currentOpenPostId);
             }
         }
@@ -531,9 +640,16 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             renderPosts(false);
-            const savedImg = localStorage.getItem('userProfileImg');
+            const savedImg = localStorage.getItem('userProfileImg_' + getCurrentSafeKey());
             if (savedImg) {
-                document.getElementById('navProfileImg').src = savedImg;
+                const profileNavBtn = document.getElementById('profileNavBtn');
+                if (profileNavBtn) {
+                    profileNavBtn.innerHTML = `<img src="${savedImg}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                }
+            }
+
+            if (isAdmin) {
+                document.getElementById('adminMenuLink').style.display = 'block';
             }
         });
     </script>

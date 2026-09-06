@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Baby Go - AI หมอเด็กและผู้เชี่ยวชาญอัจฉริยะ 500 โรค</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
-        body { background-color: #f8fafc; color: #333333; font-size: 15px; overflow-x: hidden; }
+        body { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%); color: #333333; font-size: 15px; min-height: 100vh; overflow-x: hidden; }
         
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(15px); }
@@ -16,65 +16,70 @@
 
         .animated-fade { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* Navbar มาตรฐาน */
         .navbar {
-            background-color: #ffffff;
-            padding: 15px 20px;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 25px;
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #f0f9ff;
+            border-bottom: 1px solid rgba(186, 230, 253, 0.6);
             position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.05);
         }
-        .nav-left { display: flex; align-items: center; gap: 20px; }
-        .menu-btn { font-size: 28px; cursor: pointer; color: #0ea5e9; background: none; border: none; transition: transform 0.2s; }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .menu-btn { font-size: 26px; cursor: pointer; color: #0284c7; background: #e0f2fe; border: none; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .menu-btn:hover { background: #bae6fd; transform: scale(1.1) rotate(90deg); }
         
-        .logo-container { display: flex; align-items: center; gap: 15px; text-decoration: none; }
-        .logo-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
-        .logo-text { font-size: 20px; font-weight: 500; color: #0284c7; letter-spacing: 0.5px; }
+        .logo-container { display: flex; align-items: center; }
+        .main-logo-img { height: 60px !important; width: auto !important; object-fit: contain !important; display: block; }
 
-        .nav-right { display: flex; align-items: center; gap: 15px; }
-        .icon-btn { font-size: 26px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; position: relative; }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .icon-btn { font-size: 22px; cursor: pointer; background: #f0f9ff; border: 1px solid #bae6fd; width: 42px; height: 42px; border-radius: 12px; color: #0ea5e9; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: all 0.2s; position: relative; overflow: hidden; }
+        .icon-btn:hover { background: #e0f2fe; transform: scale(1.1); }
 
         .badge-dot {
-            position: absolute; top: 0; right: 0; width: 10px; height: 10px;
-            background-color: #ef4444; border-radius: 50%; display: none;
+            position: absolute; top: 8px; right: 8px; width: 9px; height: 9px;
+            background-color: #ef4444; border-radius: 50%; display: none; border: 1px solid #ffffff;
         }
 
-        /* Sidebar */
         .sidebar {
             position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
-            background-color: #f0f9ff; 
-            box-shadow: 4px 0 20px rgba(0,0,0,0.08);
-            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 30px;
+            background-color: #ffffff; 
+            box-shadow: 6px 0 30px rgba(0,0,0,0.1);
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 25px 20px;
             overflow-y: auto;
         }
         .sidebar.active { left: 0; }
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .sidebar-header h3 { color: #0284c7; }
-        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0ea5e9; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f0f9ff; padding-bottom: 15px; }
+        .sidebar-header h3 { color: #0284c7; font-weight: 700; font-size: 22px; }
+        .close-btn { background: #f0f9ff; border: none; width: 38px; height: 38px; border-radius: 50%; font-size: 18px; cursor: pointer; color: #0284c7; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .close-btn:hover { background: #e0f2fe; transform: scale(1.1); }
         
-        .sidebar-menu { list-style: none; }
+        .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 6px; }
         .sidebar-menu li a { 
-            display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; 
-            border-bottom: 1px solid rgba(14, 165, 233, 0.1); transition: all 0.2s; 
+            display: flex; align-items: center; gap: 15px; padding: 12px 16px; color: #334155; text-decoration: none; font-weight: 400; border-radius: 14px; transition: all 0.2s ease; 
         }
-        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; padding-left: 5px; }
+        .sidebar-menu li a:hover { background: #f0f9ff; color: #0284c7; transform: translateX(4px); }
+        .sidebar-menu li a.active { background: #f0f9ff; color: #0284c7; font-weight: 600; }
+        .sidebar-menu li a .menu-icon { font-size: 20px; width: 28px; text-align: center; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.15); display: none; z-index: 150; backdrop-filter: blur(2px); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: none; z-index: 150; backdrop-filter: blur(4px); transition: opacity 0.3s; }
         .overlay.active { display: block; }
 
-        /* Container เนื้อหา */
-        .container { max-width: 950px; margin: 20px auto 40px auto; padding: 0 20px; }
+        .container { max-width: 950px; margin: 30px auto 60px auto; padding: 0 20px; }
         
-        .header-section { margin: 10px 0 25px 0; text-align: center; }
-        .header-section h2 { font-size: 26px; font-weight: 600; color: #0284c7; }
-        .header-section p { font-size: 14px; color: #64748b; margin-top: 5px; }
+        .header-section { margin-bottom: 30px; text-align: center; }
+        .header-section h2 { 
+            font-size: 28px; font-weight: 700; color: #0284c7; 
+            background: linear-gradient(135deg, #0284c7, #0ea5e9); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        }
+        .header-section p { font-size: 15px; color: #64748b; margin-top: 5px; }
 
         .chat-container {
             background-color: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            border: 1px solid #e0f2fe;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.08);
+            border: 1.5px solid rgba(186, 230, 253, 0.8);
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -84,19 +89,19 @@
         .chat-header {
             background: linear-gradient(135deg, #0284c7, #0ea5e9);
             color: white;
-            padding: 18px 25px;
+            padding: 20px 25px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        .chat-header-left { display: flex; align-items: center; gap: 15px; }
+        .chat-header-left { display: flex; align-items: center; gap: 16px; }
         .chat-ai-avatar {
-            width: 48px; height: 48px; background: white; border-radius: 50%;
+            width: 50px; height: 50px; background: white; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; font-size: 26px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        .chat-ai-info h3 { font-size: 18px; font-weight: 600; }
-        .chat-ai-info p { font-size: 13px; opacity: 0.95; display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+        .chat-ai-info h3 { font-size: 18px; font-weight: 700; }
+        .chat-ai-info p { font-size: 13px; opacity: 0.95; display: flex; align-items: center; gap: 6px; margin-top: 3px; font-weight: 500; }
         .online-dot { width: 9px; height: 9px; background-color: #4ade80; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #4ade80; }
 
         .chat-body-area {
@@ -119,38 +124,44 @@
 
     <div class="navbar">
         <div class="nav-left">
-            <button class="menu-btn" id="menuToggle">☰</button>
+            <button class="menu-btn" id="menuToggle" onclick="playClickSound()">&#9776;</button>
             <div class="logo-container">
-                <img id="navProfileImg" src="logo.jpg.jpg" alt="Logo" class="logo-img">
-                <span class="logo-text">Baby Go</span>
+                <img src="logo-ai.png" alt="Baby Go AI Logo" class="main-logo-img">
             </div>
         </div>
         <div class="nav-right">
-            <a href="notifications.html" class="icon-btn" title="ศูนย์แจ้งเตือน">
-                🔔
+            <a href="notifications.html" class="icon-btn" title="ศูนย์แจ้งเตือน" onclick="playClickSound()">
+                &#128276;
                 <span class="badge-dot" id="notifBadge"></span>
             </a>
-            <a href="profile.html" class="icon-btn">👤</a>
+            <a href="profile.html" class="icon-btn" id="profileNavBtn" title="โปรไฟล์" onclick="playClickSound()">&#128100;</a>
         </div>
     </div>
 
-    <div class="overlay" id="overlay"></div>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
     
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3>เมนู</h3>
-            <button class="close-btn" id="closeMenu">✕</button>
+            <h3>เมนูหลัก</h3>
+            <button class="close-btn" id="closeMenu" onclick="playClickSound()">&#10005;</button>
         </div>
         <ul class="sidebar-menu">
-            <li><a href="content.html">หน้าแรก</a></li>
-            <li><a href="development.html">พัฒนาการเด็ก</a></li>
-            <li><a href="vaccine.html">วัคซีน</a></li>
-            <li><a href="nutrition.html">โภชนาการ</a></li>
-            <li><a href="knowledge.html">ความรู้</a></li>
-            <li><a href="ai_assistant.html" style="color: #0284c7; font-weight: 500;">AI วิเคราะห์</a></li>
-            <li><a href="community.html">ชุมชน</a></li>
-            <li><a href="contact.html">ติดต่อเรา</a></li>
-            <li><a href="login.html" style="color: #ef4444; font-weight: 600; border-bottom: none;">ออกจากระบบ</a></li>
+            <li><a href="content.html" onclick="playClickSound()"><span class="menu-icon">🏠</span> หน้าแรก</a></li>
+            <li><a href="development.html" onclick="playClickSound()"><span class="menu-icon">📈</span> พัฒนาการเด็ก</a></li>
+            <li><a href="vaccine.html" onclick="playClickSound()"><span class="menu-icon">💉</span> วัคซีน</a></li>
+            <li><a href="nutrition.html" onclick="playClickSound()"><span class="menu-icon">🍲</span> โภชนาการ</a></li>
+            <li><a href="knowledge.html" onclick="playClickSound()"><span class="menu-icon">📚</span> ความรู้</a></li>
+            <li><a href="ai_assistant.html" class="active" onclick="playClickSound()"><span class="menu-icon">🤖</span> AI วิเคราะห์</a></li>
+            <li><a href="community.html" onclick="playClickSound()"><span class="menu-icon">💬</span> ชุมชน</a></li>
+            <li><a href="contact.html" onclick="playClickSound()"><span class="menu-icon">📞</span> ติดต่อเรา</a></li>
+            
+            <li id="adminMenuLink" style="display: none;">
+                <a href="admin.html" onclick="playClickSound()" style="background: #fdf4ff; color: #d946ef; font-weight: 700;">
+                    <span class="menu-icon">⚙️</span> หลังบ้านแอดมิน
+                </a>
+            </li>
+
+            <li><a href="login.html" onclick="localStorage.removeItem('userEmail'); playClickSound();" style="color: #ef4444;"><span class="menu-icon">🚪</span> ออกจากระบบ</a></li>
         </ul>
     </div>
 
@@ -165,8 +176,8 @@
                 <div class="chat-header-left">
                     <div class="chat-ai-avatar">👨‍⚕️</div>
                     <div class="chat-ai-info">
-                        <h3>Baby Go AI Expert (Master 500)</h3>
-                        <p><span class="online-dot"></span> พร้อมให้คำปรึกษาตลอด 24 ชม.</p>
+                        <h3>Baby Go AI Expert </h3>
+                        <p><span class="online-dot"></span> พร้อมให้คำปรึกษาตลอด 24 ชม.[cite: 6]</p>
                     </div>
                 </div>
             </div>
@@ -178,6 +189,37 @@
     </div>
 
     <script>
+        let audioCtx = null;
+
+        function playClickSound() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.06);
+                
+                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.06);
+            } catch (err) {
+                console.log("Audio not supported or blocked", err);
+            }
+        }
+
         const menuToggle = document.getElementById('menuToggle');
         const closeMenu = document.getElementById('closeMenu');
         const sidebar = document.getElementById('sidebar');
@@ -191,10 +233,25 @@
         closeMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
+        const ADMIN_EMAIL = 'babygo.admin@gmail.com';
+
         window.addEventListener('DOMContentLoaded', () => {
-            const savedImg = localStorage.getItem('userProfileImg');
-            if (savedImg) {
-                document.getElementById('navProfileImg').src = savedImg;
+            const currentEmail = localStorage.getItem('userEmail');
+            if (currentEmail) {
+                const safeKey = currentEmail.replace(/[@.]/g, '_');
+                const savedImg = localStorage.getItem('userProfileImg_' + safeKey);
+                
+                if (savedImg) {
+                    const profileNavBtn = document.getElementById('profileNavBtn');
+                    if (profileNavBtn) {
+                        profileNavBtn.innerHTML = `<img src="${savedImg}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    }
+                }
+
+                if (currentEmail.toLowerCase() === ADMIN_EMAIL) {
+                    const adminLink = document.getElementById('adminMenuLink');
+                    if (adminLink) adminLink.style.display = 'block';
+                }
             }
         });
     </script>

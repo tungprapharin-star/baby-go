@@ -7,70 +7,77 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
-        body { background-color: #f0f9ff; color: #333333; font-size: 15px; overflow-x: hidden; }
+        body { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%); color: #333333; font-size: 15px; min-height: 100vh; overflow-x: hidden; }
         
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animated-fade { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animated-fade { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         .navbar {
-            background-color: #ffffff;
-            padding: 15px 25px;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 25px;
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid #bae6fd;
+            border-bottom: 1px solid rgba(186, 230, 253, 0.6);
             position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.08);
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.05);
         }
-        .nav-left { display: flex; align-items: center; gap: 20px; }
-        .menu-btn { font-size: 28px; cursor: pointer; color: #0284c7; background: none; border: none; transition: transform 0.2s; }
-        .menu-btn:hover { transform: scale(1.1); }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .menu-btn { font-size: 26px; cursor: pointer; color: #0284c7; background: #e0f2fe; border: none; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .menu-btn:hover { background: #bae6fd; transform: scale(1.1) rotate(90deg); }
         
-        .logo-container { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-        .logo-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #0ea5e9; }
-        .logo-text { font-size: 20px; font-weight: 600; color: #0284c7; }
+        .logo-container { display: flex; align-items: center; }
+        .main-logo-img { height: 60px !important; width: auto !important; object-fit: contain !important; display: block; }
 
-        .nav-right { display: flex; align-items: center; gap: 15px; }
-        .icon-btn { font-size: 26px; cursor: pointer; background: none; border: none; color: #0ea5e9; text-decoration: none; transition: transform 0.2s; }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .icon-btn { font-size: 22px; cursor: pointer; background: #f0f9ff; border: 1px solid #bae6fd; width: 42px; height: 42px; border-radius: 12px; color: #0ea5e9; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: all 0.2s; position: relative; }
+        .icon-btn:hover { background: #e0f2fe; transform: scale(1.1); }
 
         .sidebar {
             position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
-            background-color: #f0f9ff; 
-            box-shadow: 4px 0 25px rgba(0,0,0,0.1);
-            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 30px;
+            background-color: #ffffff; 
+            box-shadow: 6px 0 30px rgba(0,0,0,0.1);
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 25px 20px;
             overflow-y: auto;
         }
         .sidebar.active { left: 0; }
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .sidebar-header h3 { color: #0284c7; }
-        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #0284c7; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f0f9ff; padding-bottom: 15px; }
+        .sidebar-header h3 { color: #0284c7; font-weight: 700; font-size: 22px; }
+        .close-btn { background: #f0f9ff; border: none; width: 38px; height: 38px; border-radius: 50%; font-size: 18px; cursor: pointer; color: #0284c7; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .close-btn:hover { background: #e0f2fe; transform: scale(1.1); }
         
-        .sidebar-menu { list-style: none; }
+        .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 6px; }
         .sidebar-menu li a { 
-            display: block; padding: 12px 0; color: #334155; text-decoration: none; font-weight: 400; 
-            border-bottom: 1px solid #bae6fd; transition: all 0.2s; 
+            display: flex; align-items: center; gap: 15px; padding: 12px 16px; color: #334155; text-decoration: none; font-weight: 400; border-radius: 14px; transition: all 0.2s ease; 
         }
-        .sidebar-menu li a:hover { color: #0284c7; font-weight: 500; padding-left: 5px; }
+        .sidebar-menu li a:hover { background: #f0f9ff; color: #0284c7; transform: translateX(4px); }
+        .sidebar-menu li a.active { background: #f0f9ff; color: #0284c7; font-weight: 600; }
+        .sidebar-menu li a .menu-icon { font-size: 20px; width: 28px; text-align: center; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: none; z-index: 150; backdrop-filter: blur(2px); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: none; z-index: 150; backdrop-filter: blur(4px); transition: opacity 0.3s; }
         .overlay.active { display: block; }
 
         .container { max-width: 900px; margin: 30px auto 60px auto; padding: 0 20px; }
         
-        .header-section { margin-bottom: 25px; text-align: center; }
-        .header-section h2 { font-size: 28px; font-weight: 700; color: #0369a1; }
-        .header-section p { font-size: 15px; color: #475569; margin-top: 8px; }
+        .header-section { margin-bottom: 30px; text-align: center; }
+        .header-section h2 { 
+            font-size: 28px; font-weight: 700; color: #0284c7; 
+            background: linear-gradient(135deg, #0284c7, #0ea5e9); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        }
+        .header-section p { font-size: 15px; color: #64748b; margin-top: 5px; }
 
-        .top-action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
+        .top-action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 12px; flex-wrap: wrap; }
         
         .search-box-wrapper { flex: 1; display: flex; gap: 10px; min-width: 280px; align-items: center; }
         .search-input-container { position: relative; flex: 1; display: flex; align-items: center; }
         
         .search-input {
-            width: 100%; padding: 12px 45px 12px 20px; border: 2px solid #bae6fd; border-radius: 14px;
-            font-size: 15px; outline: none; background: #ffffff; color: #334155; font-family: 'Prompt', sans-serif;
-            box-shadow: 0 2px 10px rgba(14, 165, 233, 0.05);
+            width: 100%; padding: 12px 45px 12px 18px; border: 1.5px solid #bae6fd; border-radius: 14px;
+            font-size: 14px; outline: none; background: #ffffff; color: #334155; font-family: 'Prompt', sans-serif;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.04); transition: all 0.2s;
         }
         .search-input:focus { border-color: #0284c7; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
         
@@ -84,87 +91,91 @@
 
         .action-buttons-group { display: flex; gap: 10px; flex-wrap: wrap; }
         .action-btn {
-            background-color: #0ea5e9; color: white; border: none; padding: 12px 18px;
+            background-color: #0ea5e9; color: white; border: none; padding: 12px 20px;
             border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer;
-            transition: 0.2s; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2); display: inline-flex; align-items: center; gap: 6px;
+            transition: 0.2s; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2); display: inline-flex; align-items: center; gap: 6px;
             font-family: 'Prompt', sans-serif;
         }
         .action-btn:hover { background-color: #0284c7; transform: translateY(-2px); }
-        .btn-success { background-color: #10b981; }
+        .btn-success { background-color: #10b981; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2); }
         .btn-success:hover { background-color: #059669; }
-        .btn-my-articles { background-color: #8b5cf6; }
+        .btn-my-articles { background-color: #8b5cf6; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2); }
         .btn-my-articles:hover { background-color: #7c3aed; }
         
-        .btn-delete-x {
-            background-color: #fee2e2; color: #ef4444; border: 2px solid #fecaca;
-            width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s;
-            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+        .owner-actions { display: flex; gap: 6px; align-items: center; }
+        .btn-action-sm {
+            padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s;
+            font-family: 'Prompt', sans-serif;
         }
-        .btn-delete-x:hover { background-color: #ef4444; color: #ffffff; border-color: #dc2626; transform: scale(1.1); }
+        .btn-edit-sm { background-color: #e0f2fe; color: #0284c7; }
+        .btn-edit-sm:hover { background-color: #0284c7; color: #ffffff; }
+        .btn-delete-sm { background-color: #fee2e2; color: #ef4444; }
+        .btn-delete-sm:hover { background-color: #ef4444; color: #ffffff; }
 
         .category-filter-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 25px; }
         .cat-tab {
-            background: #ffffff; border: 2px solid #bae6fd; padding: 8px 12px; border-radius: 12px;
-            font-size: 12px; font-weight: 600; color: #0369a1; cursor: pointer; transition: 0.2s;
+            background: #ffffff; border: 1.5px solid #bae6fd; padding: 9px 14px; border-radius: 12px;
+            font-size: 13px; font-weight: 600; color: #0369a1; cursor: pointer; transition: 0.2s;
+            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.03);
         }
-        .cat-tab:hover { background: #e0f2fe; }
-        .cat-tab.active { background: #0ea5e9; color: #ffffff; border-color: #0284c7; }
+        .cat-tab:hover { background: #e0f2fe; transform: translateY(-1px); }
+        .cat-tab.active { background: linear-gradient(135deg, #0284c7, #0ea5e9); color: #ffffff; border-color: #0284c7; box-shadow: 0 6px 15px rgba(2, 132, 199, 0.2); }
 
-        #addArticleModal {
-            background: #ffffff; border: 2px solid #bae6fd; border-radius: 20px;
-            padding: 30px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(14, 165, 233, 0.08);
-            display: none;
+        #addArticleModal, #editArticleModal {
+            background: #ffffff; border: 1.5px solid #bae6fd; border-radius: 24px;
+            padding: 30px; margin-bottom: 25px; box-shadow: 0 10px 35px rgba(14, 165, 233, 0.08);
+            display: none; animation: fadeIn 0.4s ease;
         }
         .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; font-weight: 600; color: #0369a1; margin-bottom: 6px; font-size: 14px; }
+        .form-group label { display: block; font-weight: 700; color: #0369a1; margin-bottom: 6px; font-size: 14px; }
         .form-control {
-            width: 100%; padding: 12px 16px; border: 2px solid #bae6fd; border-radius: 12px;
+            width: 100%; padding: 12px 16px; border: 1.5px solid #bae6fd; border-radius: 14px;
             font-size: 14px; outline: none; font-family: 'Prompt', sans-serif; color: #334155; background: #f8fafc;
+            transition: all 0.2s;
         }
-        .form-control:focus { border-color: #0284c7; background: #ffffff; }
+        .form-control:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
         textarea.form-control { resize: vertical; min-height: 140px; }
 
         .knowledge-list { display: grid; grid-template-columns: 1fr; gap: 16px; max-height: 700px; overflow-y: auto; padding-right: 5px; }
         .knowledge-card { 
-            background-color: #ffffff; padding: 22px 25px; border-radius: 18px; border: 2px solid #bae6fd;
-            cursor: pointer; display: block; box-shadow: 0 6px 20px rgba(14, 165, 233, 0.05);
+            background-color: #ffffff; padding: 22px 25px; border-radius: 20px; border: 1.5px solid rgba(186, 230, 253, 0.8);
+            display: block; box-shadow: 0 8px 25px rgba(14, 165, 233, 0.05);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
         }
         .knowledge-card:hover { 
-            background: linear-gradient(135deg, #ffffff, #f0f9ff); border-color: #0284c7;
-            transform: translateY(-3px); box-shadow: 0 10px 25px rgba(14, 165, 233, 0.15);
+            background: #ffffff; border-color: #0284c7;
+            transform: translateY(-3px); box-shadow: 0 12px 30px rgba(14, 165, 233, 0.15);
         }
         .knowledge-keyword-tag {
-            display: inline-block; background: #e0f2fe; color: #0284c7; font-size: 11px; font-weight: 600;
-            padding: 4px 10px; border-radius: 6px; margin-bottom: 10px;
+            display: inline-block; background: #e0f2fe; color: #0284c7; font-size: 11px; font-weight: 700;
+            padding: 4px 10px; border-radius: 8px; margin-bottom: 10px; border: 1.5px solid #bae6fd;
         }
         .knowledge-title { font-weight: 700; color: #0369a1; font-size: 18px; margin-bottom: 8px; }
         .knowledge-desc { font-size: 14px; color: #475569; margin-bottom: 12px; line-height: 1.6; }
-        .knowledge-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #94a3b8; }
+        .knowledge-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #94a3b8; font-weight: 500; }
         
-        .no-result { text-align: center; color: #64748b; padding: 40px; font-size: 15px; display: none; }
+        .no-result { text-align: center; color: #64748b; padding: 40px; font-size: 15px; display: none; font-weight: 500; }
 
         #articleDetailView { display: none; }
         .btn-back {
-            background-color: #ffffff; color: #0284c7; border: 2px solid #bae6fd;
-            padding: 10px 20px; border-radius: 12px; font-size: 15px; font-weight: 600;
+            background-color: #ffffff; color: #0284c7; border: 1.5px solid #bae6fd;
+            padding: 10px 20px; border-radius: 14px; font-size: 14px; font-weight: 600;
             cursor: pointer; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 25px;
-            transition: 0.2s; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+            transition: 0.2s; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.06);
         }
-        .btn-back:hover { background-color: #f0f9ff; border-color: #0284c7; transform: translateX(-3px); }
+        .btn-back:hover { background-color: #e0f2fe; border-color: #0284c7; transform: translateX(-3px); }
 
         .article-content-card {
-            background: #ffffff; border-radius: 24px; border: 2px solid #bae6fd;
+            background: #ffffff; border-radius: 24px; border: 1.5px solid rgba(186, 230, 253, 0.8);
             padding: 40px; box-shadow: 0 10px 35px rgba(14, 165, 233, 0.08);
         }
-        .article-title-header { border-bottom: 3px solid #f0f9ff; padding-bottom: 20px; margin-bottom: 25px; }
+        .article-title-header { border-bottom: 2px solid #f0f9ff; padding-bottom: 20px; margin-bottom: 25px; }
         .article-title-header h2 { font-size: 26px; color: #0369a1; font-weight: 700; margin-bottom: 12px; line-height: 1.4; }
-        .article-meta { font-size: 13px; color: #94a3b8; display: flex; gap: 20px; }
+        .article-meta { font-size: 13px; color: #94a3b8; display: flex; gap: 20px; font-weight: 500; }
         
         .article-body p { font-size: 15px; color: #334155; line-height: 1.8; margin-bottom: 16px; }
-        .article-body h4 { font-size: 18px; color: #0369a1; margin: 25px 0 10px 0; font-weight: 600; }
+        .article-body h4 { font-size: 18px; color: #0369a1; margin: 25px 0 10px 0; font-weight: 700; }
         .article-body ul { padding-left: 20px; margin-bottom: 20px; color: #334155; line-height: 1.8; }
         .article-body li { margin-bottom: 8px; }
 
@@ -180,35 +191,41 @@
 
     <div class="navbar">
         <div class="nav-left">
-            <button class="menu-btn" id="menuToggle">&#9776;</button>
+            <button class="menu-btn" id="menuToggle" onclick="playClickSound()">&#9776;</button>
             <div class="logo-container">
-                <img id="navProfileImg" src="logo.jpg.jpg" alt="Logo" class="logo-img">
-                <span class="logo-text">Baby Go</span>
+                <img src="logo-ai.png" alt="Baby Go AI Logo" class="main-logo-img">
             </div>
         </div>
         <div class="nav-right">
-            <a href="notifications.html" class="icon-btn" title="แจ้งเตือน">&#128276;</a>
-            <a href="profile.html" class="icon-btn" title="โปรไฟล์">&#128100;</a>
+            <a href="notifications.html" class="icon-btn" title="แจ้งเตือน" onclick="playClickSound()">&#128276;</a>
+            <a href="profile.html" class="icon-btn" title="โปรไฟล์" onclick="playClickSound()">&#128100;</a>
         </div>
     </div>
 
-    <div class="overlay" id="overlay"></div>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
     
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3>เมนู</h3>
-            <button class="close-btn" id="closeMenu">&#10005;</button>
+            <h3>เมนูหลัก</h3>
+            <button class="close-btn" id="closeMenu" onclick="playClickSound()">&#10005;</button>
         </div>
         <ul class="sidebar-menu">
-            <li><a href="content.html">หน้าแรก</a></li>
-            <li><a href="development.html">พัฒนาการเด็ก</a></li>
-            <li><a href="vaccine.html">วัคซีน</a></li>
-            <li><a href="nutrition.html">โภชนาการ</a></li>
-            <li><a href="knowledge.html" style="color: #0284c7; font-weight: 600;">ความรู้</a></li>
-            <li><a href="ai_assistant.html">AI วิเคราะห์</a></li>
-            <li><a href="community.html">ชุมชน</a></li>
-            <li><a href="contact.html">ติดต่อเรา</a></li>
-            <li><a href="login.html" style="color: #ef4444; font-weight: 600; border-bottom: none;">ออกจากระบบ</a></li>
+            <li><a href="content.html" onclick="playClickSound()"><span class="menu-icon">🏠</span> หน้าแรก</a></li>
+            <li><a href="development.html" onclick="playClickSound()"><span class="menu-icon">📈</span> พัฒนาการเด็ก</a></li>
+            <li><a href="vaccine.html" onclick="playClickSound()"><span class="menu-icon">💉</span> วัคซีน</a></li>
+            <li><a href="nutrition.html" onclick="playClickSound()"><span class="menu-icon">🍲</span> โภชนาการ</a></li>
+            <li><a href="knowledge.html" class="active" onclick="playClickSound()"><span class="menu-icon">📚</span> ความรู้</a></li>
+            <li><a href="ai_assistant.html" onclick="playClickSound()"><span class="menu-icon">🤖</span> AI วิเคราะห์</a></li>
+            <li><a href="community.html" onclick="playClickSound()"><span class="menu-icon">💬</span> ชุมชน</a></li>
+            <li><a href="contact.html" onclick="playClickSound()"><span class="menu-icon">📞</span> ติดต่อเรา</a></li>
+            
+            <li id="adminMenuLink" style="display: none;">
+                <a href="admin.html" onclick="playClickSound()" style="background: #fdf4ff; color: #d946ef; font-weight: 700;">
+                    <span class="menu-icon">⚙️</span> หลังบ้านแอดมิน
+                </a>
+            </li>
+
+            <li><a href="login.html" onclick="localStorage.removeItem('userEmail'); playClickSound();" style="color: #ef4444;"><span class="menu-icon">🚪</span> ออกจากระบบ</a></li>
         </ul>
     </div>
 
@@ -224,30 +241,31 @@
                 <div class="search-box-wrapper">
                     <div class="search-input-container">
                         <input type="text" id="knowledgeSearchInput" class="search-input" placeholder="🔍 ค้นหาคำถามยอดฮิต เช่น ฟันผุ, ใกล้คลอด..." oninput="toggleClearButton()" onkeypress="handleSearchKeyPress(event)">
-                        <button type="button" id="clearSearchBtn" class="clear-search-btn" onclick="clearSearchInput()" title="ล้างคำค้นหา">✕</button>
+                        <button type="button" id="clearSearchBtn" class="clear-search-btn" onclick="playClickSound(); clearSearchInput()" title="ล้างคำค้นหา">✕</button>
                     </div>
-                    <button class="action-btn" onclick="filterKnowledge()">ค้นหา</button>
+                    <button class="action-btn" onclick="playClickSound(); filterKnowledge()">ค้นหา</button>
                 </div>
                 <div class="action-buttons-group">
-                    <button class="action-btn btn-my-articles" onclick="filterMyArticles()">📄 บทความของฉัน (<span id="myArticlesCountBadge">0</span>)</button>
-                    <button class="action-btn btn-success" onclick="toggleAddForm()">+ เขียนบทความ</button>
+                    <button class="action-btn btn-my-articles" onclick="playClickSound(); filterMyArticles()">📄 บทความของฉัน (<span id="myArticlesCountBadge">0</span>)</button>
+                    <button class="action-btn btn-success" onclick="playClickSound(); toggleAddForm()">+ เขียนบทความ</button>
                 </div>
             </div>
 
             <div class="category-filter-group" id="categoryFilterContainer">
-                <button class="cat-tab active" onclick="filterByCategory('all', this)">ทั้งหมด (<span id="count-all">0</span>)</button>
-                <button class="cat-tab" onclick="filterByCategory('ความรู้ผู้ใช้งาน', this)">💡 ความรู้ผู้ใช้งาน (<span id="count-user">0</span>)</button>
-                <button class="cat-tab" onclick="filterByCategory('สุขภาพช่องปากและฟัน', this)">ฟันและช่องปาก (<span id="count-teeth">0</span>)</button>
-                <button class="cat-tab" onclick="filterByCategory('คุณแม่ตั้งครรภ์และใกล้คลอด', this)">ตั้งครรภ์/ใกล้คลอด (<span id="count-preg">0</span>)</button>
-                <button class="cat-tab" onclick="filterByCategory('พัฒนาการเด็ก', this)">พัฒนาการเด็ก (<span id="count-dev">0</span>)</button>
-                <button class="cat-tab" onclick="filterByCategory('โภชนาการ', this)">โภชนาการและนม (<span id="count-nutri">0</span>)</button>
-                <button class="cat-tab" onclick="filterByCategory('วัคซีนและสุขภาพ', this)">วัคซีนและสุขภาพ (<span id="count-vac">0</span>)</button>
-                <button class="cat-tab" onclick="filterByCategory('พฤติกรรม', this)">พฤติกรรมเด็ก (<span id="count-behav">0</span>)</button>
-                <button class="cat-tab" onclick="filterByCategory('คุณแม่หลังคลอด', this)">แม่หลังคลอด (<span id="count-post">0</span>)</button>
+                <button class="cat-tab active" onclick="playClickSound(); filterByCategory('all', this)">ทั้งหมด (<span id="count-all">0</span>)</button>
+                <button class="cat-tab" onclick="playClickSound(); filterByCategory('ความรู้ผู้ใช้งาน', this)">💡 ความรู้ผู้ใช้งาน (<span id="count-user">0</span>)</button>
+                <button class="cat-tab" onclick="playClickSound(); filterByCategory('สุขภาพช่องปากและฟัน', this)">ฟันและช่องปาก (<span id="count-teeth">0</span>)</button>
+                <button class="cat-tab" onclick="playClickSound(); filterByCategory('คุณแม่ตั้งครรภ์และใกล้คลอด', this)">ตั้งครรภ์/ใกล้คลอด (<span id="count-preg">0</span>)</button>
+                <button class="cat-tab" onclick="playClickSound(); filterByCategory('พัฒนาการเด็ก', this)">พัฒนาการเด็ก (<span id="count-dev">0</span>)</button>
+                <button class="cat-tab" onclick="playClickSound(); filterByCategory('โภชนาการ', this)">โภชนาการและนม (<span id="count-nutri">0</span>)</button>
+                <button class="cat-tab" onclick="playClickSound(); filterByCategory('วัคซีนและสุขภาพ', this)">วัคซีนและสุขภาพ (<span id="count-vac">0</span>)</button>
+                <button class="cat-tab" onclick="playClickSound(); filterByCategory('พฤติกรรม', this)">พฤติกรรมเด็ก (<span id="count-behav">0</span>)</button>
+                <button class="cat-tab" onclick="playClickSound(); filterByCategory('คุณแม่หลังคลอด', this)">แม่หลังคลอด (<span id="count-post">0</span>)</button>
             </div>
 
+            <!-- ฟอร์มเขียนบทความใหม่ -->
             <div id="addArticleModal">
-                <h3 style="color: #0369a1; margin-bottom: 15px;">✍️ เขียนและเพิ่มบทความความรู้ผู้ใช้งาน</h3>
+                <h3 style="color: #0369a1; margin-bottom: 15px; font-weight: 700;">✍️ เขียนและเพิ่มบทความความรู้ผู้ใช้งาน</h3>
                 <div class="form-group">
                     <label>หัวข้อบทความ / ชื่อเรื่อง:</label>
                     <input type="text" id="newTitle" class="form-control" placeholder="เช่น เทคนิคดูแลลูกน้อยวัยอนุบาล">
@@ -265,8 +283,31 @@
                     <textarea id="newBody" class="form-control" placeholder="พิมพ์รายละเอียด คำแนะนำ หรือสาระความรู้ที่มีประโยชน์เพื่อให้คนอื่นได้อ่านที่นี่..."></textarea>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <button class="action-btn btn-success" onclick="saveNewArticle()">เผยแพร่บทความ</button>
-                    <button class="action-btn" style="background-color: #94a3b8;" onclick="toggleAddForm()">ยกเลิก</button>
+                    <button class="action-btn btn-success" onclick="playClickSound(); saveNewArticle()">เผยแพร่บทความ</button>
+                    <button class="action-btn" style="background-color: #94a3b8;" onclick="playClickSound(); toggleAddForm()">ยกเลิก</button>
+                </div>
+            </div>
+
+            <!-- ฟอร์มแก้ไขบทความ -->
+            <div id="editArticleModal">
+                <h3 style="color: #0369a1; margin-bottom: 15px; font-weight: 700;">✏️ แก้ไขบทความความรู้</h3>
+                <input type="hidden" id="editArticleId">
+                <input type="hidden" id="editArticleType">
+                <div class="form-group">
+                    <label>หัวข้อบทความ / ชื่อเรื่อง:</label>
+                    <input type="text" id="editTitle" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>แฮชแท็ก (Keyword Tags):</label>
+                    <input type="text" id="editTag" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>เนื้อหาบทความแบบละเอียด:</label>
+                    <textarea id="editBody" class="form-control"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="action-btn btn-success" onclick="playClickSound(); updateArticleData()">บันทึกการแก้ไข</button>
+                    <button class="action-btn" style="background-color: #94a3b8;" onclick="playClickSound(); toggleEditForm(false)">ยกเลิก</button>
                 </div>
             </div>
 
@@ -276,13 +317,44 @@
         </div>
 
         <div id="articleDetailView">
-            <button class="btn-back" onclick="goBackToKnowledgeList()">&#8249; ย้อนกลับคลังความรู้</button>
+            <button class="btn-back" onclick="playClickSound(); goBackToKnowledgeList()">&#8249; ย้อนกลับคลังความรู้</button>
             <div id="articleContentContainer"></div>
         </div>
 
     </div>
 
     <script>
+        let audioCtx = null;
+
+        function playClickSound() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.06);
+                
+                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.06);
+            } catch (err) {
+                console.log("Audio not supported or blocked", err);
+            }
+        }
+
         const menuToggle = document.getElementById('menuToggle');
         const closeMenu = document.getElementById('closeMenu');
         const sidebar = document.getElementById('sidebar');
@@ -292,10 +364,20 @@
         closeMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        // ดึงชื่อแอคเคานต์ผู้ใช้จริงจาก localStorage (ถ้าไม่มีใช้ "คุณแม่มือใหม่")
-        const currentUsername = localStorage.getItem('userName') || localStorage.getItem('userAccountName') || 'คุณแม่มือใหม่';
+        function getCurrentEmail() {
+            return localStorage.getItem('userEmail') || 'guest@babygo.com';
+        }
 
-        const detailedArticles = [
+        function getCurrentSafeKey() {
+            return getCurrentEmail().replace(/[@.]/g, '_');
+        }
+
+        const currentUsername = localStorage.getItem('userName_' + getCurrentSafeKey()) || localStorage.getItem('userName') || 'คุณแม่มือใหม่';
+        const currentEmail = getCurrentEmail();
+        const ADMIN_EMAIL = 'babygo.admin@gmail.com';
+        const isAdmin = (currentEmail.toLowerCase() === ADMIN_EMAIL);
+
+        const initialDetailedArticles = [
             {
                 cat: "สุขภาพช่องปากและฟัน",
                 tag: "#ฟันผุ #ฟันน้ำนม",
@@ -644,7 +726,7 @@
                 tag: "#ลูกไม่กินผัก",
                 title: "ลูกไม่ยอมทานผัก มีวิธีหลอกล่ออย่างไรให้ทานง่ายขึ้น?",
                 desc: "เทคนิคซ่อนผักในอาหารและปรับเมนูให้เด็กทานง่าย",
-                body: `<p><strong>วิธีแก้ลูกไม่กินผัก:</strong></p><ul><li>นำผักไปปั่นผสมในซุป ไข่ตุ๋น หรือทำเป็นแพน케้กผักสีสันสดใส และชวนลูกทำอาหารร่วมกัน</li></ul>`
+                body: `<p><strong>วิธีแก้ลูกไม่กินผัก:</strong></p><ul><li>นำผักไปปั่นผสมในซุป ไข่ตุ๋น หรือทำเป็นแพนเค้กผักสีสันสดใส และชวนลูกทำอาหารร่วมกัน</li></ul>`
             },
             {
                 cat: "โภชนาการ",
@@ -861,7 +943,7 @@
                 tag: "#นอนแยกห้อง",
                 title: "วิธีฝึกลูกให้นอนแยกห้องนอนด้วยตนเองอย่างนุ่มนวล",
                 desc: "ขั้นตอนการปรับบรรยากาศห้องนอนเพื่อความมั่นใจของเด็ก",
-                body: `<p><strong>ฝึกนอนแยกห้อง:</strong></p><ul><li>เริ่มจากนอนเตียงข้างกันแล้วค่อยขยับแยกห้อง สร้างกิจวัตรก่อนนอน อ่านนิทาน และเปิดไฟส่องสว่างอ่อนๆ</li></ul>`
+                body: `<p><strong>ฝึกนอนแยกห้อง:</strong></p><ul><li>เริ่มจากนอนเตียงข้างกันแล้วค่อยขยับห้อง สร้างกิจวัตรก่อนนอน อ่านนิทาน และเปิดไฟส่องสว่างอ่อนๆ</li></ul>`
             },
             {
                 cat: "พฤติกรรม",
@@ -993,13 +1075,14 @@
                 cat: "คุณแม่หลังคลอด",
                 tag: "#สิทธิลาคลอด",
                 title: "สิทธิประโยชน์และการลาคลอดตามกฎหมายที่คุณแม่ควรรู้",
-                desc: "ข้อมูลการลาคลอด 98 วันและการเบิกเงินสงเคราะห์บุตรประกันสังคม",
+                desc: "ข้อมูลการลาคลอด 98 วัน และการเบิกเงินสงเคราะห์บุตรประกันสังคม",
                 body: `<p><strong>สิทธิลาคลอดประกันสังคม:</strong></p><ul><li>คุณแม่ทำงานมีสิทธิลาคลอดได้ 98 วัน (รวมวันหยุด) พร้อมรับเงินทดแทนการขาดรายได้ และเบิกเงินสงเคราะห์บุตรรายเดือน</li></ul>`
             }
         ];
 
         let articlesData = {};
         let savedCustomArticles = JSON.parse(localStorage.getItem('babyGoCustomArticles')) || [];
+        let systemArticles = JSON.parse(localStorage.getItem('babyGoSystemArticles')) || initialDetailedArticles;
 
         function updateCategoryCounts() {
             let counts = {
@@ -1019,7 +1102,7 @@
                 counts.all++;
             });
 
-            detailedArticles.forEach(article => {
+            systemArticles.forEach((article) => {
                 if (counts[article.cat] !== undefined) {
                     counts[article.cat]++;
                 }
@@ -1036,33 +1119,35 @@
             document.getElementById('count-behav').innerText = counts['พฤติกรรม'];
             document.getElementById('count-post').innerText = counts['คุณแม่หลังคลอด'];
 
-            document.getElementById('myArticlesCountBadge').innerText = savedCustomArticles.length;
+            const myArticles = savedCustomArticles.filter(art => art.userEmail === currentEmail);
+            document.getElementById('myArticlesCountBadge').innerText = myArticles.length;
         }
 
         function renderArticlesList(isMyArticlesOnly = false) {
             let listHtml = '';
             articlesData = {};
-            let counter = 1;
 
             if (isMyArticlesOnly) {
-                if (savedCustomArticles.length === 0) {
+                const myArticles = savedCustomArticles.filter(art => art.userEmail === currentEmail);
+                if (myArticles.length === 0) {
                     document.getElementById('knowledgeListContainer').innerHTML = `<div style="text-align: center; color: #64748b; padding: 40px;">คุณยังไม่ได้เขียนบทความใดๆ ครับ ลองกดปุ่ม "+ เขียนบทความ" ด้านบนดูได้เลย!</div>`;
                     updateCategoryCounts();
                     return;
                 }
-                savedCustomArticles.forEach((article) => {
+                myArticles.forEach((article) => {
                     articlesData[article.id] = article;
                     listHtml += `
                         <div class="knowledge-card animated-fade" data-category="ความรู้ผู้ใช้งาน" style="border-color: #8b5cf6; background: #faf5ff;">
-                            <div style="position: absolute; top: 18px; right: 18px; z-index: 20;">
-                                <button class="btn-delete-x" onclick="deleteMyArticle(event, '${article.id}')" title="ลบบทความ">✕</button>
+                            <div style="position: absolute; top: 18px; right: 18px; z-index: 20;" class="owner-actions">
+                                <button class="btn-action-sm btn-edit-sm" onclick="playClickSound(); openEditForm('${article.id}', 'custom')">แก้ไข</button>
+                                <button class="btn-action-sm btn-delete-sm" onclick="playClickSound(); deleteCustomArticle(event, '${article.id}')">ลบ</button>
                             </div>
-                            <div onclick="openArticle('${article.id}')" style="cursor: pointer; padding-right: 45px;">
-                                <span class="knowledge-keyword-tag" style="background: #ede9fe; color: #7c3aed;">${article.tag} [บทความของฉัน]</span>
+                            <div onclick="playClickSound(); openArticle('${article.id}')" style="cursor: pointer; padding-right: 120px;">
+                                <span class="knowledge-keyword-tag" style="background: #ede9fe; color: #7c3aed; border-color: #ddd6fe;">${article.tag} [บทความของฉัน]</span>
                                 <div class="knowledge-title">💡 ${article.title}</div>
                                 <div class="knowledge-desc">${article.desc}</div>
                                 <div class="knowledge-footer">
-                                    <span style="color: #7c3aed; font-weight: 600;">เขียนโดย ${currentUsername}</span>
+                                    <span style="color: #7c3aed; font-weight: 600;">เขียนโดย ${article.author}</span>
                                 </div>
                             </div>
                         </div>
@@ -1071,42 +1156,77 @@
             } else {
                 savedCustomArticles.forEach((article) => {
                     articlesData[article.id] = article;
+                    let isOwner = (article.userEmail === currentEmail);
+                    
+                    let actionButtonsHtml = '';
+                    if (isOwner) {
+                        actionButtonsHtml = `
+                            <div style="position: absolute; top: 18px; right: 18px; z-index: 20;" class="owner-actions">
+                                <button class="btn-action-sm btn-edit-sm" onclick="playClickSound(); openEditForm('${article.id}', 'custom')">แก้ไข</button>
+                                <button class="btn-action-sm btn-delete-sm" onclick="playClickSound(); deleteCustomArticle(event, '${article.id}')">ลบ</button>
+                            </div>
+                        `;
+                    } else if (isAdmin) {
+                        actionButtonsHtml = `
+                            <div style="position: absolute; top: 18px; right: 18px; z-index: 20;" class="owner-actions">
+                                <button class="btn-action-sm btn-delete-sm" onclick="playClickSound(); deleteCustomArticle(event, '${article.id}')">ลบ</button>
+                            </div>
+                        `;
+                    }
+
+                    let rightPadding = (isOwner || isAdmin) ? 'padding-right: 125px;' : '';
+
                     listHtml += `
-                        <div class="knowledge-card animated-fade" data-category="ความรู้ผู้ใช้งาน" onclick="openArticle('${article.id}')" style="border-color: #10b981; background: #fdf4ff;">
-                            <span class="knowledge-keyword-tag" style="background: #d1fae5; color: #047857;">${article.tag} [หมวด: ความรู้ผู้ใช้งาน]</span>
-                            <div class="knowledge-title">💡 ${article.title}</div>
-                            <div class="knowledge-desc">${article.desc}</div>
-                            <div class="knowledge-footer">
-                                <span style="color: #059669; font-weight: 600;">เขียนโดย ${currentUsername}</span>
-                                <span class="knowledge-date">บทความผู้ใช้</span>
+                        <div class="knowledge-card animated-fade" data-category="ความรู้ผู้ใช้งาน" style="border-color: #10b981; background: #fdf4ff; position: relative;">
+                            ${actionButtonsHtml}
+                            <div onclick="playClickSound(); openArticle('${article.id}')" style="cursor: pointer; ${rightPadding}">
+                                <span class="knowledge-keyword-tag" style="background: #d1fae5; color: #047857; border-color: #a7f3d0;">${article.tag} [หมวด: ความรู้ผู้ใช้งาน]</span>
+                                <div class="knowledge-title">💡 ${article.title} ${isAdmin && !isOwner ? '<span style="color: #d946ef; font-size: 11px; margin-left: 5px;">[Admin Mode]</span>' : ''}</div>
+                                <div class="knowledge-desc">${article.desc}</div>
+                                <div class="knowledge-footer">
+                                    <span style="color: #059669; font-weight: 600;">เขียนโดย ${article.author}</span>
+                                    <span class="knowledge-date">บทความผู้ใช้</span>
+                                </div>
                             </div>
                         </div>
                     `;
                 });
 
-                detailedArticles.forEach((article) => {
-                    let articleId = "art" + counter;
+                systemArticles.forEach((article, index) => {
+                    let articleId = "sys_art_" + index;
+
                     articlesData[articleId] = {
                         title: article.title,
                         category: article.cat,
                         keyword: article.tag,
-                        author: currentUsername, // บังคับดึงชื่อแอคปัจจุบันมาโชว์ทั้งหมด
+                        author: "แอดมิน Baby Go",
                         date: "อัปเดตล่าสุด",
                         body: article.body
                     };
 
+                    let adminActionBtns = isAdmin ? `
+                        <div style="position: absolute; top: 18px; right: 18px; z-index: 20;" class="owner-actions">
+                            <button class="btn-action-sm btn-edit-sm" onclick="playClickSound(); openEditForm(${index}, 'system')">แก้ไข</button>
+                            <button class="btn-action-sm btn-delete-sm" onclick="playClickSound(); deleteSystemArticle(event, ${index})">ลบ</button>
+                        </div>
+                    ` : '';
+
+                    let rightPad = isAdmin ? 'padding-right: 125px;' : '';
+
                     listHtml += `
-                        <div class="knowledge-card" data-category="${article.cat}" onclick="openArticle('${articleId}')">
-                            <span class="knowledge-keyword-tag">${article.tag} [หมวด: ${article.cat}]</span>
-                            <div class="knowledge-title">${article.title}</div>
-                            <div class="knowledge-desc">${article.desc}</div>
-                            <div class="knowledge-footer">
-                                <span>เขียนโดย ${currentUsername}</span>
-                                <span class="knowledge-date">บทความที่ ${counter} / 100</span>
+                        <div class="knowledge-card" data-category="${article.cat}" style="position: relative;">
+                            ${adminActionBtns}
+                            <div onclick="playClickSound(); openArticle('${articleId}')" style="cursor: pointer; ${rightPad}">
+                                <span class="knowledge-keyword-tag">${article.tag} [หมวด: ${article.cat}]</span>
+                                <div class="knowledge-title">${article.title} <span style="color: #0284c7; font-size: 11px; margin-left: 5px;">[แอดมิน]</span></div>
+                                <div class="knowledge-desc">${article.desc}</div>
+                                <div class="knowledge-footer">
+                                    <span style="color: #0284c7; font-weight: 600;">เขียนโดย แอดมิน Baby Go</span>
+                                    <span class="knowledge-date">บทความที่ ${index + 1}</span>
+                                </div>
                             </div>
                         </div>
                     `;
-                    counter++;
                 });
             }
 
@@ -1133,10 +1253,20 @@
 
         function toggleAddForm() {
             const modal = document.getElementById('addArticleModal');
+            document.getElementById('editArticleModal').style.display = 'none';
             if (modal.style.display === 'block') {
                 modal.style.display = 'none';
             } else {
                 modal.style.display = 'block';
+                modal.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function toggleEditForm(show) {
+            const modal = document.getElementById('editArticleModal');
+            modal.style.display = show ? 'block' : 'none';
+            if (show) {
+                document.getElementById('addArticleModal').style.display = 'none';
                 modal.scrollIntoView({ behavior: 'smooth' });
             }
         }
@@ -1160,6 +1290,7 @@
                 title: title,
                 desc: rawBody.substring(0, 90) + '...',
                 author: currentUsername,
+                userEmail: currentEmail,
                 body: formattedBody
             };
 
@@ -1175,12 +1306,115 @@
             alert('เพิ่มบทความความรู้ผู้ใช้งานสำเร็จเรียบร้อยแล้ว!');
         }
 
-        function deleteMyArticle(event, articleId) {
+        function openEditForm(id, type) {
+            document.getElementById('editArticleType').value = type;
+            document.getElementById('editArticleId').value = id;
+
+            let targetTitle = '';
+            let targetTag = '';
+            let targetBodyHtml = '';
+
+            if (type === 'custom') {
+                const article = savedCustomArticles.find(art => art.id === id);
+                if (!article) return;
+                targetTitle = article.title;
+                targetTag = article.tag;
+                targetBodyHtml = article.body;
+            } else {
+                const article = systemArticles[id];
+                if (!article) return;
+                targetTitle = article.title;
+                targetTag = article.tag;
+                targetBodyHtml = article.body;
+            }
+
+            document.getElementById('editTitle').value = targetTitle;
+            document.getElementById('editTag').value = targetTag;
+
+            let tempDiv = document.createElement('div');
+            tempDiv.innerHTML = targetBodyHtml;
+            let paragraphs = tempDiv.querySelectorAll('p');
+            let textContent = '';
+            paragraphs.forEach((p, idx) => {
+                if (idx > 0 || type === 'system') {
+                    textContent += p.innerHTML.replace(/<br\s*[\/]?>/gi, '\n') + '\n';
+                }
+            });
+            document.getElementById('editBody').value = textContent.trim();
+
+            toggleEditForm(true);
+        }
+
+        function updateArticleData() {
+            const type = document.getElementById('editArticleType').value;
+            const id = document.getElementById('editArticleId').value;
+            const title = document.getElementById('editTitle').value.trim();
+            const tag = document.getElementById('editTag').value.trim() || '#ความรู้';
+            const rawBody = document.getElementById('editBody').value.trim();
+
+            if (!title || !rawBody) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วนครับ!');
+                return;
+            }
+
+            const formattedBody = `<p><strong>เรื่อง:</strong> ${title}</p><p>${rawBody.replace(/\n/g, '<br>')}</p>`;
+
+            if (type === 'custom') {
+                let article = savedCustomArticles.find(art => art.id === id);
+                if (!article) return;
+                article.title = title;
+                article.tag = tag;
+                article.desc = rawBody.substring(0, 90) + '...';
+                article.body = formattedBody;
+                localStorage.setItem('babyGoCustomArticles', JSON.stringify(savedCustomArticles));
+            } else {
+                if (!isAdmin) {
+                    alert('เฉพาะแอดมินเท่านั้นที่แก้ไขบทความระบบได้!');
+                    return;
+                }
+                let index = parseInt(id);
+                systemArticles[index].title = title;
+                systemArticles[index].tag = tag;
+                systemArticles[index].desc = rawBody.substring(0, 90) + '...';
+                systemArticles[index].body = formattedBody;
+                localStorage.setItem('babyGoSystemArticles', JSON.stringify(systemArticles));
+            }
+
+            toggleEditForm(false);
+            renderArticlesList(false);
+            alert('แก้ไขบทความเรียบร้อยแล้วครับ!');
+        }
+
+        function deleteCustomArticle(event, articleId) {
             event.stopPropagation();
+            const article = savedCustomArticles.find(art => art.id === articleId);
+            if (!article) return;
+
+            const isOwner = (article.userEmail === currentEmail);
+            if (!isOwner && !isAdmin) {
+                alert('คุณไม่มีสิทธิ์ลบบทความนี้ครับ!');
+                return;
+            }
+
             if (confirm('คุณต้องการลบบทความนี้ใช่หรือไม่?')) {
                 savedCustomArticles = savedCustomArticles.filter(art => art.id !== articleId);
                 localStorage.setItem('babyGoCustomArticles', JSON.stringify(savedCustomArticles));
-                renderArticlesList(true);
+                renderArticlesList(false);
+                alert('ลบบทความเรียบร้อยแล้วครับ!');
+            }
+        }
+
+        function deleteSystemArticle(event, index) {
+            event.stopPropagation();
+            if (!isAdmin) {
+                alert('เฉพาะแอดมินเท่านั้นที่สามารถลบบทความระบบได้!');
+                return;
+            }
+
+            if (confirm('[Admin Mode] คุณต้องการลบบทความของแอดมินนี้ใช่หรือไม่?')) {
+                systemArticles.splice(index, 1);
+                localStorage.setItem('babyGoSystemArticles', JSON.stringify(systemArticles));
+                renderArticlesList(false);
                 alert('ลบบทความเรียบร้อยแล้วครับ!');
             }
         }
@@ -1211,7 +1445,7 @@
                         <span class="knowledge-keyword-tag">${article.keyword || article.tag} [หมวด: ${article.category || article.cat}]</span>
                         <h2>${article.title}</h2>
                         <div class="article-meta">
-                            <span>เขียนโดย ${article.author || currentUsername}</span>
+                            <span>เขียนโดย ${article.author || 'แอดมิน Baby Go'}</span>
                             <span>${article.date || 'อัปเดตล่าสุด'}</span>
                         </div>
                     </div>
@@ -1269,9 +1503,21 @@
         window.addEventListener('DOMContentLoaded', () => {
             renderArticlesList(false);
             toggleClearButton();
-            const savedImg = localStorage.getItem('userProfileImg');
-            if (savedImg) {
-                document.getElementById('navProfileImg').src = savedImg;
+            const currentEmail = getCurrentEmail();
+            if (currentEmail) {
+                const safeKey = currentEmail.replace(/[@.]/g, '_');
+                const savedImg = localStorage.getItem('userProfileImg_' + safeKey);
+                if (savedImg) {
+                    const profileIcon = document.querySelector('a[href="profile.html"]');
+                    if(profileIcon) {
+                        profileIcon.innerHTML = `<img src="${savedImg}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                    }
+                }
+
+                if (currentEmail.toLowerCase() === ADMIN_EMAIL) {
+                    const adminLink = document.getElementById('adminMenuLink');
+                    if (adminLink) adminLink.style.display = 'block';
+                }
             }
         });
     </script>

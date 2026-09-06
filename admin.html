@@ -3,198 +3,315 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baby Go - ระบบหลังบ้าน (Admin)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>Baby Go - หลังบ้านแอดมิน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
-        body { background-color: #f8fafc; color: #333333; }
+        body { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%); color: #333333; font-size: 15px; min-height: 100vh; overflow-x: hidden; }
         
-        /* Navbar แอดมิน */
-        .navbar {
-            padding: 15px 20px; background-color: #ffffff;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid #fee2e2;
-            position: sticky; top: 0; z-index: 100;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .nav-left { display: flex; align-items: center; gap: 20px; }
-        .menu-btn { font-size: 28px; cursor: pointer; color: #dc2626; background: none; border: none; }
-        .nav-title { font-size: 18px; font-weight: 600; color: #dc2626; }
-        .logout-btn { background: #ef4444; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 14px; }
-        .logout-btn:hover { background: #dc2626; }
+        .animated-fade { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* Sidebar แอดมิน */
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 25px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(186, 230, 253, 0.6);
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.05);
+        }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .menu-btn { font-size: 26px; cursor: pointer; color: #0284c7; background: #e0f2fe; border: none; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .menu-btn:hover { background: #bae6fd; transform: scale(1.1) rotate(90deg); }
+        
+        .logo-container { display: flex; align-items: center; }
+        .main-logo-img { height: 60px !important; width: auto !important; object-fit: contain !important; display: block; }
+
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .icon-btn { font-size: 22px; cursor: pointer; background: #f0f9ff; border: 1px solid #bae6fd; width: 42px; height: 42px; border-radius: 12px; color: #0ea5e9; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: all 0.2s; position: relative; }
+        .icon-btn:hover { background: #e0f2fe; transform: scale(1.1); }
+
         .sidebar {
             position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
-            background-color: #fef2f2; box-shadow: 4px 0 15px rgba(239, 68, 68, 0.1);
-            transition: 0.3s; z-index: 200; padding: 30px;
+            background-color: #ffffff; 
+            box-shadow: 6px 0 30px rgba(0,0,0,0.1);
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 25px 20px;
+            overflow-y: auto;
         }
         .sidebar.active { left: 0; }
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .close-sidebar { background: none; border: none; font-size: 24px; color: #dc2626; cursor: pointer; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f0f9ff; padding-bottom: 15px; }
+        .sidebar-header h3 { color: #0284c7; font-weight: 700; font-size: 22px; }
+        .close-btn { background: #f0f9ff; border: none; width: 38px; height: 38px; border-radius: 50%; font-size: 18px; cursor: pointer; color: #0284c7; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .close-btn:hover { background: #e0f2fe; transform: scale(1.1); }
         
-        .sidebar-menu { list-style: none; }
-        .sidebar-menu li { margin-bottom: 10px; }
+        .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 6px; }
         .sidebar-menu li a { 
-            display: block; padding: 12px 15px; color: #991b1b; text-decoration: none; 
-            border-radius: 8px; font-weight: 500; transition: background 0.2s; 
+            display: flex; align-items: center; gap: 15px; padding: 12px 16px; color: #334155; text-decoration: none; font-weight: 400; border-radius: 14px; transition: all 0.2s ease; 
         }
-        .sidebar-menu li a:hover, .sidebar-menu li a.active { background-color: #fee2e2; color: #dc2626; }
+        .sidebar-menu li a:hover { background: #f0f9ff; color: #0284c7; transform: translateX(4px); }
+        .sidebar-menu li a.active { background: #f0f9ff; color: #0284c7; font-weight: 600; }
+        .sidebar-menu li a .menu-icon { font-size: 20px; width: 28px; text-align: center; }
 
-        /* Overlay พื้นหลังเวลาเปิดเมนู */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); display: none; z-index: 150; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: none; z-index: 150; backdrop-filter: blur(4px); transition: opacity 0.3s; }
         .overlay.active { display: block; }
 
-        /* Container เนื้อหาหลัก */
-        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
-        .admin-section { display: none; }
-        .admin-section.active { display: block; }
-
-        h2 { color: #991b1b; margin-bottom: 20px; font-size: 22px; }
-
-        /* ตารางและกล่อง */
-        .table-container { background: #ffffff; border-radius: 12px; border: 1px solid #fecaca; overflow: hidden; box-shadow: 0 2px 4px rgba(239,68,68,0.02); }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-        th, td { padding: 15px; border-bottom: 1px solid #fee2e2; }
-        th { background-color: #fff5f5; color: #991b1b; }
+        .container { max-width: 950px; margin: 30px auto 60px auto; padding: 0 20px; }
         
-        .btn-edit { background: #dbeafe; color: #1e40af; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
-        .btn-delete { background: #fee2e2; color: #991b1b; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+        .header-section { margin-bottom: 30px; text-align: center; }
+        .header-section h2 { 
+            font-size: 28px; font-weight: 700; color: #0284c7; 
+            background: linear-gradient(135deg, #0284c7, #0ea5e9); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        }
+        .header-section p { font-size: 15px; color: #64748b; margin-top: 5px; }
 
-        .card-box { background: #ffffff; padding: 25px; border-radius: 12px; border: 1px solid #fecaca; margin-bottom: 15px; }
+        .admin-card {
+            background: #ffffff; border-radius: 24px; border: 1.5px solid rgba(186, 230, 253, 0.8);
+            padding: 30px; box-shadow: 0 10px 35px rgba(14, 165, 233, 0.08); margin-bottom: 25px;
+        }
+
+        .admin-card-title {
+            font-size: 20px; font-weight: 700; color: #0369a1; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .table-container { width: 100%; overflow-x: auto; }
+        .user-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .user-table th { background: #f0f9ff; color: #0369a1; padding: 14px 18px; font-size: 14px; font-weight: 700; border-bottom: 2px solid #bae6fd; }
+        .user-table td { padding: 14px 18px; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #334155; }
+        .user-table tr:hover { background-color: #fafcff; }
+
+        .badge-admin { background: #e0f2fe; color: #0284c7; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #bae6fd; }
+        .badge-user { background: #f1f5f9; color: #64748b; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+
+        .btn-delete-user {
+            background-color: #fee2e2; color: #ef4444; border: none; padding: 8px 14px;
+            border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s;
+            font-family: 'Prompt', sans-serif; display: inline-flex; align-items: center; gap: 5px;
+        }
+        .btn-delete-user:hover { background-color: #ef4444; color: #ffffff; }
+
+        .restricted-view {
+            text-align: center; padding: 60px 20px; background: #ffffff; border-radius: 24px;
+            border: 1.5px solid #bae6fd; box-shadow: 0 10px 35px rgba(14, 165, 233, 0.08);
+        }
+        .restricted-view h3 { font-size: 24px; color: #ef4444; margin-bottom: 10px; font-weight: 700; }
+        .restricted-view p { color: #64748b; font-size: 15px; margin-bottom: 20px; }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 15px; }
+            .admin-card { padding: 20px; }
+        }
     </style>
 </head>
 <body>
 
     <div class="navbar">
         <div class="nav-left">
-            <button class="menu-btn" id="menuToggle">☰</button>
-            <div class="nav-title">🛡️ ADMIN PANEL (จัดการระบบ)</div>
+            <button class="menu-btn" id="menuToggle" onclick="playClickSound()">&#9776;</button>
+            <div class="logo-container">
+                <img src="logo-ai.png" alt="Baby Go AI Logo" class="main-logo-img">
+            </div>
         </div>
-        <button class="logout-btn" onclick="localStorage.clear(); window.location.href='login.html';">ออกจากระบบ</button>
+        <div class="nav-right">
+            <a href="notifications.html" class="icon-btn" title="แจ้งเตือน" onclick="playClickSound()">&#128276;</a>
+            <a href="profile.html" class="icon-btn" title="โปรไฟล์" onclick="playClickSound()">&#128100;</a>
+        </div>
     </div>
 
-    <div class="overlay" id="overlay"></div>
-
-    <!-- Sidebar เมนูในหน้าเดียว -->
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+    
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3 style="color: #991b1b;">เมนูผู้ดูแลระบบ</h3>
-            <button class="close-sidebar" id="closeSidebar">✕</button>
+            <h3>เมนูหลัก</h3>
+            <button class="close-btn" id="closeMenu" onclick="playClickSound()">&#10005;</button>
         </div>
         <ul class="sidebar-menu">
-            <li><a href="#" onclick="switchTab('home')" class="active" id="menu-home">🏠 หน้าแรกแอดมิน</a></li>
-            <li><a href="#" onclick="switchTab('users')" id="menu-users">👥 จัดการสมาชิก</a></li>
-            <li><a href="#" onclick="switchTab('posts')" id="menu-posts">💬 จัดการโพสต์ชุมชน</a></li>
-            <li><a href="#" onclick="switchTab('settings')" id="menu-settings">⚙️ ตั้งค่าระบบ</a></li>
+            <li><a href="content.html" onclick="playClickSound()"><span class="menu-icon">🏠</span> หน้าแรก</a></li>
+            <li><a href="development.html" onclick="playClickSound()"><span class="menu-icon">📈</span> พัฒนาการเด็ก</a></li>
+            <li><a href="vaccine.html" onclick="playClickSound()"><span class="menu-icon">💉</span> วัคซีน</a></li>
+            <li><a href="nutrition.html" onclick="playClickSound()"><span class="menu-icon">🍲</span> โภชนาการ</a></li>
+            <li><a href="knowledge.html" onclick="playClickSound()"><span class="menu-icon">📚</span> ความรู้</a></li>
+            <li><a href="ai_assistant.html" onclick="playClickSound()"><span class="menu-icon">🤖</span> AI วิเคราะห์</a></li>
+            <li><a href="community.html" onclick="playClickSound()"><span class="menu-icon">💬</span> ชุมชน</a></li>
+            <li><a href="contact.html" onclick="playClickSound()"><span class="menu-icon">📞</span> ติดต่อเรา</a></li>
+            
+            <li id="adminMenuLink" style="display: none;">
+                <a href="admin.html" class="active" onclick="playClickSound()" style="background: #fdf4ff; color: #d946ef; font-weight: 700;">
+                    <span class="menu-icon">⚙️</span> หลังบ้านแอดมิน
+                </a>
+            </li>
+
+            <li><a href="login.html" onclick="localStorage.removeItem('userEmail'); playClickSound();" style="color: #ef4444;"><span class="menu-icon">🚪</span> ออกจากระบบ</a></li>
         </ul>
     </div>
 
-    <div class="container">
+    <div class="container animated-fade">
         
-        <!-- ส่วนที่ 1: หน้าแรกแอดมิน -->
-        <div id="section-home" class="admin-section active">
-            <h2>ภาพรวมระบบ Baby Go</h2>
-            <div class="card-box">
-                <p style="color: #64748b; font-size: 15px;">ยินดีต้อนรับเข้าสู่ระบบหลังบ้านสูงสุด คุณสามารถเลือกเมนูจากแถบด้านซ้ายเพื่อจัดการข้อมูลสมาชิก ตรวจสอบโพสต์ชุมชน หรือตั้งค่าระบบได้ทันทีครับ</p>
+        <div id="adminContentArea" style="display: none;">
+            <div class="header-section">
+                <h2>ระบบบริหารจัดการหลังบ้านแอดมิน</h2>
+                <p>ตรวจสอบรายชื่อผู้ใช้งาน ดูข้อมูลบัญชี และบริหารจัดการระบบแบบเรียลไทม์</p>
+            </div>
+
+            <div class="admin-card">
+                <div class="admin-card-title">
+                    👥 รายชื่อบัญชีผู้ใช้งานทั้งหมดในระบบ (Real-time)
+                </div>
+                <div class="table-container">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>อีเมลผู้ใช้</th>
+                                <th>สถานะสิทธิ์</th>
+                                <th>จัดการสิทธิ์</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <!-- ข้อมูลจะถูกโหลดแบบเรียลไทม์ผ่าน JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <!-- ส่วนที่ 2: จัดการสมาชิก -->
-        <div id="section-users" class="admin-section">
-            <h2>จัดการสมาชิกในระบบ</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>อีเมลสมาชิก</th>
-                            <th>สถานะ</th>
-                            <th>จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>babygo.admin@gmail.com</td>
-                            <td><span style="color: #16a34a; font-weight: 500;">ผู้ดูแลระบบสูงสุด</span></td>
-                            <td>-</td>
-                        </tr>
-                        <tr>
-                            <td>user.sample@babygo.com</td>
-                            <td>สมาชิกทั่วไป</td>
-                            <td>
-                                <button class="btn-edit" onclick="alert('แก้ไขข้อมูลสมาชิก')">แก้ไข</button>
-                                <button class="btn-delete" onclick="alert('ลบสมาชิกเรียบร้อย')">ลบ</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ส่วนที่ 3: จัดการโพสต์ชุมชน -->
-        <div id="section-posts" class="admin-section">
-            <h2>จัดการโพสต์ในชุมชน</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>หัวข้อโพสต์</th>
-                            <th>ผู้โพสต์</th>
-                            <th>จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>น้องทานยากทำยังไงดีคะคุณแม่?</td>
-                            <td>คุณแม่พิมพิใจ</td>
-                            <td><button class="btn-delete" onclick="alert('ลบโพสต์นี้แล้ว')">ลบโพสต์</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ส่วนที่ 4: ตั้งค่าระบบ -->
-        <div id="section-settings" class="admin-section">
-            <h2>ตั้งค่าระบบเว็บไซต์</h2>
-            <div class="card-box">
-                <p style="margin-bottom: 10px; font-weight: 500; color: #991b1b;">สถานะระบบฐานข้อมูล:</p>
-                <p style="color: #16a34a; margin-bottom: 20px;">🟢 เชื่อมต่อ Firebase สำเร็จ (Active)</p>
-                <button class="btn-edit" onclick="alert('บันทึกการตั้งค่าเรียบร้อย')">บันทึกการตั้งค่า</button>
-            </div>
+        <div id="restrictedArea" class="restricted-view" style="display: none;">
+            <h3>⛔ พื้นที่จำกัดเฉพาะแอดมินเท่านั้น</h3>
+            <p>คุณไม่มีสิทธิ์เข้าถึงหน้าบริหารจัดการระบบหลังบ้านนี้ กรุณาเข้าสู่ระบบด้วยบัญชีแอดมินหลัก</p>
+            <a href="content.html" class="action-btn" style="background-color: #0ea5e9; color: white; border: none; padding: 12px 24px; border-radius: 14px; text-decoration: none; font-weight: 600; display: inline-block;" onclick="playClickSound()">กลับสู่หน้าแรก</a>
         </div>
 
     </div>
 
     <script>
+        let audioCtx = null;
+
+        function playClickSound() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.06);
+                
+                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.06);
+            } catch (err) {
+                console.log("Audio not supported or blocked", err);
+            }
+        }
+
         const menuToggle = document.getElementById('menuToggle');
-        const closeSidebar = document.getElementById('closeSidebar');
+        const closeMenu = document.getElementById('closeMenu');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
-
-        function toggleMenu() {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
-
+        function toggleMenu() { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); }
         menuToggle.addEventListener('click', toggleMenu);
-        closeSidebar.addEventListener('click', toggleMenu);
+        closeMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        // ฟังก์ชันสลับหน้าเนื้อหาในไฟล์เดียว
-        function switchTab(tabName) {
-            // ซ่อนทุกหน้า
-            document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
-            // เอา Active ออกจากเมนูทั้งหมด
-            document.querySelectorAll('.sidebar-menu a').forEach(menu => menu.classList.remove('active'));
+        const ADMIN_EMAIL = 'babygo.admin@gmail.com';
 
-            // แสดงหน้าเป้าหมาย
-            document.getElementById('section-' + tabName).classList.add('active');
-            // ใส่ Active ให้เมนูปัจจุบัน
-            document.getElementById('menu-' + tabName).classList.add('active');
-
-            // ปิด Sidebar อัตโนมัติหลังกดเลือก
-            toggleMenu();
+        function getCurrentEmail() {
+            return localStorage.getItem('userEmail') || 'guest@babygo.com';
         }
+
+        function loadUsersTable() {
+            const tbody = document.getElementById('userTableBody');
+            
+            // ดึงข้อมูลผู้ใช้จาก localStorage (ที่บันทึกตอนเข้าสู่ระบบหรือสมัครสมาชิก)
+            let users = JSON.parse(localStorage.getItem('babyGoRegisteredUsers')) || [];
+            
+            // ตรวจสอบว่ามีอีเมลปัจจุบันที่ล็อกอินอยู่ไหม ถ้ายังไม่มีในลิสต์ ให้เพิ่มเข้าไปอัตโนมัติแบบเรียลไทม์
+            const currentLoggedInEmail = localStorage.getItem('userEmail');
+            if (currentLoggedInEmail) {
+                let exists = users.some(u => u.email.toLowerCase() === currentLoggedInEmail.toLowerCase());
+                if (!exists) {
+                    users.push({ email: currentLoggedInEmail });
+                    localStorage.setItem('babyGoRegisteredUsers', JSON.stringify(users));
+                }
+            }
+
+            // ถ้าไม่มีข้อมูลเลย ให้แสดงแอดมินหลักเป็นค่าเริ่มต้น
+            if (users.length === 0) {
+                users = [{ email: ADMIN_EMAIL }];
+            }
+
+            let html = '';
+            users.forEach((user) => {
+                const isMainAdmin = (user.email.toLowerCase() === ADMIN_EMAIL);
+                const roleBadge = isMainAdmin 
+                    ? `<span class="badge-admin">👑 ผู้ดูแลระบบ (Admin)</span>` 
+                    : `<span class="badge-user">👤 ผู้ใช้งานทั่วไป</span>`;
+
+                const actionButton = isMainAdmin 
+                    ? `<span style="color: #94a3b8; font-size: 13px; font-weight: 600;">แอดมินหลักระบบ</span>` 
+                    : `<button class="btn-delete-user" onclick="playClickSound(); deleteUser('${user.email}')">🗑️ ลบผู้ใช้</button>`;
+
+                html += `
+                    <tr>
+                        <td style="font-weight: 500;">${user.email}</td>
+                        <td>${roleBadge}</td>
+                        <td>${actionButton}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function deleteUser(emailToDelete) {
+            if (confirm(`คุณต้องการลบบัญชีผู้ใช้ ${emailToDelete} ออกจากระบบใช่หรือไม่?`)) {
+                let users = JSON.parse(localStorage.getItem('babyGoRegisteredUsers')) || [];
+                users = users.filter(u => u.email !== emailToDelete);
+                localStorage.setItem('babyGoRegisteredUsers', JSON.stringify(users));
+                loadUsersTable();
+                alert('ลบบัญชีผู้ใช้เรียบร้อยแล้วครับ!');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const currentEmail = getCurrentEmail();
+            const isAdmin = (currentEmail.toLowerCase() === ADMIN_EMAIL);
+
+            if (isAdmin) {
+                document.getElementById('adminContentArea').style.display = 'block';
+                document.getElementById('restrictedArea').style.display = 'none';
+                const adminLink = document.getElementById('adminMenuLink');
+                if (adminLink) adminLink.style.display = 'block';
+                loadUsersTable();
+            } else {
+                document.getElementById('adminContentArea').style.display = 'none';
+                document.getElementById('restrictedArea').style.display = 'block';
+            }
+
+            const safeKey = currentEmail.replace(/[@.]/g, '_');
+            const savedImg = localStorage.getItem('userProfileImg_' + safeKey);
+            if (savedImg) {
+                const profileIcon = document.querySelector('a[href="profile.html"]');
+                if(profileIcon) {
+                    profileIcon.innerHTML = `<img src="${savedImg}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                }
+            }
+        });
     </script>
 </body>
 </html>
