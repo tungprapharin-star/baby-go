@@ -16,7 +16,6 @@
 
         .animated-fade { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* Navbar พรีเมียม */
         .navbar {
             background-color: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -30,7 +29,6 @@
         .menu-btn { font-size: 26px; cursor: pointer; color: #0284c7; background: #e0f2fe; border: none; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .menu-btn:hover { background: #bae6fd; transform: scale(1.1) rotate(90deg); }
         
-        /* ปรับโลโก้ใหม่ให้ขนาดใหญ่เท่าหน้าแรก */
         .logo-container { display: flex; align-items: center; }
         .main-logo-img { height: 60px !important; width: auto !important; object-fit: contain !important; display: block; }
 
@@ -43,7 +41,6 @@
             background-color: #ef4444; border-radius: 50%; display: none; border: 1px solid #ffffff;
         }
 
-        /* Sidebar ดีไซน์พรีเมียม */
         .sidebar {
             position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
             background-color: #ffffff; 
@@ -68,7 +65,6 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: none; z-index: 150; backdrop-filter: blur(4px); transition: opacity 0.3s; }
         .overlay.active { display: block; }
 
-        /* Container เนื้อหาหน้าวัคซีน */
         .container { max-width: 950px; margin: 30px auto 60px auto; padding: 0 20px; }
         
         .header-section { margin-bottom: 30px; text-align: center; }
@@ -79,7 +75,6 @@
         }
         .header-section p { font-size: 15px; color: #64748b; margin-top: 5px; }
 
-        /* กล่องแจ้งเตือนนัดหมายวัคซีน */
         .alert-banner {
             background: linear-gradient(135deg, #fffbeb, #fef3c7);
             border: 1.5px solid #f59e0b; border-radius: 24px; padding: 25px;
@@ -124,7 +119,6 @@
             box-shadow: 0 2px 8px rgba(245, 158, 11, 0.05);
         }
 
-        /* CUSTOM DROPDOWN */
         .custom-select-container { position: relative; width: 100%; }
         .custom-select-trigger {
             padding: 11px 14px; border: 1px solid #f59e0b; border-radius: 12px; font-size: 13px; background: #fff; color: #333;
@@ -166,7 +160,6 @@
         }
         .banner-queue-list li:last-child { border-bottom: none; }
 
-        /* แผงสรุปสถิติ & ปุ่มเปิดหน้าต่างสรุปประวัติ */
         .summary-wrapper {
             display: grid; grid-template-columns: 2.5fr 1fr; gap: 20px; margin-bottom: 30px; align-items: center;
         }
@@ -189,7 +182,6 @@
         }
         .btn-summary-modal:hover { filter: brightness(1.05); transform: translateY(-3px); }
 
-        /* Modal สรุปประวัติวัคซีน */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4);
             display: none; justify-content: center; align-items: center; z-index: 300; backdrop-filter: blur(4px);
@@ -246,7 +238,6 @@
         .modal-list li { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #334155; }
         .modal-list li:last-child { border-bottom: none; }
 
-        /* ตารางวัคซีน */
         .vaccine-section { 
             background: #ffffff; border-radius: 24px; box-shadow: 0 10px 30px rgba(14, 165, 233, 0.06); 
             padding: 25px; margin-bottom: 25px; border: 1px solid rgba(186, 230, 253, 0.8); 
@@ -327,7 +318,6 @@
             <li><a href="community.html" onclick="playClickSound()"><span class="menu-icon">💬</span> ชุมชน</a></li>
             <li><a href="contact.html" onclick="playClickSound()"><span class="menu-icon">📞</span> ติดต่อเรา</a></li>
             
-            <!-- เพิ่มปุ่มหลังบ้านแอดมินพิเศษ แสดงเฉพาะ babygo.admin@gmail.com เท่านั้น -->
             <li id="adminMenuLink" style="display: none;">
                 <a href="admin.html" onclick="playClickSound()" style="background: #fdf4ff; color: #d946ef; font-weight: 700;">
                     <span class="menu-icon">⚙️</span> หลังบ้านแอดมิน
@@ -338,7 +328,6 @@
         </ul>
     </div>
 
-    <!-- Modal สรุปประวัติและคิววัคซีน -->
     <div class="modal-overlay" id="summaryModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -368,7 +357,6 @@
             <p>บันทึกประวัติและตรวจสอบช่วงวัยในการรับวัคซีนของลูกน้อยเพื่อภูมิคุ้มกันที่แข็งแรง</p>
         </div>
 
-        <!-- กล่องแจ้งเตือนนัดหมายวัคซีน -->
         <div class="alert-banner" id="alertBanner">
             <div class="alert-top-row">
                 <div class="alert-left-content">
@@ -406,7 +394,6 @@
                 </div>
             </div>
 
-            <!-- ส่วนแสดงรายการวัคซีนที่ควรฉีดต่อไปด้านล่างแบนเนอร์เตือน -->
             <div class="banner-next-queue-section">
                 <h5>⏳ รายการวัคซีนที่ควรฉีดต่อไป (ตามลำดับอัตโนมัติ):</h5>
                 <ul class="banner-queue-list" id="bannerNextQueueList">
@@ -415,7 +402,6 @@
             </div>
         </div>
 
-        <!-- แผงสรุปสถิติ & ปุ่มกดเปิดหน้าต่างสรุปประวัติ -->
         <div class="summary-wrapper">
             <div class="summary-card">
                 <div class="summary-item">
@@ -437,7 +423,6 @@
             </button>
         </div>
 
-        <!-- พื้นที่แสดงตารางวัคซีน -->
         <div id="vaccineContainer"></div>
     </div>
 
@@ -473,7 +458,6 @@
             }
         }
 
-        // ดึงอีเมลและคีย์เฉพาะบัญชีผู้ใช้
         function getCurrentEmail() {
             return localStorage.getItem('userEmail') || 'guest@babygo.com';
         }
@@ -656,45 +640,9 @@
                 alertsList.splice(index, 1);
                 localStorage.setItem('savedVaccineAlertsList_' + safeKey, JSON.stringify(alertsList));
 
-                let notifs = JSON.parse(localStorage.getItem('userNotifications_' + safeKey)) || [];
-                const targetMsg = `นัดฉีดวัคซีน [${targetAlert.vaccine}] ในวันที่ ${targetAlert.date}`;
-                notifs = notifs.filter(n => n.message !== targetMsg);
-                localStorage.setItem('userNotifications_' + safeKey, JSON.stringify(notifs));
-
                 renderModalAlertsList();
                 renderVaccineTables();
                 alert(`บันทึกสถานะ [${targetAlert.vaccine}] ว่าฉีดแล้วเรียบร้อย!`);
-            }
-        }
-
-        function triggerSingleNotification(index) {
-            const safeKey = getCurrentSafeKey();
-            let alertsList = JSON.parse(localStorage.getItem('savedVaccineAlertsList_' + safeKey)) || [];
-            if (alertsList[index]) {
-                alertsList[index].notified = true;
-                localStorage.setItem('savedVaccineAlertsList_' + safeKey, JSON.stringify(alertsList));
-
-                let notifs = JSON.parse(localStorage.getItem('userNotifications_' + safeKey)) || [];
-                const msg = `นัดฉีดวัคซีน [${alertsList[index].vaccine}] ในวันที่ ${alertsList[index].date}`;
-                
-                if (!notifs.some(n => n.message === msg)) {
-                    notifs.unshift({
-                        id: Date.now(),
-                        title: "นัดหมายฉีดวัคซีน",
-                        message: msg,
-                        date: new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }),
-                        read: false
-                    });
-                    localStorage.setItem('userNotifications_' + safeKey, JSON.stringify(notifs));
-                }
-                
-                localStorage.setItem('babyGoHasNewNotification_' + safeKey, 'true');
-
-                renderModalAlertsList();
-                updateGlobalNotificationBadge();
-                
-                alert(`ตั้งค่าแจ้งเตือน [${alertsList[index].vaccine}] สำเร็จ! กำลังพาไปหน้าศูนย์แจ้งเตือน...`);
-                window.location.href = 'notifications.html';
             }
         }
 
@@ -702,31 +650,11 @@
             const safeKey = getCurrentSafeKey();
             let alertsList = JSON.parse(localStorage.getItem('savedVaccineAlertsList_' + safeKey)) || [];
             if (alertsList[index]) {
-                const removedItem = alertsList[index];
-                const targetMsg = `นัดฉีดวัคซีน [${removedItem.vaccine}] ในวันที่ ${removedItem.date}`;
-
                 alertsList.splice(index, 1);
                 localStorage.setItem('savedVaccineAlertsList_' + safeKey, JSON.stringify(alertsList));
 
-                let notifs = JSON.parse(localStorage.getItem('userNotifications_' + safeKey)) || [];
-                notifs = notifs.filter(n => n.message !== targetMsg);
-                localStorage.setItem('userNotifications_' + safeKey, JSON.stringify(notifs));
-
                 renderModalAlertsList();
-                updateGlobalNotificationBadge();
                 autoCalculateNextVaccineBanner();
-            }
-        }
-
-        function updateGlobalNotificationBadge() {
-            const safeKey = getCurrentSafeKey();
-            let alertsList = JSON.parse(localStorage.getItem('savedVaccineAlertsList_' + safeKey)) || [];
-            const hasNotified = alertsList.some(a => a.notified);
-            const badge = document.getElementById('notifBadge');
-            if (hasNotified) {
-                badge.style.display = 'block';
-            } else {
-                badge.style.display = 'none';
             }
         }
 
@@ -809,7 +737,6 @@
                 document.getElementById('alertMessage').innerText = "ยังไม่ได้เลือกวัคซีนหรือกำหนดวันนัดหมาย กรุณาเลือกด้านล่างครับ";
             }
             updateBannerNextQueue();
-            updateGlobalNotificationBadge();
         }
 
         function populateCustomDropdown() {
@@ -1057,6 +984,72 @@
             }
             renderVaccineTables();
         });
+    </script>
+
+    <!-- Firebase SDK สำหรับเชื่อมโยงการแจ้งเตือนวัคซีนเข้ากับคลาวด์แบบเรียลไทม์ -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2QNZSSDXnIuHTFVFQn8gzx7JBWTRn8i0",
+            authDomain: "babygo-database-c51bb.firebaseapp.com",
+            projectId: "babygo-database-c51bb",
+            storageBucket: "babygo-database-c51bb.firebasestorage.app",
+            messagingSenderId: "288446121324",
+            appId: "1:288446121324:web:d565a8b27893e761a8df49",
+            databaseURL: "https://babygo-database-c51bb-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // ตรวจสอบสถานะจุดแดงแจ้งเตือนบน Navbar แบบเรียลไทม์
+        window.addEventListener('DOMContentLoaded', () => {
+            const currentEmail = localStorage.getItem('userEmail') || 'guest@babygo.com';
+            const safeKey = currentEmail.replace(/[@.]/g, '_');
+            const badgeRef = ref(db, `userNotificationsMeta/${safeKey}/hasNew`);
+            onValue(badgeRef, (snapshot) => {
+                const hasNew = snapshot.val();
+                const notifBadge = document.getElementById('notifBadge');
+                if (notifBadge) {
+                    notifBadge.style.display = (hasNew === true) ? 'block' : 'none';
+                }
+            });
+        });
+
+        // อัปเดตฟังก์ชันกดแจ้งเตือนวัคซีนให้บันทึกขึ้น Firebase ทันที
+        window.triggerSingleNotification = function(index) {
+            const currentEmail = localStorage.getItem('userEmail') || 'guest@babygo.com';
+            const safeKey = currentEmail.replace(/[@.]/g, '_');
+            let alertsList = JSON.parse(localStorage.getItem('savedVaccineAlertsList_' + safeKey)) || [];
+            
+            if (alertsList[index]) {
+                alertsList[index].notified = true;
+                localStorage.setItem('savedVaccineAlertsList_' + safeKey, JSON.stringify(alertsList));
+
+                const targetAlert = alertsList[index];
+                const msg = `นัดฉีดวัคซีน [${targetAlert.vaccine}] ในวันที่ ${targetAlert.date}`;
+                
+                // บันทึกการแจ้งเตือนขึ้น Firebase Realtime Database
+                const newNotifRef = push(ref(db, `userNotifications/${safeKey}`));
+                set(newNotifRef, {
+                    icon: "💉",
+                    title: "นัดหมายฉีดวัคซีน",
+                    message: msg,
+                    date: new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }),
+                    timestamp: Date.now()
+                });
+
+                // เปิดสถานะจุดแจ้งเตือนสีแดงบน Navbar ผ่าน Firebase
+                set(ref(db, `userNotificationsMeta/${safeKey}/hasNew`), true);
+
+                renderModalAlertsList();
+                
+                alert(`ตั้งค่าแจ้งเตือน [${targetAlert.vaccine}] สำเร็จ! กำลังพาไปหน้าศูนย์แจ้งเตือน...`);
+                window.location.href = 'notifications.html';
+            }
+        }
     </script>
 </body>
 </html>
