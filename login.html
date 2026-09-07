@@ -169,7 +169,22 @@
             try {
                 await signInWithEmailAndPassword(auth, loginEmail, password);
                 
-                // เข้าสู่ระบบสำเร็จแล้วพาไปหน้าหลัก (content.html) ตามปกติ
+                // บันทึกอีเมลผู้ใช้ปัจจุบัน
+                localStorage.setItem('userEmail', loginEmail);
+
+                // บันทึกสะสมลงระบบกลางเพื่อโชว์หน้าแอดมิน
+                let allUsers = JSON.parse(localStorage.getItem('babygo_all_users')) || [
+                    { email: "babygo.admin@gmail.com", role: "ผู้ดูแลระบบ (Admin)" },
+                    { email: "rokitttmamyng@gmail.com", role: "สมาชิกทั่วไป" }
+                ];
+
+                const exists = allUsers.some(u => u.email.toLowerCase() === loginEmail.toLowerCase());
+                if (!exists) {
+                    const roleName = loginEmail.toLowerCase() === 'babygo.admin@gmail.com' ? "ผู้ดูแลระบบ (Admin)" : "สมาชิกทั่วไป";
+                    allUsers.push({ email: loginEmail, role: roleName });
+                    localStorage.setItem('babygo_all_users', JSON.stringify(allUsers));
+                }
+
                 alert("เข้าสู่ระบบสำเร็จ!");
                 window.location.href = "content.html";
 
