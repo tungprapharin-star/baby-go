@@ -85,15 +85,7 @@
         .user-table td { padding: 14px 18px; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #334155; }
         .user-table tr:hover { background-color: #fafcff; }
 
-        .badge-admin { background: #e0f2fe; color: #0284c7; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #bae6fd; }
-        .badge-user { background: #f1f5f9; color: #64748b; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
-
-        .btn-delete-user {
-            background-color: #fee2e2; color: #ef4444; border: none; padding: 8px 14px;
-            border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s;
-            font-family: 'Prompt', sans-serif; display: inline-flex; align-items: center; gap: 5px;
-        }
-        .btn-delete-user:hover { background-color: #ef4444; color: #ffffff; }
+        .badge-registered { background: #e0f2fe; color: #0284c7; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #bae6fd; }
 
         .restricted-view {
             text-align: center; padding: 60px 20px; background: #ffffff; border-radius: 24px;
@@ -155,24 +147,24 @@
         <div id="adminContentArea" style="display: none;">
             <div class="header-section">
                 <h2>ระบบบริหารจัดการหลังบ้านแอดมิน</h2>
-                <p>ตรวจสอบรายชื่อผู้ใช้งาน ดูข้อมูลบัญชี และบริหารจัดการระบบแบบเรียลไทม์</p>
+                <p>รายชื่อบัญชีผู้ใช้งานทั้งหมดในระบบ</p>
             </div>
 
             <div class="admin-card">
                 <div class="admin-card-title">
-                    👥 รายชื่อบัญชีผู้ใช้งานทั้งหมดในระบบ (Real-time)
+                    👥 รายชื่อสมาชิกทั้งหมดในระบบ
                 </div>
                 <div class="table-container">
                     <table class="user-table">
                         <thead>
                             <tr>
-                                <th>อีเมลผู้ใช้</th>
-                                <th>สถานะสิทธิ์</th>
-                                <th>จัดการสิทธิ์</th>
+                                <th>ชื่อ-นามสกุล</th>
+                                <th>อีเมลผู้ใช้งาน</th>
+                                <th>สถานะบัญชี</th>
                             </tr>
                         </thead>
                         <tbody id="userTableBody">
-                            <!-- ข้อมูลจะถูกโหลดแบบเรียลไทม์ผ่าน JavaScript -->
+                            <tr><td colspan="3" style="text-align: center; color: #94a3b8; padding: 20px;">กำลังโหลดรายชื่อสมาชิก...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -229,89 +221,81 @@
         overlay.addEventListener('click', toggleMenu);
 
         const ADMIN_EMAIL = 'babygo.admin@gmail.com';
+    </script>
 
-        function getCurrentEmail() {
-            return localStorage.getItem('userEmail') || 'guest@babygo.com';
-        }
+    <!-- Firebase SDK สำหรับดึงรายชื่อสมาชิกทั้งหมดจาก Firestore แบบ Real-time -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        function loadUsersTable() {
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2QNZSSDXnIuHTFVFQn8gzx7JBWTRn8i0",
+            authDomain: "babygo-database-c51bb.firebaseapp.com",
+            projectId: "babygo-database-c51bb",
+            storageBucket: "babygo-database-c51bb.firebasestorage.app",
+            messagingSenderId: "288446121324",
+            appId: "1:288446121324:web:d565a8b27893e761a8df49"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const ADMIN_EMAIL = 'babygo.admin@gmail.com';
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const userEmail = user.email || '';
+                const isAdmin = (userEmail.toLowerCase() === ADMIN_EMAIL);
+
+                if (isAdmin) {
+                    document.getElementById('adminContentArea').style.display = 'block';
+                    document.getElementById('restrictedArea').style.display = 'none';
+                    const adminLink = document.getElementById('adminMenuLink');
+                    if (adminLink) adminLink.style.display = 'block';
+
+                    // ดึงรายชื่อจาก Firestore Collection 'users' แบบเรียลไทม์
+                    onSnapshot(collection(db, "users"), (snapshot) => {
+                        let users = [];
+                        snapshot.forEach((docSnap) => {
+                            users.push({
+                                id: docSnap.id,
+                                ...docSnap.data()
+                            });
+                        });
+                        renderUsersTable(users);
+                    });
+
+                } else {
+                    document.getElementById('adminContentArea').style.display = 'none';
+                    document.getElementById('restrictedArea').style.display = 'block';
+                }
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
+        window.renderUsersTable = function(users) {
             const tbody = document.getElementById('userTableBody');
             
-            // ดึงข้อมูลผู้ใช้จาก localStorage (ที่บันทึกตอนเข้าสู่ระบบหรือสมัครสมาชิก)
-            let users = JSON.parse(localStorage.getItem('babyGoRegisteredUsers')) || [];
-            
-            // ตรวจสอบว่ามีอีเมลปัจจุบันที่ล็อกอินอยู่ไหม ถ้ายังไม่มีในลิสต์ ให้เพิ่มเข้าไปอัตโนมัติแบบเรียลไทม์
-            const currentLoggedInEmail = localStorage.getItem('userEmail');
-            if (currentLoggedInEmail) {
-                let exists = users.some(u => u.email.toLowerCase() === currentLoggedInEmail.toLowerCase());
-                if (!exists) {
-                    users.push({ email: currentLoggedInEmail });
-                    localStorage.setItem('babyGoRegisteredUsers', JSON.stringify(users));
-                }
-            }
-
-            // ถ้าไม่มีข้อมูลเลย ให้แสดงแอดมินหลักเป็นค่าเริ่มต้น
-            if (users.length === 0) {
-                users = [{ email: ADMIN_EMAIL }];
+            if (!users || users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #94a3b8; padding: 20px;">ยังไม่มีข้อมูลสมาชิกใน Firestore (สำหรับบัญชีที่มีอยู่แล้วในระบบ ให้ลองกดออกจากระบบแล้วล็อกอินใหม่อีกครั้ง ระบบจะดึงรายชื่อมาแสดงทันทีครับ)</td></tr>`;
+                return;
             }
 
             let html = '';
             users.forEach((user) => {
-                const isMainAdmin = (user.email.toLowerCase() === ADMIN_EMAIL);
-                const roleBadge = isMainAdmin 
-                    ? `<span class="badge-admin">👑 ผู้ดูแลระบบ (Admin)</span>` 
-                    : `<span class="badge-user">👤 ผู้ใช้งานทั่วไป</span>`;
-
-                const actionButton = isMainAdmin 
-                    ? `<span style="color: #94a3b8; font-size: 13px; font-weight: 600;">แอดมินหลักระบบ</span>` 
-                    : `<button class="btn-delete-user" onclick="playClickSound(); deleteUser('${user.email}')">🗑️ ลบผู้ใช้</button>`;
-
                 html += `
                     <tr>
-                        <td style="font-weight: 500;">${user.email}</td>
-                        <td>${roleBadge}</td>
-                        <td>${actionButton}</td>
+                        <td style="font-weight: 600; color: #0284c7;">${user.name || 'สมาชิกทั่วไป'}</td>
+                        <td>${user.email || '-'}</td>
+                        <td><span class="badge-registered">✔️ สมัครสมาชิกแล้ว</span></td>
                     </tr>
                 `;
             });
 
             tbody.innerHTML = html;
         }
-
-        function deleteUser(emailToDelete) {
-            if (confirm(`คุณต้องการลบบัญชีผู้ใช้ ${emailToDelete} ออกจากระบบใช่หรือไม่?`)) {
-                let users = JSON.parse(localStorage.getItem('babyGoRegisteredUsers')) || [];
-                users = users.filter(u => u.email !== emailToDelete);
-                localStorage.setItem('babyGoRegisteredUsers', JSON.stringify(users));
-                loadUsersTable();
-                alert('ลบบัญชีผู้ใช้เรียบร้อยแล้วครับ!');
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const currentEmail = getCurrentEmail();
-            const isAdmin = (currentEmail.toLowerCase() === ADMIN_EMAIL);
-
-            if (isAdmin) {
-                document.getElementById('adminContentArea').style.display = 'block';
-                document.getElementById('restrictedArea').style.display = 'none';
-                const adminLink = document.getElementById('adminMenuLink');
-                if (adminLink) adminLink.style.display = 'block';
-                loadUsersTable();
-            } else {
-                document.getElementById('adminContentArea').style.display = 'none';
-                document.getElementById('restrictedArea').style.display = 'block';
-            }
-
-            const safeKey = currentEmail.replace(/[@.]/g, '_');
-            const savedImg = localStorage.getItem('userProfileImg_' + safeKey);
-            if (savedImg) {
-                const profileIcon = document.querySelector('a[href="profile.html"]');
-                if(profileIcon) {
-                    profileIcon.innerHTML = `<img src="${savedImg}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-                }
-            }
-        });
     </script>
 </body>
 </html>
