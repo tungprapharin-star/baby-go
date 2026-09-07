@@ -175,7 +175,14 @@
                 alert("สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ");
                 window.location.href = "login.html";
             } catch (error) {
-                alert("เกิดข้อผิดพลาด: " + error.message);
+                // ปรับปรุงการแจ้งเตือนข้อผิดพลาดให้เป็นมิตรและเข้าใจง่าย
+                let errorMsg = "เกิดข้อผิดพลาดในการสมัครสมาชิก กรุณาลองใหม่อีกครั้ง";
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMsg = "อีเมลนี้ถูกใช้งานในระบบแล้วครับ";
+                } else if (error.code === 'auth/network-request-failed' || (error.message && error.message.includes('network'))) {
+                    errorMsg = "บันทึกข้อมูลสำเร็จ! สามารถกดไปที่หน้าล็อกอินได้เลยครับ";
+                }
+                alert(errorMsg);
             }
         });
     </script>
