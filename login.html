@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบสมาชิก - Baby Go</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Prompt', sans-serif; }
+        body.login-page {
+            margin: 0; padding: 0;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+        }
+        .login-container { width: 100%; max-width: 420px; padding: 20px; }
+        .login-box {
+            background: #ffffff; padding: 35px 30px;
+            border-radius: 16px; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15);
+            border: 1px solid #e0f2fe;
+        }
+        .login-box h2 {
+            text-align: center; color: #0369a1; margin-bottom: 25px;
+            font-weight: 600; font-size: 26px;
+        }
+        .input-group { margin-bottom: 16px; position: relative; }
+        .input-group input {
+            width: 100%; padding: 12px 16px;
+            border: 1.5px solid #cbd5e1; border-radius: 8px;
+            font-size: 15px; color: #334155; transition: all 0.3s ease;
+        }
+        .input-group input:focus {
+            border-color: #0284c7; outline: none;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            color: #64748b;
+        }
+        .toggle-password svg {
+            width: 20px;
+            height: 20px;
+        }
+        .remember-me {
+            display: flex; align-items: center; margin-bottom: 20px; font-size: 14px; color: #475569;
+        }
+        .remember-me input { margin-right: 8px; accent-color: #0284c7; }
+        .btn-submit {
+            width: 100%; padding: 12px; background-color: #0284c7;
+            color: white; border: none; border-radius: 8px; font-size: 16px;
+            font-weight: 500; cursor: pointer; transition: background 0.3s;
+        }
+        .btn-submit:hover { background-color: #0369a1; }
+        .login-links {
+            text-align: center; margin: 18px 0; font-size: 14px;
+        }
+        .login-links a { color: #0284c7; text-decoration: none; }
+        .login-links a:hover { text-decoration: underline; }
+        .divider { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+        .btn-register, .btn-back {
+            display: block; text-align: center; width: 100%; padding: 10px;
+            border-radius: 8px; text-decoration: none; font-size: 15px; margin-top: 10px;
+            transition: all 0.3s;
+        }
+        .btn-register { background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+        .btn-register:hover { background-color: #e2e8f0; }
+        .btn-back { color: #64748b; background: transparent; }
+        .btn-back:hover { color: #0f172a; }
+    </style>
+</head>
+<body class="login-page">
+
+    <div class="login-container">
+        <div class="login-box">
+            <h2>เข้าสู่ระบบสมาชิก</h2>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="text" id="loginUserInput" placeholder="Email" required>
+                </div>
+                
+                <div class="input-group">
+                    <input type="password" id="loginPassword" placeholder="Password" required style="padding-right: 45px;">
+                    <button type="button" class="toggle-password" id="togglePasswordBtn" aria-label="แสดงหรือซ่อนรหัสผ่าน">
+                        <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                        </svg>
+                        <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display: none;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">จดจำบัญชีและรหัสผ่าน</label>
+                </div>
+                
+                <button type="submit" class="btn-submit">เข้าสู่ระบบ</button>
+            </form>
+
+            <div class="login-links">
+                <a href="forgot-password.html">ลืมรหัสผ่าน?</a>
+            </div>
+
+            <hr class="divider">
+
+            <a href="register.html" class="btn-register">สมัครสมาชิกใหม่</a>
+            <a href="index.html" class="btn-back">กลับหน้าแรก</a>
+        </div>
+    </div>
+
+    <script>
+        const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+        const loginPassword = document.getElementById('loginPassword');
+        const eyeClosed = document.getElementById('eyeClosed');
+        const eyeOpen = document.getElementById('eyeOpen');
+
+        togglePasswordBtn.addEventListener('click', function () {
+            const type = loginPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+            loginPassword.setAttribute('type', type);
+            
+            if (type === 'text') {
+                eyeClosed.style.display = 'none';
+                eyeOpen.style.display = 'block';
+            } else {
+                eyeClosed.style.display = 'block';
+                eyeOpen.style.display = 'none';
+            }
+        });
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2QNZSSDXnIuHTFVFQn8gzx7JBWTRn8i0",
+            authDomain: "babygo-database-c51bb.firebaseapp.com",
+            projectId: "babygo-database-c51bb",
+            storageBucket: "babygo-database-c51bb.firebasestorage.app",
+            messagingSenderId: "288446121324",
+            appId: "1:288446121324:web:d565a8b27893e761a8df49"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        document.getElementById("loginForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            let userInput = document.getElementById("loginUserInput").value.trim();
+            const password = document.getElementById("loginPassword").value;
+
+            let loginEmail = userInput;
+            if (!userInput.includes("@")) {
+                loginEmail = userInput + "@babygo.com"; 
+            }
+
+            try {
+                await signInWithEmailAndPassword(auth, loginEmail, password);
+                
+                // บันทึกอีเมลผู้ใช้ปัจจุบัน
+                localStorage.setItem('userEmail', loginEmail);
+
+                // บันทึกสะสมลงระบบกลางเพื่อโชว์หน้าแอดมิน
+                let allUsers = JSON.parse(localStorage.getItem('babygo_all_users')) || [
+                    { email: "babygo.admin@gmail.com", role: "ผู้ดูแลระบบ (Admin)" },
+                    { email: "rokitttmamyng@gmail.com", role: "สมาชิกทั่วไป" }
+                ];
+
+                const exists = allUsers.some(u => u.email.toLowerCase() === loginEmail.toLowerCase());
+                if (!exists) {
+                    const roleName = loginEmail.toLowerCase() === 'babygo.admin@gmail.com' ? "ผู้ดูแลระบบ (Admin)" : "สมาชิกทั่วไป";
+                    allUsers.push({ email: loginEmail, role: roleName });
+                    localStorage.setItem('babygo_all_users', JSON.stringify(allUsers));
+                }
+
+                alert("เข้าสู่ระบบสำเร็จ!");
+                window.location.href = "content.html";
+
+            } catch (error) {
+                alert("เข้าสู่ระบบไม่สำเร็จ: อีเมล/เบอร์โทร หรือรหัสผ่านไม่ถูกต้อง");
+            }
+        });
+    </script>
+</body>
+</html>
