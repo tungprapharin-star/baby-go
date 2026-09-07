@@ -9,12 +9,7 @@
         * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
         body { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%); color: #333333; font-size: 15px; min-height: 100vh; overflow-x: hidden; }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animated-fade { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
+        /* Navbar ถอดแบบจากหน้า content.html เป๊ะๆ */
         .navbar {
             background-color: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -27,274 +22,175 @@
         .nav-left { display: flex; align-items: center; gap: 15px; }
         .menu-btn { font-size: 26px; cursor: pointer; color: #0284c7; background: #e0f2fe; border: none; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .menu-btn:hover { background: #bae6fd; transform: scale(1.1) rotate(90deg); }
+        .menu-btn:active { transform: scale(0.95); }
         
         .logo-container { display: flex; align-items: center; }
         .main-logo-img { height: 60px !important; width: auto !important; object-fit: contain !important; display: block; }
 
         .nav-right { display: flex; align-items: center; gap: 12px; }
-        .icon-btn { font-size: 22px; cursor: pointer; background: #f0f9ff; border: 1px solid #bae6fd; width: 42px; height: 42px; border-radius: 12px; color: #0ea5e9; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: all 0.2s; position: relative; }
+        .icon-btn { font-size: 22px; cursor: pointer; background: #f0f9ff; border: 1px solid #bae6fd; width: 42px; height: 42px; border-radius: 12px; color: #0ea5e9; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: all 0.2s; overflow: hidden; }
         .icon-btn:hover { background: #e0f2fe; transform: scale(1.1); }
+        .icon-btn:active { transform: scale(0.95); }
 
+        /* Sidebar สไลด์เมนูด้านข้าง */
         .sidebar {
             position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
             background-color: #ffffff; 
             box-shadow: 6px 0 30px rgba(0,0,0,0.1);
-            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 25px 20px;
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; padding: 30px;
             overflow-y: auto;
         }
         .sidebar.active { left: 0; }
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f0f9ff; padding-bottom: 15px; }
-        .sidebar-header h3 { color: #0284c7; font-weight: 700; font-size: 22px; }
-        .close-btn { background: #f0f9ff; border: none; width: 38px; height: 38px; border-radius: 50%; font-size: 18px; cursor: pointer; color: #0284c7; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #f0f9ff; padding-bottom: 15px; }
+        .sidebar-header h3 { color: #0284c7; font-weight: 600; }
+        .close-btn { background: #f0f9ff; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer; color: #0ea5e9; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .close-btn:hover { background: #e0f2fe; transform: scale(1.1); }
         
         .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-        .sidebar-menu li a { 
-            display: flex; align-items: center; gap: 15px; padding: 12px 16px; color: #334155; text-decoration: none; font-weight: 400; border-radius: 14px; transition: all 0.2s ease; 
-        }
-        .sidebar-menu li a:hover { background: #f0f9ff; color: #0284c7; transform: translateX(4px); }
-        .sidebar-menu li a.active { background: #f0f9ff; color: #0284c7; font-weight: 600; }
-        .sidebar-menu li a .menu-icon { font-size: 20px; width: 28px; text-align: center; }
+        .sidebar-menu li a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #334155; text-decoration: none; font-weight: 400; border-radius: 12px; transition: all 0.25s ease; }
+        .sidebar-menu li a:hover { background: #f0f9ff; color: #0284c7; font-weight: 500; transform: translateX(8px); }
 
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: none; z-index: 150; backdrop-filter: blur(4px); transition: opacity 0.3s; }
         .overlay.active { display: block; }
 
-        .container { max-width: 950px; margin: 30px auto 60px auto; padding: 0 20px; }
+        /* Container เนื้อหาหลักหลังบ้าน */
+        .main-container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        h1 { text-align: center; color: #0369a1; font-size: 24px; margin-bottom: 5px; }
+        p.subtitle { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 30px; }
+
+        .card {
+            background: #ffffff; border-radius: 20px;
+            box-shadow: 0 12px 35px rgba(14, 165, 233, 0.08);
+            border: 1px solid rgba(186, 230, 253, 0.8); padding: 25px;
+            overflow-x: auto;
+        }
+        .card h3 { margin-top: 0; color: #0284c7; font-size: 18px; margin-bottom: 20px; }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        th { background-color: #f8fafc; color: #475569; font-weight: 600; }
+        tr:hover { background-color: #f8fafc; }
         
-        .header-section { margin-bottom: 30px; text-align: center; }
-        .header-section h2 { 
-            font-size: 28px; font-weight: 700; color: #0284c7; 
-            background: linear-gradient(135deg, #0284c7, #0ea5e9); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        .badge {
+            background-color: #e0f2fe; color: #0369a1; padding: 4px 10px;
+            border-radius: 20px; font-size: 12px; font-weight: 500;
         }
-        .header-section p { font-size: 15px; color: #64748b; margin-top: 5px; }
-
-        .admin-card {
-            background: #ffffff; border-radius: 24px; border: 1.5px solid rgba(186, 230, 253, 0.8);
-            padding: 30px; box-shadow: 0 10px 35px rgba(14, 165, 233, 0.08); margin-bottom: 25px;
-        }
-
-        .admin-card-title {
-            font-size: 20px; font-weight: 700; color: #0369a1; margin-bottom: 20px;
-            display: flex; align-items: center; gap: 10px;
-        }
-
-        .table-container { width: 100%; overflow-x: auto; }
-        .user-table { width: 100%; border-collapse: collapse; text-align: left; }
-        .user-table th { background: #f0f9ff; color: #0369a1; padding: 14px 18px; font-size: 14px; font-weight: 700; border-bottom: 2px solid #bae6fd; }
-        .user-table td { padding: 14px 18px; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #334155; }
-        .user-table tr:hover { background-color: #fafcff; }
-
-        .badge-registered { background: #e0f2fe; color: #0284c7; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #bae6fd; }
-
-        .restricted-view {
-            text-align: center; padding: 60px 20px; background: #ffffff; border-radius: 24px;
-            border: 1.5px solid #bae6fd; box-shadow: 0 10px 35px rgba(14, 165, 233, 0.08);
-        }
-        .restricted-view h3 { font-size: 24px; color: #ef4444; margin-bottom: 10px; font-weight: 700; }
-        .restricted-view p { color: #64748b; font-size: 15px; margin-bottom: 20px; }
-
-        @media (max-width: 768px) {
-            .container { padding: 0 15px; }
-            .admin-card { padding: 20px; }
-        }
+        .empty-row { text-align: center; color: #94a3b8; padding: 30px; }
     </style>
 </head>
 <body>
 
+    <!-- Navbar ใช้โลโก้ logo-ai.png และปุ่ม 3 ขีดแบบหน้าหลัก -->
     <div class="navbar">
         <div class="nav-left">
-            <button class="menu-btn" id="menuToggle" onclick="playClickSound()">&#9776;</button>
+            <button class="menu-btn" id="menuToggle">☰</button>
             <div class="logo-container">
                 <img src="logo-ai.png" alt="Baby Go AI Logo" class="main-logo-img">
             </div>
         </div>
         <div class="nav-right">
-            <a href="notifications.html" class="icon-btn" title="แจ้งเตือน" onclick="playClickSound()">&#128276;</a>
-            <a href="profile.html" class="icon-btn" title="โปรไฟล์" onclick="playClickSound()">&#128100;</a>
+            <a href="notifications.html" class="icon-btn" title="การแจ้งเตือน">🔔</a>
+            <a href="profile.html" class="icon-btn" id="profileNavBtn" title="โปรไฟล์">👤</a>
         </div>
     </div>
 
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+    <div class="overlay" id="overlay"></div>
     
+    <!-- Sidebar เมนูด้านข้าง -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h3>เมนูหลัก</h3>
-            <button class="close-btn" id="closeMenu" onclick="playClickSound()">&#10005;</button>
+            <button class="close-btn" id="closeMenu">✕</button>
         </div>
         <ul class="sidebar-menu">
-            <li><a href="content.html" onclick="playClickSound()"><span class="menu-icon">🏠</span> หน้าแรก</a></li>
-            <li><a href="development.html" onclick="playClickSound()"><span class="menu-icon">📈</span> พัฒนาการเด็ก</a></li>
-            <li><a href="vaccine.html" onclick="playClickSound()"><span class="menu-icon">💉</span> วัคซีน</a></li>
-            <li><a href="nutrition.html" onclick="playClickSound()"><span class="menu-icon">🍲</span> โภชนาการ</a></li>
-            <li><a href="knowledge.html" onclick="playClickSound()"><span class="menu-icon">📚</span> ความรู้</a></li>
-            <li><a href="ai_assistant.html" onclick="playClickSound()"><span class="menu-icon">🤖</span> AI วิเคราะห์</a></li>
-            <li><a href="community.html" onclick="playClickSound()"><span class="menu-icon">💬</span> ชุมชน</a></li>
-            <li><a href="contact.html" onclick="playClickSound()"><span class="menu-icon">📞</span> ติดต่อเรา</a></li>
-            
-            <li id="adminMenuLink" style="display: none;">
-                <a href="admin.html" class="active" onclick="playClickSound()" style="background: #fdf4ff; color: #d946ef; font-weight: 700;">
-                    <span class="menu-icon">⚙️</span> หลังบ้านแอดมิน
-                </a>
-            </li>
-
-            <li><a href="login.html" onclick="localStorage.removeItem('userEmail'); playClickSound();" style="color: #ef4444;"><span class="menu-icon">🚪</span> ออกจากระบบ</a></li>
+            <li><a href="content.html"><span class="menu-icon">🏠</span> หน้าแรก</a></li>
+            <li><a href="development.html"><span class="menu-icon">📊</span> พัฒนาการเด็ก</a></li>
+            <li><a href="vaccine.html"><span class="menu-icon">💉</span> วัคซีน</a></li>
+            <li><a href="nutrition.html"><span class="menu-icon">🍲</span> โภชนาการ</a></li>
+            <li><a href="knowledge.html"><span class="menu-icon">📚</span> ความรู้</a></li>
+            <li><a href="ai_assistant.html"><span class="menu-icon">🤖</span> AI วิเคราะห์</a></li>
+            <li><a href="community.html"><span class="menu-icon">💬</span> ชุมชน</a></li>
+            <li><a href="contact.html"><span class="menu-icon">📞</span> ติดต่อเรา</a></li>
+            <li><a href="admin.html" style="background: #fdf4ff; color: #d946ef; font-weight: 700;"><span class="menu-icon">⚙️</span> หลังบ้านแอดมิน</a></li>
+            <li><a href="login.html" onclick="localStorage.removeItem('userEmail');" style="color: #ef4444; font-weight: 600;"><span class="menu-icon">🚪</span> ออกจากระบบ</a></li>
         </ul>
     </div>
 
-    <div class="container animated-fade">
-        
-        <div id="adminContentArea" style="display: none;">
-            <div class="header-section">
-                <h2>ระบบบริหารจัดการหลังบ้านแอดมิน</h2>
-                <p>รายชื่อบัญชีผู้ใช้งานทั้งหมดในระบบ</p>
-            </div>
+    <!-- เนื้อหาหลังบ้านแอดมิน -->
+    <div class="main-container">
+        <h1>ระบบบริหารจัดการหลังบ้านแอดมิน</h1>
+        <p class="subtitle">รายชื่อบัญชีผู้ใช้งานทั้งหมดในระบบ</p>
 
-            <div class="admin-card">
-                <div class="admin-card-title">
-                    👥 รายชื่อสมาชิกทั้งหมดในระบบ
-                </div>
-                <div class="table-container">
-                    <table class="user-table">
-                        <thead>
-                            <tr>
-                                <th>ชื่อ-นามสกุล</th>
-                                <th>อีเมลผู้ใช้งาน</th>
-                                <th>สถานะบัญชี</th>
-                            </tr>
-                        </thead>
-                        <tbody id="userTableBody">
-                            <tr><td colspan="3" style="text-align: center; color: #94a3b8; padding: 20px;">กำลังโหลดรายชื่อสมาชิก...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="card">
+            <h3>👥 รายชื่อสมาชิกทั้งหมดในระบบ</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ลำดับ</th>
+                        <th>อีเมลผู้ใช้งาน</th>
+                        <th>สถานะบัญชี</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- ดึงข้อมูลอัตโนมัติ -->
+                </tbody>
+            </table>
         </div>
-
-        <div id="restrictedArea" class="restricted-view" style="display: none;">
-            <h3>⛔ พื้นที่จำกัดเฉพาะแอดมินเท่านั้น</h3>
-            <p>คุณไม่มีสิทธิ์เข้าถึงหน้าบริหารจัดการระบบหลังบ้านนี้ กรุณาเข้าสู่ระบบด้วยบัญชีแอดมินหลัก</p>
-            <a href="content.html" class="action-btn" style="background-color: #0ea5e9; color: white; border: none; padding: 12px 24px; border-radius: 14px; text-decoration: none; font-weight: 600; display: inline-block;" onclick="playClickSound()">กลับสู่หน้าแรก</a>
-        </div>
-
     </div>
 
     <script>
-        let audioCtx = null;
-
-        function playClickSound() {
-            try {
-                if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(900, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.06);
-                
-                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
-                
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.06);
-            } catch (err) {
-                console.log("Audio not supported or blocked", err);
-            }
-        }
-
+        // ควบคุม Sidebar เมนูด้านข้าง
         const menuToggle = document.getElementById('menuToggle');
         const closeMenu = document.getElementById('closeMenu');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
-        function toggleMenu() { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); }
+        
+        function toggleMenu() { 
+            sidebar.classList.toggle('active'); 
+            overlay.classList.toggle('active'); 
+        }
+        
         menuToggle.addEventListener('click', toggleMenu);
         closeMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        const ADMIN_EMAIL = 'babygo.admin@gmail.com';
-    </script>
-
-    <!-- Firebase SDK สำหรับดึงรายชื่อสมาชิกทั้งหมดจาก Firestore แบบ Real-time -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyB2QNZSSDXnIuHTFVFQn8gzx7JBWTRn8i0",
-            authDomain: "babygo-database-c51bb.firebaseapp.com",
-            projectId: "babygo-database-c51bb",
-            storageBucket: "babygo-database-c51bb.firebasestorage.app",
-            messagingSenderId: "288446121324",
-            appId: "1:288446121324:web:d565a8b27893e761a8df49"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const ADMIN_EMAIL = 'babygo.admin@gmail.com';
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                const userEmail = user.email || '';
-                const isAdmin = (userEmail.toLowerCase() === ADMIN_EMAIL);
-
-                if (isAdmin) {
-                    document.getElementById('adminContentArea').style.display = 'block';
-                    document.getElementById('restrictedArea').style.display = 'none';
-                    const adminLink = document.getElementById('adminMenuLink');
-                    if (adminLink) adminLink.style.display = 'block';
-
-                    // ดึงรายชื่อจาก Firestore Collection 'users' แบบเรียลไทม์
-                    onSnapshot(collection(db, "users"), (snapshot) => {
-                        let users = [];
-                        snapshot.forEach((docSnap) => {
-                            users.push({
-                                id: docSnap.id,
-                                ...docSnap.data()
-                            });
-                        });
-                        renderUsersTable(users);
-                    });
-
-                } else {
-                    document.getElementById('adminContentArea').style.display = 'none';
-                    document.getElementById('restrictedArea').style.display = 'block';
+        // จัดการแสดงผลตารางผู้ใช้และโหลดรูปโปรไฟล์
+        window.addEventListener('DOMContentLoaded', () => {
+            const currentEmail = localStorage.getItem('userEmail');
+            if (currentEmail) {
+                const safeKey = currentEmail.replace(/[@.]/g, '_');
+                const savedImg = localStorage.getItem('userProfileImg_' + safeKey);
+                if (savedImg) {
+                    const profileNavBtn = document.getElementById('profileNavBtn');
+                    if (profileNavBtn) {
+                        profileNavBtn.innerHTML = `<img src="${savedImg}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    }
                 }
-            } else {
-                window.location.href = "login.html";
             }
         });
 
-        window.renderUsersTable = function(users) {
-            const tbody = document.getElementById('userTableBody');
-            
-            if (!users || users.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #94a3b8; padding: 20px;">ยังไม่มีข้อมูลสมาชิกใน Firestore (สำหรับบัญชีที่มีอยู่แล้วในระบบ ให้ลองกดออกจากระบบแล้วล็อกอินใหม่อีกครั้ง ระบบจะดึงรายชื่อมาแสดงทันทีครับ)</td></tr>`;
-                return;
-            }
+        const userTableBody = document.getElementById('userTableBody');
+        const currentUser = localStorage.getItem('userEmail');
 
-            let html = '';
-            users.forEach((user) => {
-                html += `
-                    <tr>
-                        <td style="font-weight: 600; color: #0284c7;">${user.name || 'สมาชิกทั่วไป'}</td>
-                        <td>${user.email || '-'}</td>
-                        <td><span class="badge-registered">✔️ สมัครสมาชิกแล้ว</span></td>
-                    </tr>
-                `;
-            });
+        let users = [
+            { email: "babygo.admin@gmail.com", role: "ผู้ดูแลระบบ (Admin)" },
+            { email: "rokitttmamyng@gmail.com", role: "สมาชิกทั่วไป" }
+        ];
 
-            tbody.innerHTML = html;
+        if (currentUser && !users.some(u => u.email === currentUser)) {
+            users.push({ email: currentUser, role: "สมาชิกทั่วไป" });
+        }
+
+        if (users.length > 0) {
+            userTableBody.innerHTML = users.map((user, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><b>${user.email}</b></td>
+                    <td><span class="badge">${user.role}</span></td>
+                </tr>
+            `).join('');
+        } else {
+            userTableBody.innerHTML = `<tr><td colspan="3" class="empty-row">ยังไม่มีข้อมูลสมาชิกในระบบ</td></tr>`;
         }
     </script>
 </body>

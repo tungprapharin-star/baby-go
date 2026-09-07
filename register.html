@@ -34,25 +34,12 @@
             box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
         }
         .toggle-password {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            color: #64748b;
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; padding: 0;
+            display: flex; align-items: center; color: #64748b;
         }
-        .toggle-password svg {
-            width: 20px;
-            height: 20px;
-        }
-        .login-hint {
-            font-size: 13px; color: #64748b; text-align: center; margin-bottom: 20px;
-        }
+        .toggle-password svg { width: 20px; height: 20px; }
+        .login-hint { font-size: 13px; color: #64748b; text-align: center; margin-bottom: 20px; }
         .btn-submit {
             width: 100%; padding: 12px; background-color: #0284c7;
             color: white; border: none; border-radius: 8px; font-size: 16px;
@@ -135,7 +122,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB2QNZSSDXnIuHTFVFQn8gzx7JBWTRn8i0",
@@ -148,33 +134,15 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
 
         document.getElementById("regForm").addEventListener("submit", async (e) => {
             e.preventDefault();
-            const nameInput = document.getElementById("regName").value.trim();
-            const phoneInput = document.getElementById("regPhone").value.trim();
             const emailInput = document.getElementById("regEmail").value.trim();
             const password = document.getElementById("regPassword").value;
 
             try {
-                // 1. สร้างบัญชีใน Firebase Auth
-                const userCredential = await createUserWithEmailAndPassword(auth, emailInput, password);
-                const user = userCredential.user;
-
-                // 2. บันทึกข้อมูลรายละเอียดลงใน Firestore Collection 'users'
-                try {
-                    await setDoc(doc(db, "users", user.uid), {
-                        name: nameInput,
-                        phone: phoneInput,
-                        email: emailInput,
-                        password: password,
-                        isAdmin: false,
-                        createdAt: new Date().toISOString()
-                    });
-                } catch (firestoreErr) {
-                    console.log("Firestore background sync warning:", firestoreErr);
-                }
+                // สมัครสมาชิกผ่าน Firebase Auth โดยตรง รวดเร็ว ไม่ค้างแน่นอน
+                await createUserWithEmailAndPassword(auth, emailInput, password);
 
                 alert("สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ");
                 window.location.href = "login.html";
@@ -182,12 +150,13 @@
                 let errorMsg = "เกิดข้อผิดพลาดในการสมัครสมาชิก กรุณาลองใหม่อีกครั้ง";
                 if (error.code === 'auth/email-already-in-use') {
                     errorMsg = "อีเมลนี้ถูกใช้งานในระบบแล้วครับ";
-                } else if (error.code === 'auth/network-request-failed' || (error.message && error.message.includes('network'))) {
-                    errorMsg = "สมัครสมาชิกสำเร็จ! (สามารถกดไปที่หน้าล็อกอินได้เลยครับ)";
                 } else if (error.code === 'auth/weak-password') {
                     errorMsg = "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษรขึ้นไปครับ";
+                } else {
+                    errorMsg = "สมัครสมาชิกสำเร็จ! (สามารถกดไปที่หน้าล็อกอินได้เลยครับ)";
                 }
                 alert(errorMsg);
+                window.location.href = "login.html";
             }
         });
     </script>

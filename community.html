@@ -103,12 +103,6 @@
         .form-control:focus { border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
         textarea.form-control { resize: vertical; min-height: 120px; }
 
-        .checkbox-container {
-            display: flex; align-items: center; gap: 10px; cursor: pointer;
-            font-size: 14px; color: #0369a1; font-weight: 600; margin-bottom: 20px; user-select: none;
-        }
-        .checkbox-container input { width: 18px; height: 18px; cursor: pointer; accent-color: #0ea5e9; }
-
         .post-list { display: flex; flex-direction: column; gap: 16px; }
         .post-card { 
             background-color: #ffffff; padding: 22px 25px; border-radius: 20px; border: 1.5px solid rgba(186, 230, 253, 0.8);
@@ -118,7 +112,6 @@
         
         .post-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .post-author { font-size: 13px; font-weight: 600; color: #0284c7; display: flex; align-items: center; gap: 6px; }
-        .anonymous-badge { background: #f1f5f9; color: #475569; font-size: 11px; padding: 3px 10px; border-radius: 8px; font-weight: 600; border: 1px solid #e2e8f0; }
         .post-time { font-size: 12px; color: #94a3b8; font-weight: 500; }
 
         .post-title { font-weight: 700; color: #0369a1; font-size: 18px; margin-bottom: 8px; cursor: pointer; }
@@ -220,21 +213,23 @@
             <div id="postModal">
                 <h3 id="modalTitleText" style="color: #0369a1; margin-bottom: 15px; font-weight: 700;">✍️ ตั้งกระทู้ใหม่ในชุมชน</h3>
                 <input type="hidden" id="editPostId" value="">
+                
+                <div class="form-group">
+                    <label>ชื่อผู้โพสต์:</label>
+                    <input type="text" id="postAuthorInput" class="form-control" placeholder="เช่น คุณแม่น้องไทเกอร์">
+                </div>
+
                 <div class="form-group">
                     <label>หัวข้อกระทู้ / คำถาม:</label>
                     <input type="text" id="postTitleInput" class="form-control" placeholder="เช่น ขอคำแนะนำวิธีรับมือลูกงอแงตอนดึกค่ะ">
                 </div>
+                
                 <div class="form-group">
                     <label>เนื้อหาโดยละเอียด:</label>
                     <textarea id="postDescInput" class="form-control" placeholder="พิมพ์เล่าเรื่องราว ปัญหา หรือประสบการณ์ของคุณแม่ตรงนี้..."></textarea>
                 </div>
-                
-                <label class="checkbox-container">
-                    <input type="checkbox" id="anonymousCheckbox"> 
-                    🔒 โพสต์แบบไม่เปิดเผยตัวตน (แสดงเป็น "คุณแม่นิรนาม")
-                </label>
 
-                <div style="display: flex; gap: 10px;">
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button class="action-btn" style="background-color: #10b981; margin:0;" onclick="playClickSound(); savePostData()">ยืนยันการโพสต์</button>
                     <button class="action-btn" style="background-color: #94a3b8; margin:0;" onclick="playClickSound(); togglePostModal()">ยกเลิก</button>
                 </div>
@@ -328,7 +323,6 @@
                         id: "post_1",
                         author: "คุณแม่น้องไทเกอร์",
                         userEmail: "default@babygo.com",
-                        isAnonymous: false,
                         title: "แชร์ไอเดียเมนูลับทำให้น้องยอมกินผักค่ะ!",
                         desc: "พอลองเอาแครอทไปต้มแล้วปั้นผสมกับข้าวตุ๋น ปั้นเป็นก้อนเล็กๆ น้องหยิบกินเองสนุกมาก แม่ๆ บ้านไหนลองทำดูนะคะ ได้ผลดีมากเลยค่ะ",
                         time: "3 ชั่วโมงที่แล้ว",
@@ -368,7 +362,7 @@
         }
 
         window.updateMyPostsBadge = function() {
-            const myCount = allPostsData.filter(p => p.userEmail === currentEmail && !p.isAnonymous).length;
+            const myCount = allPostsData.filter(p => p.userEmail === currentEmail).length;
             document.getElementById('myPostsCountBadge').innerText = myCount;
         }
 
@@ -388,7 +382,7 @@
             }
             
             let targetList = isMyList 
-                ? allPostsData.filter(p => p.userEmail === currentEmail && !p.isAnonymous)
+                ? allPostsData.filter(p => p.userEmail === currentEmail)
                 : allPostsData;
 
             if (targetList.length === 0) {
@@ -398,8 +392,8 @@
             }
 
             targetList.forEach((post) => {
-                let authorDisplay = post.isAnonymous ? `<span class="anonymous-badge">🕵️‍♀️ คุณแม่นิรนาม</span>` : `👤 ${post.author}`;
-                let isOwner = (post.userEmail === currentEmail && !post.isAnonymous);
+                let authorDisplay = `👤 ${post.author || 'คุณแม่มือใหม่'}`;
+                let isOwner = (post.userEmail === currentEmail);
                 let canDelete = isOwner || isAdmin;
                 let canEdit = isOwner;
                 
@@ -461,9 +455,9 @@
             } else {
                 document.getElementById('modalTitleText').innerText = '✍️ ตั้งกระทู้ใหม่ในชุมชน';
                 document.getElementById('editPostId').value = '';
+                document.getElementById('postAuthorInput').value = currentUsername;
                 document.getElementById('postTitleInput').value = '';
                 document.getElementById('postDescInput').value = '';
-                document.getElementById('anonymousCheckbox').checked = false;
                 modal.style.display = 'block';
                 modal.scrollIntoView({ behavior: 'smooth' });
             }
@@ -471,9 +465,9 @@
 
         window.savePostData = function() {
             const editKey = document.getElementById('editPostId').value;
+            const author = document.getElementById('postAuthorInput').value.trim() || currentUsername;
             const title = document.getElementById('postTitleInput').value.trim();
             const desc = document.getElementById('postDescInput').value.trim();
-            const isAnonymous = document.getElementById('anonymousCheckbox').checked;
 
             if (!title || !desc) {
                 alert('กรุณากรอกหัวข้อและเนื้อหากระทู้ให้ครบถ้วนครับ!');
@@ -487,18 +481,17 @@
                         alert('คุณไม่มีสิทธิ์แก้ไขกระทู้นี้ครับ!');
                         return;
                     }
+                    set(ref(db, `communityPosts/${editKey}/author`), author);
                     set(ref(db, `communityPosts/${editKey}/title`), title);
                     set(ref(db, `communityPosts/${editKey}/desc`), desc);
-                    set(ref(db, `communityPosts/${editKey}/isAnonymous`), isAnonymous);
                 }
                 alert('แก้ไขกระทู้สำเร็จเรียบร้อยแล้ว!');
             } else {
                 const newPostRef = push(ref(db, 'communityPosts'));
                 const newPostData = {
                     id: "post_" + Date.now(),
-                    author: currentUsername,
+                    author: author,
                     userEmail: currentEmail,
-                    isAnonymous: isAnonymous,
                     title: title,
                     desc: desc,
                     time: "เมื่อสักครู่นี้",
@@ -525,9 +518,9 @@
 
             document.getElementById('modalTitleText').innerText = '✏️ แก้ไขกระทู้ของคุณ';
             document.getElementById('editPostId').value = post.firebaseKey;
+            document.getElementById('postAuthorInput').value = post.author || currentUsername;
             document.getElementById('postTitleInput').value = post.title;
             document.getElementById('postDescInput').value = post.desc;
-            document.getElementById('anonymousCheckbox').checked = post.isAnonymous;
 
             const modal = document.getElementById('postModal');
             modal.style.display = 'block';
@@ -563,7 +556,7 @@
             const post = allPostsData.find(p => p.firebaseKey === firebaseKey);
             if (!post) return;
 
-            let authorDisplay = post.isAnonymous ? `<span class="anonymous-badge">🕵️‍♀️ คุณแม่นิรนาม</span>` : `👤 ${post.author}`;
+            let authorDisplay = `👤 ${post.author || 'คุณแม่มือใหม่'}`;
 
             let commentsHtml = '';
             if (!post.comments || post.comments.length === 0) {
