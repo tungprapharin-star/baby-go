@@ -9,7 +9,6 @@
         * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
         body { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%); color: #333333; font-size: 15px; min-height: 100vh; overflow-x: hidden; }
         
-        /* Navbar ถอดแบบจากหน้า content.html เป๊ะๆ */
         .navbar {
             background-color: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -32,7 +31,6 @@
         .icon-btn:hover { background: #e0f2fe; transform: scale(1.1); }
         .icon-btn:active { transform: scale(0.95); }
 
-        /* Sidebar สไลด์เมนูด้านข้าง */
         .sidebar {
             position: fixed; top: 0; left: -300px; width: 300px; height: 100vh;
             background-color: #ffffff; 
@@ -53,7 +51,6 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: none; z-index: 150; backdrop-filter: blur(4px); transition: opacity 0.3s; }
         .overlay.active { display: block; }
 
-        /* Container เนื้อหาหลักหลังบ้าน */
         .main-container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
         h1 { text-align: center; color: #0369a1; font-size: 24px; margin-bottom: 5px; }
         p.subtitle { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 30px; }
@@ -75,12 +72,14 @@
             background-color: #e0f2fe; color: #0369a1; padding: 4px 10px;
             border-radius: 20px; font-size: 12px; font-weight: 500;
         }
+        .badge-admin {
+            background-color: #fdf4ff; color: #d946ef;
+        }
         .empty-row { text-align: center; color: #94a3b8; padding: 30px; }
     </style>
 </head>
 <body>
 
-    <!-- Navbar ใช้โลโก้ logo-ai.png และปุ่ม 3 ขีดแบบหน้าหลัก -->
     <div class="navbar">
         <div class="nav-left">
             <button class="menu-btn" id="menuToggle">☰</button>
@@ -96,7 +95,6 @@
 
     <div class="overlay" id="overlay"></div>
     
-    <!-- Sidebar เมนูด้านข้าง -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h3>เมนูหลัก</h3>
@@ -107,7 +105,7 @@
             <li><a href="development.html"><span class="menu-icon">📊</span> พัฒนาการเด็ก</a></li>
             <li><a href="vaccine.html"><span class="menu-icon">💉</span> วัคซีน</a></li>
             <li><a href="nutrition.html"><span class="menu-icon">🍲</span> โภชนาการ</a></li>
-            <li><a href="knowledge.html"><span class="menu-icon">📚</span> ความรู้</a></li>
+            <li><a href="knowledge.html"><span class="menu-icon">📚</span>ความรู้</a></li>
             <li><a href="ai_assistant.html"><span class="menu-icon">🤖</span> AI วิเคราะห์</a></li>
             <li><a href="community.html"><span class="menu-icon">💬</span> ชุมชน</a></li>
             <li><a href="contact.html"><span class="menu-icon">📞</span> ติดต่อเรา</a></li>
@@ -116,7 +114,6 @@
         </ul>
     </div>
 
-    <!-- เนื้อหาหลังบ้านแอดมิน -->
     <div class="main-container">
         <h1>ระบบบริหารจัดการหลังบ้านแอดมิน</h1>
         <p class="subtitle">รายชื่อบัญชีผู้ใช้งานทั้งหมดในระบบ</p>
@@ -132,14 +129,13 @@
                     </tr>
                 </thead>
                 <tbody id="userTableBody">
-                    <!-- ดึงข้อมูลอัตโนมัติ -->
+                    <!-- โหลดข้อมูลอัตโนมัติ -->
                 </tbody>
             </table>
         </div>
     </div>
 
     <script>
-        // ควบคุม Sidebar เมนูด้านข้าง
         const menuToggle = document.getElementById('menuToggle');
         const closeMenu = document.getElementById('closeMenu');
         const sidebar = document.getElementById('sidebar');
@@ -154,9 +150,10 @@
         closeMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        // จัดการแสดงผลตารางผู้ใช้และโหลดรูปโปรไฟล์
         window.addEventListener('DOMContentLoaded', () => {
             const currentEmail = localStorage.getItem('userEmail');
+            
+            // 1. จัดการโหลดรูปโปรไฟล์
             if (currentEmail) {
                 const safeKey = currentEmail.replace(/[@.]/g, '_');
                 const savedImg = localStorage.getItem('userProfileImg_' + safeKey);
@@ -167,31 +164,42 @@
                     }
                 }
             }
+
+            // 2. จัดการดึงและบันทึกรายชื่อผู้ใช้งานทั้งหมดลง LocalStorage กลาง
+            let allUsers = JSON.parse(localStorage.getItem('babygo_all_users')) || [
+                { email: "babygo.admin@gmail.com", role: "ผู้ดูแลระบบ (Admin)" },
+                { email: "rokitttmamyng@gmail.com", role: "สมาชิกทั่วไป" }
+            ];
+
+            // ถ้ามีผู้ใช้ล็อกอินเข้ามา ให้เช็คว่ามีในรายชื่อหรือยัง ถ้ายังให้เพิ่มเข้าไปอัตโนมัติ
+            if (currentEmail) {
+                const exists = allUsers.some(u => u.email.toLowerCase() === currentEmail.toLowerCase());
+                if (!exists) {
+                    const roleName = currentEmail.toLowerCase() === 'babygo.admin@gmail.com' ? "ผู้ดูแลระบบ (Admin)" : "สมาชิกทั่วไป";
+                    allUsers.push({ email: currentEmail, role: roleName });
+                    localStorage.setItem('babygo_all_users', JSON.stringify(allUsers));
+                }
+            }
+
+            // 3. แสดงผลลงในตาราง HTML
+            const userTableBody = document.getElementById('userTableBody');
+            if (allUsers.length > 0) {
+                userTableBody.innerHTML = allUsers.map((user, index) => {
+                    const isAdmin = user.email.toLowerCase() === 'babygo.admin@gmail.com' || user.role.includes('Admin');
+                    const badgeClass = isAdmin ? 'badge badge-admin' : 'badge';
+                    const roleText = isAdmin ? 'ผู้ดูแลระบบ (Admin)' : 'สมาชิกทั่วไป';
+                    return `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td><b>${user.email}</b></td>
+                            <td><span class="${badgeClass}">${roleText}</span></td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                userTableBody.innerHTML = `<tr><td colspan="3" class="empty-row">ยังไม่มีข้อมูลสมาชิกในระบบ</td></tr>`;
+            }
         });
-
-        const userTableBody = document.getElementById('userTableBody');
-        const currentUser = localStorage.getItem('userEmail');
-
-        let users = [
-            { email: "babygo.admin@gmail.com", role: "ผู้ดูแลระบบ (Admin)" },
-            { email: "rokitttmamyng@gmail.com", role: "สมาชิกทั่วไป" }
-        ];
-
-        if (currentUser && !users.some(u => u.email === currentUser)) {
-            users.push({ email: currentUser, role: "สมาชิกทั่วไป" });
-        }
-
-        if (users.length > 0) {
-            userTableBody.innerHTML = users.map((user, index) => `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td><b>${user.email}</b></td>
-                    <td><span class="badge">${user.role}</span></td>
-                </tr>
-            `).join('');
-        } else {
-            userTableBody.innerHTML = `<tr><td colspan="3" class="empty-row">ยังไม่มีข้อมูลสมาชิกในระบบ</td></tr>`;
-        }
     </script>
 </body>
 </html>
