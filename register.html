@@ -144,10 +144,10 @@
                 // สมัครสมาชิกผ่าน Firebase Auth โดยตรง รวดเร็ว ไม่ค้างแน่นอน
                 await createUserWithEmailAndPassword(auth, emailInput, password);
 
-                alert("สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ");
+                alert("สมัครสมาชิกสำเร็จ!ครับ กรุณาเข้าสู่ระบบ");
                 window.location.href = "login.html";
             } catch (error) {
-                let errorMsg = "เกิดข้อผิดพลาดในการสมัครสมาชิก กรุณาลองใหม่อีกครั้ง";
+                let errorMsg = "เกิดข้อผิดพลาดในการสมัครสมาชิกครับ กรุณาลองใหม่อีกครั้ง";
                 if (error.code === 'auth/email-already-in-use') {
                     errorMsg = "อีเมลนี้ถูกใช้งานในระบบแล้วครับ";
                 } else if (error.code === 'auth/weak-password') {
